@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button @click="fetcdhData">Get JSON!</button>
+    <button @click="fetcdhDcata">Get JSON!</button>
     <p v-if="message">{{ message }}</p>
   </div>
 </template>
