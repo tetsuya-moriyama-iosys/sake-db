@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button @click="fetchData">Get JSON2</button>
+    <button @click="fetcseeddrhDcsata">Get JSON!</button>
     <p v-if="message">{{ message }}</p>
   </div>
 </template>
@@ -16,7 +16,9 @@ export default defineComponent({
 
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/getById/66a1dfb589429cbd8dfefaf1');
+        const response = await axios.get(
+          'http://localhost:8080/getById/66a1dfb589429cbd8dfefaf1',
+        );
         message.value = response.data.message;
       } catch (error) {
         console.error('Error fetching data:', error);
