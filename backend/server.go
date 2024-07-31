@@ -5,14 +5,13 @@ import (
     "log"
     "os"
 
-    "github.com/gin-gonic/gin"
     "go.mongodb.org/mongo-driver/mongo"
     "go.mongodb.org/mongo-driver/mongo/options"
     "github.com/99designs/gqlgen/graphql/handler"
-    "github.com/99designs/gqlgen/graphql/playground"
     "backend/graph"
     "backend/graph/generated"
     "github.com/joho/godotenv"
+	"backend/router"
 )
 
 func main() {
@@ -47,14 +46,10 @@ func main() {
 
     srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
 
-    r := gin.Default()
-    r.POST("/query", func(c *gin.Context) {
-        srv.ServeHTTP(c.Writer, c.Request)
-    })
-    r.GET("/", func(c *gin.Context) {
-        playground.Handler("GraphQL", "/query").ServeHTTP(c.Writer, c.Request)
-    })
+	//ルーター作成
+	r:=router.Router(srv)
 
+   
     log.Println("connect to http://localhost:8080/ for GraphQL playground")
     log.Fatal(r.Run(":8080"))
 }
