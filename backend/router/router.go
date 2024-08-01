@@ -39,14 +39,21 @@ func Router(srv *handler.Server) *gin.Engine {
     }
 
     r.Use(cors.New(config))
-	
+    
+	// ユーザー登録とログインのエンドポイント
+    r.POST("/register", func(c *gin.Context) {
+        Register(c, db)
+    })
+    r.POST("/login", func(c *gin.Context) {
+        Login(c, db)
+    })
 
-    r.POST("/query", func(c *gin.Context) {
-        srv.ServeHTTP(c.Writer, c.Request)
-    })
+    // r.POST("/query", func(c *gin.Context) {
+    //     srv.ServeHTTP(c.Writer, c.Request)
+    // })
 	
-    r.GET("/", func(c *gin.Context) {
-        playground.Handler("GraphQL", "/query").ServeHTTP(c.Writer, c.Request)
-    })
+    // r.GET("/", func(c *gin.Context) {
+    //     playground.Handler("GraphQL", "/query").ServeHTTP(c.Writer, c.Request)
+    // })
     return r
 }
