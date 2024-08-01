@@ -16,5 +16,8 @@
   },
   "lint-staged": {
     "*.{js,vue,ts}": "eslint"
+  },
+  "dependencies": {
+    "apollo-link-http": "^1.5.17"
   }
 }

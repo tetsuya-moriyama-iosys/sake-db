@@ -1,5 +1,5 @@
-import Index from '../views/IndexView.vue';
-import NestComponent from '../views/NestComponent.vue';
+import AuthRegister from '@/views/Auth/AuthIndex.vue';
+import NestComponent from '@/views/NestComponent.vue';
 
 const AuthRouter = {
   path: '/auth',
@@ -7,9 +7,9 @@ const AuthRouter = {
   component: NestComponent, // 親ルート用の空コンポーネント
   children: [
     {
-      path: 'team',
-      name: 'AboutTeam',
-      component: Index,
+      path: 'register',
+      name: 'AuthRegister',
+      component: AuthRegister,
     },
   ],
 };

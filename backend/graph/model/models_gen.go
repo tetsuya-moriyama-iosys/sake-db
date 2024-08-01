@@ -5,9 +5,5 @@ package model
 type Mutation struct {
 }
 
-type NewMessage struct {
-	Message string `json:"message"`
-}
-
 type Query struct {
 }
