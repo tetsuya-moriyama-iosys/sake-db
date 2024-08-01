@@ -8,7 +8,7 @@ import (
     "go.mongodb.org/mongo-driver/mongo"
     "go.mongodb.org/mongo-driver/mongo/options"
     "github.com/99designs/gqlgen/graphql/handler"
-    "backend/graph"
+    "backend/graph/resolver"
     "backend/graph/generated"
     "github.com/joho/godotenv"
 	"backend/router"
@@ -40,9 +40,11 @@ func main() {
         log.Fatal(err)
     }
 
-    collection := client.Database("helloworld").Collection("messages")
+	//ハローワールドDBへのインスタンスを生成
+    db := client.Database("helloworld")
 
-    resolver := &graph.Resolver{Collection: collection}
+	//リゾルバを設定
+    resolver := &resolver.Resolver{DB: db}
 
     srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
 

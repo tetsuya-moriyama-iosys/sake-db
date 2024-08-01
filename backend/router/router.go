@@ -16,13 +16,13 @@ func Router(srv *handler.Server) *gin.Engine {
 	// .envファイルを読み込みます
     err := godotenv.Load()
     if err != nil {
-        log.Fatal("Error loading .env file")
+        log.Fatal("Error: loading .env file")
     }
 
     // 環境変数からMongoDB URIを取得します
     frontURI := os.Getenv("FRONT_URI")
     if frontURI == "" {
-        log.Fatal("FRONT_URI environment variable is required")
+        log.Fatal("Error: FRONT_URI environment variable is required")
     }
 
     r := gin.Default()
@@ -42,6 +42,7 @@ func Router(srv *handler.Server) *gin.Engine {
     r.POST("/query", func(c *gin.Context) {
         srv.ServeHTTP(c.Writer, c.Request)
     })
+	
     r.GET("/", func(c *gin.Context) {
         playground.Handler("GraphQL", "/query").ServeHTTP(c.Writer, c.Request)
     })

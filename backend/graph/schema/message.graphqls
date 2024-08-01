@@ -7,14 +7,10 @@ type Message {
   message: String!
 }
 
-type Query {
+extend type Query {
   messages: [Message!]!
 }
 
-input NewMessage {
-  message: String!
-}
-
-type Mutation {
-  createMessage(input: NewMessage!): Message!
+extend type Mutation {
+  createMessage(input: String!): Message!
 }
