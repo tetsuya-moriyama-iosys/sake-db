@@ -11,6 +11,7 @@ import (
     "github.com/99designs/gqlgen/graphql/playground"
 )
 
+
 // NewRouter creates a new Gin router with GraphQL and Playground routes.
 func Router(srv *handler.Server) *gin.Engine {
 	// .envファイルを読み込みます
@@ -38,6 +39,7 @@ func Router(srv *handler.Server) *gin.Engine {
     }
 
     r.Use(cors.New(config))
+	
 
     r.POST("/query", func(c *gin.Context) {
         srv.ServeHTTP(c.Writer, c.Request)

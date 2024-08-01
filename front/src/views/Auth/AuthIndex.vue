@@ -1,104 +1,56 @@
 <template>
   <div>
-    <h2>Register</h2>
-    <form @submit.prevent="registerUser">
+    <h2>axios新規登録</h2>
+    <form @submit.prevent="register">
       <div>
-        <label for="username">Username:</label>
-        <input type="text" v-model="username" id="username" required />
+        <label for="name">Name:</label>
+        <input v-model="name" type="text" id="name" required />
       </div>
       <div>
         <label for="email">Email:</label>
-        <input type="email" v-model="email" id="email" required />
+        <input v-model="email" type="email" id="email" required />
       </div>
       <div>
         <label for="password">Password:</label>
-        <input type="password" v-model="password" id="password" required />
+        <input v-model="password" type="password" id="password" required />
       </div>
       <button type="submit">Register</button>
     </form>
-    <div v-if="error">{{ error }}</div>
-    <div v-if="user">User registered successfully: {{ user.username }}</div>
+    <p v-if="message">{{ message }}</p>
   </div>
 </template>
 
 <script lang="ts">
-import {
-  ApolloClient,
-  InMemoryCache,
-  gql,
-  createHttpLink,
-} from '@apollo/client/core';
-import { defineComponent, ref } from 'vue';
+import axios from 'axios';
 
-const httpLink = createHttpLink({
-  uri: 'http://localhost:8080/query',
-});
-
-const client = new ApolloClient({
-  link: httpLink,
-  cache: new InMemoryCache(),
-});
-
-export async function register(
-  username: string,
-  email: string,
-  password: string,
-) {
-  const REGISTER_MUTATION = gql`
-    mutation Register($username: String!, $email: String!, $password: String!) {
-      register(username: $username, email: $email, password: $password) {
-        id
-        username
-        email
-      }
-    }
-  `;
-
-  const result = await client.mutate({
-    mutation: REGISTER_MUTATION,
-    variables: { username, email, password },
-  });
-
-  return result.data.register;
-}
-
-export default defineComponent({
-  name: 'AuthRegister',
-  setup() {
-    const username = ref<string>('');
-    const email = ref<string>('');
-    const password = ref<string>('');
-    const user = ref<{ id: string; username: string; email: string } | null>(
-      null,
-    );
-    const error = ref<string | null>(null);
-
-    const registerUser = async () => {
-      try {
-        const registeredUser = await register(
-          username.value,
-          email.value,
-          password.value,
-        );
-        if (registeredUser) {
-          user.value = registeredUser;
-          error.value = null;
-        } else {
-          error.value = 'Registration failed';
-        }
-      } catch (err) {
-        error.value = 'Registration failed';
-      }
-    };
-
+export default {
+  data() {
     return {
-      username,
-      email,
-      password,
-      user,
-      error,
-      registerUser,
+      name: '' as string,
+      email: '' as string,
+      password: '' as string,
+      message: null as string | null,
     };
   },
-});
+  methods: {
+    async register() {
+      try {
+        const response = await axios.post('http://localhost:8080/register', {
+          name: this.name,
+          email: this.email,
+          password: this.password,
+        });
+        this.message = response.data.message;
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          this.message =
+            'Registration failed: ' +
+            (error.response?.data.error || error.message);
+        } else {
+          this.message = 'Registration failed: An unknown error occurred';
+        }
+      }
+    },
+  },
+};
 </script>

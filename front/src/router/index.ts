@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-//import Index from '@/views/IndexView.vue';
-import AuthRegister from '@/views/Auth/AuthIndex.vue';
+import Index from '@/views/IndexView.vue';
 import AuthRouter from '@/router/auth';
 
 const subRoutes = [AuthRouter];
@@ -12,7 +11,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'indexView',
-      component: AuthRegister,
+      component: Index,
     },
   ],
 });
