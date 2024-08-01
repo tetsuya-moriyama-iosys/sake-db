@@ -8,8 +8,11 @@ import (
 	"github.com/gin-contrib/cors"
     "github.com/gin-gonic/gin"
     "github.com/99designs/gqlgen/graphql/handler"
-    "github.com/99designs/gqlgen/graphql/playground"
+
+    "backend/api/auth/register"
+    "backend/api/auth/login"
 )
+
 
 // NewRouter creates a new Gin router with GraphQL and Playground routes.
 func Router(srv *handler.Server) *gin.Engine {
@@ -39,12 +42,20 @@ func Router(srv *handler.Server) *gin.Engine {
 
     r.Use(cors.New(config))
 
-    r.POST("/query", func(c *gin.Context) {
-        srv.ServeHTTP(c.Writer, c.Request)
+	// ユーザー登録とログインのエンドポイント
+    r.POST("/register", func(c *gin.Context) {
+        register.Register(c)
     })
+    r.POST("/login", func(c *gin.Context) {
+        login.Login(c)
+    })
+
+    // r.POST("/query", func(c *gin.Context) {
+    //     srv.ServeHTTP(c.Writer, c.Request)
+    // })
 	
-    r.GET("/", func(c *gin.Context) {
-        playground.Handler("GraphQL", "/query").ServeHTTP(c.Writer, c.Request)
-    })
+    // r.GET("/", func(c *gin.Context) {
+    //     playground.Handler("GraphQL", "/query").ServeHTTP(c.Writer, c.Request)
+    // })
     return r
 }
