@@ -11,9 +11,13 @@ import(
     "golang.org/x/crypto/bcrypt"
 	
     "go.mongodb.org/mongo-driver/bson"
+	"backend/db"
 )
 
-func Login(c *gin.Context, db *mongo.Database) {
+func Login(c *gin.Context) {
+	//データベースに接続
+	db.ConnectDB()
+	
     var user model.User
     var foundUser model.User
 
@@ -25,7 +29,7 @@ func Login(c *gin.Context, db *mongo.Database) {
     ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
     defer cancel()
 
-    err := db.Collection("users").FindOne(ctx, bson.M{"email": user.Email}).Decode(&foundUser)
+    err := db.GetCollection("users").FindOne(ctx, bson.M{"email": user.Email}).Decode(&foundUser)
     if err != nil {
         c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
         return

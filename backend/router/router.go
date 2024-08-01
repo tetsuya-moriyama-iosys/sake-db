@@ -8,7 +8,9 @@ import (
 	"github.com/gin-contrib/cors"
     "github.com/gin-gonic/gin"
     "github.com/99designs/gqlgen/graphql/handler"
-    "github.com/99designs/gqlgen/graphql/playground"
+
+    "backend/api/auth/register"
+    "backend/api/auth/login"
 )
 
 
@@ -39,13 +41,13 @@ func Router(srv *handler.Server) *gin.Engine {
     }
 
     r.Use(cors.New(config))
-    
+
 	// ユーザー登録とログインのエンドポイント
     r.POST("/register", func(c *gin.Context) {
-        Register(c, db)
+        register.Register(c)
     })
     r.POST("/login", func(c *gin.Context) {
-        Login(c, db)
+        login.Login(c)
     })
 
     // r.POST("/query", func(c *gin.Context) {

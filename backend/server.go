@@ -15,6 +15,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// func connectDB()db *mongo.Database{
+
+// }
+
 func main() {
 	// .envファイルを読み込みます
 	err := godotenv.Load()

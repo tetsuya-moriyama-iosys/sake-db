@@ -8,12 +8,15 @@ import(
 	"net/http"
 	"github.com/gin-gonic/gin"
 
-    "go.mongodb.org/mongo-driver/mongo"
     "golang.org/x/crypto/bcrypt"
     "go.mongodb.org/mongo-driver/bson/primitive"
+	"backend/db"
 )
 
-func Register(c *gin.Context, db *mongo.Database) {
+func Register(c *gin.Context) {
+	//データベースに接続
+	db.ConnectDB()
+
     // フロントエンドからのデータを受け取るための一時構造体
     var requestData struct {
         Name     string `json:"name"`
@@ -27,7 +30,7 @@ func Register(c *gin.Context, db *mongo.Database) {
     }
 
     // デバッグ用に受信データをログ出力
-	log.Println("Received user data: %+v\n", requestData)
+	log.Printf("Received user data: %+v\n", requestData)
 
     hashedPassword, err := bcrypt.GenerateFromPassword([]byte(requestData.Password), bcrypt.DefaultCost)
     if err != nil {
@@ -46,7 +49,7 @@ func Register(c *gin.Context, db *mongo.Database) {
     ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
     defer cancel()
 
-    _, err = db.Collection("users").InsertOne(ctx, user)
+    _, err = db.GetCollection("users").InsertOne(ctx, user)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while creating user"})
         return
