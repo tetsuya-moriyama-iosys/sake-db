@@ -314,7 +314,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../schema/message.graphqls", Input: `# GraphQL schema example
+	{Name: "../schema/messages.graphqls", Input: `# GraphQL schema example
 #
 # https://gqlgen.com/getting-started/
 
@@ -337,7 +337,7 @@ extend type Mutation {
 type Query
 
 type Mutation`, BuiltIn: false},
-	{Name: "../schema/user.graphqls", Input: `type User {
+	{Name: "../schema/users.graphqls", Input: `type User {
   id: ID!
   username: String!
   email: String!

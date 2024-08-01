@@ -5,6 +5,6 @@ import (
 )
 
 type Resolver struct {
-    //Collection *mongo.Collection
     DB *mongo.Database
+    SecretKey string
 }
