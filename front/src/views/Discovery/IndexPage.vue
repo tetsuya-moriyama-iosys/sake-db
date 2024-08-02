@@ -1,6 +1,5 @@
-<template>
-  <header>ヘッダ</header>
-</template>
+<!--トップページ-->
+<template>IndexPage</template>
 
 <script setup lang="ts"></script>
 

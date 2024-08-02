@@ -1,8 +1,8 @@
 /**
  * メイン画面(データベース検索部分)のルーター
  */
-import Layout from '@/views/Main/Layouts/BaseLayout.vue';
-import IndexPage from '@/views/Main/IndexPage.vue';
+import Layout from '@/views/Discovery/Layouts/BaseLayout.vue';
+import IndexPage from '@/views/Discovery/IndexPage.vue';
 
 const MainRouter = {
   path: '/',
