@@ -30,10 +30,10 @@ const options = [
     label: MasterCategoryLabel[MasterCategory.LIQUEUR],
     value: MasterCategory.LIQUEUR,
   },
-  {
-    label: MasterCategoryLabel[MasterCategory.OTHER],
-    value: MasterCategory.OTHER,
-  },
+  // {
+  //   label: MasterCategoryLabel[MasterCategory.OTHER],
+  //   value: MasterCategory.OTHER,
+  // },
 ];
 
 //オブジェクトを作らないとバインディングされないので詰め替える

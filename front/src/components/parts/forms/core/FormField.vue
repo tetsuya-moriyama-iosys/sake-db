@@ -21,6 +21,7 @@ export interface FormFieldProps {
   as?: 'input' | 'textarea' | 'select'; //Fieldのas属性
   type?:
     | 'text'
+    | 'hidden'
     | 'email'
     | 'password'
     | 'number'

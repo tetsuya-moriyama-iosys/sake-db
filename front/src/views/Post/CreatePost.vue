@@ -8,6 +8,7 @@
     />
     <FormField :name="FormKeys.TITLE" label="名前" />
     <FormField :name="FormKeys.TITLE" label="説明" />
+    <CategorySelect name="category2" />
     <button type="submit">Submit</button>
   </VForm>
 </template>
@@ -21,6 +22,7 @@ import {
 } from '@/forms/Post/CreatePostForm';
 import MasterCategorySelect from '@/components/blocks/common/forms/MasterCategorySelect.vue';
 import FormField from '@/components/parts/forms/core/FormField.vue';
+import CategorySelect from '@/components/blocks/common/forms/advance/CategorySelect.vue';
 
 useForm({
   initialValues: initialValues,

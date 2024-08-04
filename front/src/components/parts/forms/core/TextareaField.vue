@@ -1,4 +1,4 @@
-<!--汎用セレクトボックス-->
+<!--汎用テキストエリア-->
 <template>
   <FormField v-bind="props" as="textarea" />
 </template>
@@ -10,8 +10,8 @@ import FormField, {
 
 interface TextareaProps {}
 
-export type SelectFieldProps = TextareaProps & Omit<FormFieldProps, 'as'>;
-const props = defineProps<SelectFieldProps>();
+export type TextareaFieldProps = TextareaProps & Omit<FormFieldProps, 'as'>;
+const props = defineProps<TextareaFieldProps>();
 </script>
 
 <style scoped></style>
