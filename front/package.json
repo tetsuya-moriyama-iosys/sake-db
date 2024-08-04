@@ -16,13 +16,16 @@
   },
   "dependencies": {
     "@apollo/client": "^3.11.1",
+    "@vee-validate/rules": "^4.13.2",
     "@vue/apollo-composable": "^4.0.2",
     "@vue/apollo-option": "^4.0.0",
     "axios": "^1.7.2",
     "graphql": "^16.9.0",
     "pinia": "^2.1.7",
+    "vee-validate": "^4.13.2",
     "vue": "^3.4.29",
-    "vue-router": "^4.3.3"
+    "vue-router": "^4.3.3",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",

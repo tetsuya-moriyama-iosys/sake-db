@@ -1,5 +1,10 @@
 <template>
-  <header class="sticky">酒データベース(仮称)</header>
+  <header class="sticky">
+    <main class="flex">
+      <p class="block">酒データベース(仮称)</p>
+      <router-link to="/post">投稿する</router-link>
+    </main>
+  </header>
 </template>
 
 <script setup lang="ts"></script>
