@@ -13,8 +13,11 @@ export const FormKeys = {
   DESCRIPTION: 'description', //説明
 } as const;
 
-export const initialValues = {};
+export const initialValues = {
+  [FormKeys.TITLE]: '初期タイトル',
+  [FormKeys.CATEGORY]: 11,
+};
 
 export const validationSchema = {
-  [FormKeys.TITLE]: string().max(3).required(),
+  [FormKeys.TITLE]: string().max(5).required(),
 };

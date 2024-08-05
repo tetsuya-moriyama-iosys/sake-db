@@ -4,7 +4,11 @@
       {{ label }}
     </div>
     <div>
-      <Field v-bind="props"><slot></slot></Field>
+      <Field v-if="!Boolean($slots.default)" v-bind="props" />
+      <!--セレクトボックス用(inputはslotがあると正常に描画されない)-->
+      <Field v-if="$slots.default" v-bind="props">
+        <slot></slot>
+      </Field>
     </div>
     <div class="error">
       <ErrorMessage :name="props.name" />

@@ -1,14 +1,22 @@
 <template>
   <div>新規投稿</div>
   <VForm @submit="onSubmit" :validation-schema="validationSchema">
-    <MasterCategorySelect
+    <CategorySelect
       :name="FormKeys.CATEGORY"
-      :is-display-empty="true"
-      :is-required="true"
+      :initial-id="values[FormKeys.CATEGORY]"
     />
     <FormField :name="FormKeys.TITLE" label="名前" />
-    <FormField :name="FormKeys.TITLE" label="説明" />
-    <CategorySelect name="category2" />
+    <FormField :name="FormKeys.DESCRIPTION" label="説明" />
+    <SelectField
+      name="test"
+      label="説明2"
+      :options="[
+        {
+          value: '1',
+          label: 'test1',
+        },
+      ]"
+    />
     <button type="submit">Submit</button>
   </VForm>
 </template>
@@ -20,18 +28,17 @@ import {
   initialValues,
   validationSchema,
 } from '@/forms/Post/CreatePostForm';
-import MasterCategorySelect from '@/components/blocks/common/forms/MasterCategorySelect.vue';
 import FormField from '@/components/parts/forms/core/FormField.vue';
 import CategorySelect from '@/components/blocks/common/forms/advance/CategorySelect.vue';
+import SelectField from '@/components/parts/forms/core/SelectField.vue';
 
-useForm({
+const { values } = useForm({
   initialValues: initialValues,
   validationSchema: validationSchema,
 });
 
 const onSubmit = () => {
-  //console.log(values);
-  // resetForm();
+  console.log(values);
 };
 </script>
 

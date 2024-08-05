@@ -1,69 +1,145 @@
 <!--カテゴリ選択-->
 
 <template>
-  <!--ID値を格納する実態-->
-  <FormField :name="name" type="hidden" />
-  <MasterCategorySelect v-bind="propsObj" />
+  <div>
+    {{ label }}
+  </div>
+  <div>
+    <div v-for="(level, index) in levels" :key="index">
+      <select v-model="selectedValues[index]" @change="handleChange(index)">
+        <!--        <option value="" disabled>未選択</option>-->
+        <option
+          v-for="category in level"
+          :key="category.id"
+          :value="category.id"
+        >
+          {{ category.name }}
+        </option>
+      </select>
+    </div>
+    <input type="hidden" :value="finalCategoryId" :name="name" />
+  </div>
 </template>
 
 <script setup lang="ts">
-import MasterCategorySelect from '@/components/blocks/common/forms/MasterCategorySelect.vue';
-import type { SelectFieldProps } from '@/components/parts/forms/core/SelectField.vue';
-import FormField from '@/components/parts/forms/core/FormField.vue';
-import { gql } from '@apollo/client/core';
-import { onMounted, ref } from 'vue';
-import client from '@/apolloClient';
-
-const GET_QUERY = gql`
-  query {
-    categories {
-      id
-      name
-      children {
-        id
-        name
-        children {
-          id
-          name
-        }
-      }
-    }
-  }
-`;
+import { computed, onMounted, ref } from 'vue';
+import { useField } from 'vee-validate';
+import { type Category } from '@/type/common/liquor/Category';
+import useQuery from '@/funcs/composable/useQuery';
+import {
+  type Categories,
+  GET_QUERY,
+} from '@/type/api/common/liquor/Categories';
 
 const {
   label = 'カテゴリ',
   name,
-  ...props
-} = defineProps<Omit<SelectFieldProps, 'options'>>();
+  initialId,
+} = defineProps<{
+  label?: string;
+  name: string;
+  initialId?: number | undefined;
+}>();
 
-const loading = ref<boolean>(false);
-const error = ref<unknown>(null);
-const data = ref(null);
-const fetch = async () => {
-  loading.value = true;
-  error.value = null;
-  try {
-    const result = await client.query({
-      query: GET_QUERY,
-    });
-    console.log('result:', result);
-    data.value = result.data;
-  } catch (err) {
-    error.value = err;
-  } finally {
-    loading.value = false;
+//階層構造の記憶
+const selectedValues = ref<string[]>([]);
+//現時点で表示しているデータ
+const levels = ref<Category[][]>([]);
+
+const { fetch } = useQuery<Categories>(GET_QUERY);
+
+//変更時の操作
+const handleChange = (index: number) => {
+  // 選択が変更されたらそこから先の選択肢を一旦削除(indexが変更された階層)
+  selectedValues.value = selectedValues.value.slice(0, index + 1);
+  levels.value = levels.value.slice(0, index + 1);
+
+  // 新しい選択肢を追加
+  const selectedId = selectedValues.value[index];
+  const selectedCategory = findCategoryById(
+    levels.value[0], //大元のカテゴリを起点にして検索開始
+    parseInt(selectedId),
+  );
+
+  //見つかったカテゴリが子カテゴリを持っていれば、選択肢に追加
+  if (selectedCategory && selectedCategory.children) {
+    levels.value.push(selectedCategory.children);
   }
 };
 
-// onMounted フックを使用して fetchMessages 関数を呼び出します。
-onMounted(async () => {
-  await fetch();
-  console.log('data:', data);
+//指定したidを持つデータを再帰的に検索し、取得する
+const findCategoryById = (
+  categories: Category[],
+  id: number,
+): Category | undefined => {
+  for (const category of categories) {
+    if (category.id === id) return category;
+    if (category.children) {
+      const found = findCategoryById(category.children, id);
+      if (found) return found;
+    }
+  }
+};
+
+//カテゴリリストの一番子のIDが、現時点で取得されている(最後に選択された)もの
+const finalCategoryId = computed(() => {
+  const lastSelected = selectedValues.value[selectedValues.value.length - 1];
+  return lastSelected || '';
 });
 
-//オブジェクトを作らないとバインディングされないので詰め替える
-const propsObj = { ...props, label, name: 'master-category' }; //name値はフォームとして使われないので固定値
+// vee-validate用のフィールド定義
+const { value: hiddenField } = useField(name);
+
+// 読み込み時にカテゴリ情報をAPIから取得
+onMounted(async () => {
+  const { categories: response } = await fetch();
+  levels.value = [response]; // 最初の階層を設定
+
+  if (initialId !== undefined) {
+    initializeSelections(initialId, response);
+    hiddenField.value = initialId.toString(); // 初期値をhiddenFieldに設定
+  }
+});
+
+// 指定された値に基づいてセレクトボックスを設定する関数
+const initializeSelections = (id: number, categories: Category[]) => {
+  //該当するIDまでのカテゴリ配列を取得
+  const path: Category[] = findCategoryPathById(categories, id);
+  if (path.length > 0) {
+    path.forEach((category, index) => {
+      selectedValues.value[index] = category.id.toString();
+      if (category.children) {
+        //見つかった子配列を上書き
+        levels.value[index + 1] = category.children;
+      }
+    });
+  }
+};
+
+// カテゴリIDから親カテゴリまでのパスを見つける関数
+const findCategoryPathById = (
+  categories: Category[],
+  id: number,
+  path: Category[] = [],
+): Category[] => {
+  for (const category of categories) {
+    if (category.id === id) {
+      return [...path, category];
+    }
+    if (category.children) {
+      const result = findCategoryPathById(category.children, id, [
+        ...path,
+        category,
+      ]);
+      if (result.length > 0) {
+        return result;
+      }
+    }
+  }
+  return [];
+};
 </script>
 
-<style scoped></style>
+<style scoped>
+/* スタイルを必要に応じて追加 */
+</style>
