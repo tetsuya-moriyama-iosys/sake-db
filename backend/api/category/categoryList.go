@@ -3,6 +3,7 @@ package category
 import (
 	"context"
 	"log"
+	"sort"
 	"backend/db"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -23,7 +24,6 @@ func GetCategoryList() ([]*Category,error){
 	db.ConnectDB()
 
 	//データを取得
-	//var categories []Category
 	cursor, err := db.GetCollection("categories").Find(context.TODO(), bson.M{})
 	if err != nil {
 		log.Fatal("データ取得エラー:", err)
@@ -53,7 +53,22 @@ func GetCategoryList() ([]*Category,error){
 		}
 	}
 
+	// ルートカテゴリとその子カテゴリを再帰的にソート
+	sortCategories(rootCategories)
+
 	return rootCategories,nil
+}
+
+// 再帰的にカテゴリをID順にソートする関数
+func sortCategories(categories []*Category) {
+	sort.Slice(categories, func(i, j int) bool {
+		return categories[i].ID < categories[j].ID
+	})
+	for _, cat := range categories {
+		if len(cat.Children) > 0 {
+			sortCategories(cat.Children)
+		}
+	}
 }
 
 
