@@ -11,6 +11,7 @@ import (
 
     "backend/api/auth/register"
     "backend/api/auth/login"
+    "github.com/99designs/gqlgen/graphql/playground"
 )
 
 
@@ -49,13 +50,14 @@ func Router(srv *handler.Server) *gin.Engine {
     r.POST("/login", func(c *gin.Context) {
         login.Login(c)
     })
-
-    // r.POST("/query", func(c *gin.Context) {
-    //     srv.ServeHTTP(c.Writer, c.Request)
-    // })
+    
+     // GraphQLインターフェース
+     r.POST("/query", func(c *gin.Context) {
+         srv.ServeHTTP(c.Writer, c.Request)
+     })
+     r.GET("/query", func(c *gin.Context) {
+         playground.Handler("GraphQL", "/query").ServeHTTP(c.Writer, c.Request)
+     })
 	
-    // r.GET("/", func(c *gin.Context) {
-    //     playground.Handler("GraphQL", "/query").ServeHTTP(c.Writer, c.Request)
-    // })
     return r
 }

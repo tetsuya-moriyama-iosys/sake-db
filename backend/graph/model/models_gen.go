@@ -2,6 +2,13 @@
 
 package model
 
+type Category struct {
+	ID       int         `json:"id"`
+	Name     string      `json:"name"`
+	Parent   *int        `json:"parent,omitempty"`
+	Children []*Category `json:"children,omitempty"`
+}
+
 type Mutation struct {
 }
 

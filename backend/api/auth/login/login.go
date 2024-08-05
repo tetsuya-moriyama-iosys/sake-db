@@ -7,7 +7,6 @@ import(
 	"net/http"
 	"github.com/gin-gonic/gin"
 
-    "go.mongodb.org/mongo-driver/mongo"
     "golang.org/x/crypto/bcrypt"
 	
     "go.mongodb.org/mongo-driver/bson"
