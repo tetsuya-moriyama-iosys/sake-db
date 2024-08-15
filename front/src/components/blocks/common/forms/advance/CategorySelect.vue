@@ -6,7 +6,11 @@
   </div>
   <div>
     <div v-for="(level, index) in levels" :key="index">
-      <select v-model="selectedValues[index]" @change="handleChange(index)">
+      <select
+        v-model="selectedValues[index]"
+        @change="handleChange(index)"
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+      >
         <!--        <option value="" disabled>未選択</option>-->
         <option
           v-for="category in level"

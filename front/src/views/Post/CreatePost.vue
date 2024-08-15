@@ -11,7 +11,15 @@
     />
     <FormField :name="FormKeys.TITLE" label="名前" />
     <FormField :name="FormKeys.DESCRIPTION" label="説明" />
-    <button>Submit</button>
+    <FormField
+      :name="FormKeys.IMAGE"
+      type="file"
+      as="input"
+      label="画像"
+      rules="required|image|size:5000"
+    />
+    <CommonSelect name="a" :options="[{ value: 'a', label: 'bb' }]" />
+    <CommonButton :color="ColorType.Default">登録</CommonButton>
   </VForm>
 </template>
 
@@ -27,6 +35,9 @@ import FormField from '@/components/parts/forms/core/FormField.vue';
 import CategorySelect from '@/components/blocks/common/forms/advance/CategorySelect.vue';
 import { useMutation } from '@vue/apollo-composable';
 import { CREATE_POST_MUTATION } from '@/graphQL/Discovery/Post/query';
+import CommonButton from '@/components/parts/common/CommonButton.vue';
+import { ColorType } from '@/type/common/ColorType';
+import CommonSelect from '@/components/parts/forms/core/CommonSelect.vue';
 
 // Apollo ClientのuseMutationフックを使ってミューテーションを実行
 const {
