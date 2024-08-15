@@ -1,10 +1,13 @@
 scalar DateTime
+scalar Upload
 
 type Liquor {
   id: ID!
   category_id: Int!
   name: String!
   description: String
+  imageUrl: String        # S3に保存された画像のURL
+  imageBase64: String     # 縮小された画像のBase64エンコードデータ
   created_at: DateTime!
   updated_at: DateTime!
 }
@@ -18,6 +21,7 @@ input CreateLiquorRequest {
   name: String!
   category_id: Int!
   description: String
+  image: Upload          # 画像ファイルをアップロードするフィールド
 }
 
 extend type Mutation {

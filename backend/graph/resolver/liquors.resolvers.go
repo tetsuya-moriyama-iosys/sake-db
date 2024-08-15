@@ -7,8 +7,12 @@ package resolver
 import (
 	"backend/graph/collections"
 	"backend/graph/model"
+	"backend/util/helper"
+	"bytes"
 	"context"
+	"encoding/base64"
 	"fmt"
+	"image/jpeg"
 	"log"
 	"time"
 
@@ -20,13 +24,45 @@ func (r *mutationResolver) CreateLiquor(ctx context.Context, inputs model.Create
 	// リクエスト内容をログ出力（デバッグ用）
 	log.Printf("CreateLiquor called with inputs: %+v\n", inputs)
 
+	//var imageUrl string
+	var imageBase64 *string = nil
 	now := time.Now()
-	log.Println("CreateLiquor inputs:", inputs)
+
+	//画像登録処理
+	if inputs.Image != nil {
+		img, err := helper.GetImageFromRequest(inputs.Image.File)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read image file: %v", err)
+		}
+
+		// リサイズ実行
+		thumbnail := helper.ResizeImage(img, 120, 200)
+
+		// Base64エンコード
+		var thumbBuf bytes.Buffer
+		err = jpeg.Encode(&thumbBuf, thumbnail, nil)
+		if err != nil {
+			return nil, fmt.Errorf("failed to encode thumbnail: %v", err)
+		}
+
+		//string型を*stringに変換する
+		encoded := base64.StdEncoding.EncodeToString(thumbBuf.Bytes())
+		imageBase64 = &encoded
+
+		// Amazon S3に元の画像をアップロード
+		//imageUrl, err = amazon.UploadToS3(inputs.Image.Filename, buf)
+		//if err != nil {
+		//	return nil, fmt.Errorf("failed to upload image to S3: %v", err)
+		//}
+	}
+
 	liquor := &model.Liquor{
 		ID:          primitive.NewObjectID().Hex(),
 		CategoryID:  inputs.CategoryID,
 		Name:        inputs.Name,
 		Description: inputs.Description,
+		ImageURL:    nil,
+		ImageBase64: imageBase64,
 		CreatedAt:   now,
 		UpdatedAt:   now,
 	}
