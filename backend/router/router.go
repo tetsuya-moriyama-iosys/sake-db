@@ -3,12 +3,12 @@ package router
 import (
 	"context"
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"github.com/vektah/gqlparser/v2/gqlerror"
 	"log"
 	"os"
 	"time"
