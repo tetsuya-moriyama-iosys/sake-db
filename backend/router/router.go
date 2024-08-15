@@ -18,15 +18,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 )
 
-//// カスタムエラープレゼンター
-//func customErrorPresenter(ctx context.Context, err error) *gqlerror.Error {
-//	// ログ出力
-//	log.Printf("GraphQL Error: %v", err)
-//
-//	// もともとのエラーをそのまま返す
-//	return graphql.DefaultErrorPresenter(ctx, err)
-//}
-
 // NewRouter creates a new Gin router with GraphQL and Playground routes.
 func Router(srv *handler.Server) *gin.Engine {
 	// .envファイルを読み込みます

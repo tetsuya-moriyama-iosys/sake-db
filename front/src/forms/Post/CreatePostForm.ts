@@ -21,10 +21,10 @@ export interface FormValues {
 
 export const initialValues = {
   [FormKeys.TITLE]: '初期タイトル',
-  //[FormKeys.CATEGORY]: 11,
+  [FormKeys.CATEGORY]: 11,
   [FormKeys.DESCRIPTION]: '',
 };
 
 export const validationSchema = {
-  [FormKeys.TITLE]: string().max(5).required(),
+  [FormKeys.TITLE]: string().max(100).required(),
 };

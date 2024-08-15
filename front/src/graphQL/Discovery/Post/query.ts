@@ -1,4 +1,4 @@
-import { gql, type DocumentNode } from '@apollo/client';
+import { gql, type DocumentNode } from '@apollo/client/core';
 
 export const CREATE_POST_MUTATION: DocumentNode = gql`
   mutation CreateLiquor(

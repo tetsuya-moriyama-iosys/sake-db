@@ -1,9 +1,13 @@
 <template>
   <div>新規投稿</div>
-  <VForm @submit="onSubmit" :validation-schema="validationSchema">
+  <VForm
+    @submit="onSubmit"
+    :validation-schema="validationSchema"
+    :initial-values="initialValues"
+  >
     <CategorySelect
       :name="FormKeys.CATEGORY"
-      :initial-id="formValues[FormKeys.CATEGORY]"
+      :initial-id="initialValues[FormKeys.CATEGORY]"
     />
     <FormField :name="FormKeys.TITLE" label="名前" />
     <FormField :name="FormKeys.DESCRIPTION" label="説明" />
@@ -31,18 +35,20 @@ const {
   onError,
 } = useMutation(CREATE_POST_MUTATION);
 
-const { values: formValues } = useForm<FormValues>({
-  initialValues: initialValues,
+useForm<FormValues>({
   validationSchema: validationSchema,
 });
 
 async function onSubmit(values: FormValues): Promise<void> {
-  console.log('values:', values);
-  await createLiquor({
-    name: values[FormKeys.TITLE],
-    category_id: Number(values[FormKeys.CATEGORY]),
-    description: values[FormKeys.DESCRIPTION],
-  });
+  try {
+    await createLiquor({
+      name: values[FormKeys.TITLE],
+      category_id: Number(values[FormKeys.CATEGORY]),
+      description: values[FormKeys.DESCRIPTION],
+    });
+  } catch (e) {
+    console.error(e);
+  }
 
   onDone((response) => {
     console.log('Post created successfully:', response.data);
@@ -51,7 +57,6 @@ async function onSubmit(values: FormValues): Promise<void> {
   onError((error) => {
     console.error('Error creating post:', error);
   });
-  //const response = useQuery();
 }
 </script>
 
