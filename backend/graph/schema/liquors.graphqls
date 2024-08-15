@@ -1,0 +1,25 @@
+scalar DateTime
+
+type Liquor {
+  id: ID!
+  category_id: Int!
+  name: String!
+  description: String
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+extend type Query {
+  liquors:[Liquor!]!
+  liquor(id: Int!): Liquor!
+}
+
+input CreateLiquorRequest {
+  name: String!
+  category_id: Int!
+  description: String
+}
+
+extend type Mutation {
+    createLiquor(inputs: CreateLiquorRequest!): Liquor!
+}

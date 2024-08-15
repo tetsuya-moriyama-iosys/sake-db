@@ -2,6 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
+	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"log"
 	"os"
 
@@ -14,10 +18,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-// func connectDB()db *mongo.Database{
-
-// }
 
 func main() {
 	// .envファイルを読み込みます
@@ -53,16 +53,30 @@ func main() {
 	db := client.Database("helloworld")
 
 	//リゾルバを設定
-	resolver := &resolver.Resolver{
+	r := &resolver.Resolver{
 		DB:        db,
 		SecretKey: jwtSecretKey,
 	}
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
+	srv := handler.New(generated.NewExecutableSchema(generated.Config{Resolvers: r}))
+	srv.AddTransport(transport.POST{})
+	srv.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
+		log.Printf("Panic occurred: %v", err)
+
+		if e, ok := err.(error); ok {
+			return graphql.DefaultErrorPresenter(ctx, e)
+		}
+
+		// `err` が `error` 型でない場合の処理 (必要に応じて)
+		return graphql.DefaultErrorPresenter(ctx, fmt.Errorf("%v", err))
+	})
+
+	srv.Use(extension.Introspection{})
+	//srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: r}))
 
 	//ルーター作成
-	r := router.Router(srv)
+	rtr := router.Router(srv)
 
 	log.Println("connect to http://localhost:8080/ for GraphQL playground")
-	log.Fatal(r.Run(":8080"))
+	log.Fatal(rtr.Run(":8080"))
 }

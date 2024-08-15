@@ -2,6 +2,32 @@
 
 package model
 
+import (
+	"time"
+)
+
+type Category struct {
+	ID       int         `json:"id"`
+	Name     string      `json:"name"`
+	Parent   *int        `json:"parent,omitempty"`
+	Children []*Category `json:"children,omitempty"`
+}
+
+type CreateLiquorRequest struct {
+	CategoryID  int     `json:"category_id"`
+	Name        string  `json:"name"`
+	Description *string `json:"description,omitempty"`
+}
+
+type Liquor struct {
+	ID          string    `json:"id"`
+	CategoryID  int       `json:"category_id"`
+	Name        string    `json:"name"`
+	Description *string   `json:"description,omitempty"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
 type Mutation struct {
 }
 
