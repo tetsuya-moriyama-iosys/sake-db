@@ -21,8 +21,8 @@ import {
 } from '@/forms/Post/CreatePostForm';
 import FormField from '@/components/parts/forms/core/FormField.vue';
 import CategorySelect from '@/components/blocks/common/forms/advance/CategorySelect.vue';
-import { CREATE_POST_MUTATION } from '@/graphQL/Discovey/Post/queries';
 import { useMutation } from '@vue/apollo-composable';
+import { CREATE_POST_MUTATION } from '@/graphQL/Discovery/Post/query';
 
 // Apollo ClientのuseMutationフックを使ってミューテーションを実行
 const {

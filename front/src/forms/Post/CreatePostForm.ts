@@ -13,9 +13,16 @@ export const FormKeys = {
   DESCRIPTION: 'description', //説明
 } as const;
 
+export interface FormValues {
+  [FormKeys.CATEGORY]: number;
+  [FormKeys.TITLE]: string;
+  [FormKeys.DESCRIPTION]: string;
+}
+
 export const initialValues = {
   [FormKeys.TITLE]: '初期タイトル',
-  [FormKeys.CATEGORY]: 11,
+  //[FormKeys.CATEGORY]: 11,
+  [FormKeys.DESCRIPTION]: '',
 };
 
 export const validationSchema = {
