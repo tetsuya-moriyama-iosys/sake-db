@@ -9,6 +9,7 @@
       :name="FormKeys.CATEGORY"
       :initial-id="initialValues[FormKeys.CATEGORY]"
     />
+    <ErrorMessage :name="FormKeys.CATEGORY" />
     <FormField :name="FormKeys.TITLE" label="名前" />
     <FormField :name="FormKeys.DESCRIPTION" label="説明" />
     <FormField
@@ -18,13 +19,12 @@
       label="画像"
       rules="required|image|size:5000"
     />
-    <CommonSelect name="a" :options="[{ value: 'a', label: 'bb' }]" />
-    <CommonButton :color="ColorType.Default">登録</CommonButton>
+    <SubmitButton :color="ColorType.Danger">登録</SubmitButton>
   </VForm>
 </template>
 
 <script setup lang="ts">
-import { Form as VForm, useForm } from 'vee-validate';
+import { ErrorMessage, Form as VForm } from 'vee-validate';
 import {
   FormKeys,
   type FormValues,
@@ -35,9 +35,8 @@ import FormField from '@/components/parts/forms/core/FormField.vue';
 import CategorySelect from '@/components/blocks/common/forms/advance/CategorySelect.vue';
 import { useMutation } from '@vue/apollo-composable';
 import { CREATE_POST_MUTATION } from '@/graphQL/Discovery/Post/query';
-import CommonButton from '@/components/parts/common/CommonButton.vue';
 import { ColorType } from '@/type/common/ColorType';
-import CommonSelect from '@/components/parts/forms/core/CommonSelect.vue';
+import SubmitButton from '@/components/parts/common/SubmitButton.vue';
 
 // Apollo ClientのuseMutationフックを使ってミューテーションを実行
 const {
@@ -45,10 +44,6 @@ const {
   onDone,
   onError,
 } = useMutation(CREATE_POST_MUTATION);
-
-useForm<FormValues>({
-  validationSchema: validationSchema,
-});
 
 async function onSubmit(values: FormValues): Promise<void> {
   try {

@@ -2,7 +2,7 @@
  * 新規作成フォーム
  */
 import * as yup from 'yup';
-import { string } from 'yup';
+import { number, string } from 'yup';
 import yupLocaleJP from '@/lib/yup/yupLocaleJa';
 import { image } from '@/forms/customValidations/image';
 import { fileSize } from '@/forms/customValidations/filesize';
@@ -32,5 +32,6 @@ export const initialValues = {
 
 export const validationSchema = {
   [FormKeys.TITLE]: string().max(100).required(),
+  [FormKeys.CATEGORY]: number().required(),
   [FormKeys.IMAGE]: image().concat(fileSize(5)).nullable(),
 };

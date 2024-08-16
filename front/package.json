@@ -63,6 +63,11 @@
     "vue-template-compiler": "^0.1.0",
     "vue-tsc": "^2.0.29"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged --no-stash"
+    }
+  },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "^4.19.0"
   },

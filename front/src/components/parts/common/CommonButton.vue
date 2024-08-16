@@ -15,11 +15,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { ColorType } from '@/type/common/ColorType';
-
-interface ButtonProps {
-  color?: ColorType;
-  isDisabled?: boolean;
-}
+import type { ButtonProps } from '@/type/component/parts/ButtonProps';
 
 const props = defineProps<ButtonProps>();
 
