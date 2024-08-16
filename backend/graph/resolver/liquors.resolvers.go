@@ -7,6 +7,7 @@ package resolver
 import (
 	"backend/graph/collections"
 	"backend/graph/model"
+	"backend/util/amazon/s3"
 	"backend/util/helper"
 	"bytes"
 	"context"
@@ -24,7 +25,7 @@ func (r *mutationResolver) CreateLiquor(ctx context.Context, inputs model.Create
 	// リクエスト内容をログ出力（デバッグ用）
 	log.Printf("CreateLiquor called with inputs: %+v\n", inputs)
 
-	//var imageUrl string
+	var imageUrl *string = nil
 	var imageBase64 *string = nil
 	now := time.Now()
 
@@ -49,11 +50,10 @@ func (r *mutationResolver) CreateLiquor(ctx context.Context, inputs model.Create
 		encoded := base64.StdEncoding.EncodeToString(thumbBuf.Bytes())
 		imageBase64 = &encoded
 
-		// Amazon S3に元の画像をアップロード
-		//imageUrl, err = amazon.UploadToS3(inputs.Image.Filename, buf)
-		//if err != nil {
-		//	return nil, fmt.Errorf("failed to upload image to S3: %v", err)
-		//}
+		imageUrl, err = s3.UploadLiquorImage(inputs.Image)
+		if err != nil {
+			return nil, fmt.Errorf("failed to upload image: %v", err)
+		}
 	}
 
 	liquor := &model.Liquor{
@@ -61,19 +61,19 @@ func (r *mutationResolver) CreateLiquor(ctx context.Context, inputs model.Create
 		CategoryID:  inputs.CategoryID,
 		Name:        inputs.Name,
 		Description: inputs.Description,
-		ImageURL:    nil,
+		ImageURL:    imageUrl,
 		ImageBase64: imageBase64,
 		CreatedAt:   now,
 		UpdatedAt:   now,
 	}
 
-	log.Println("モデル生成：", *liquor)
+	//DBに挿入
 	_, err := collections.Liquors().InsertOne(ctx, *liquor)
-
 	if err != nil {
 		log.Printf("Error inserting liquor: %v", err) // エラーハンドリングの追加
 		return nil, err
 	}
+	
 	log.Printf("Liquor successfully created: %+v\n", liquor)
 	return liquor, nil
 }

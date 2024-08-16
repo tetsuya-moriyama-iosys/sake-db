@@ -36,6 +36,8 @@ func main() {
 		log.Fatal("JWT_SECRET_KEY environment variable is required")
 	}
 
+
+
 	clientOptions := options.Client().ApplyURI(mongoURI)
 
 	client, err := mongo.NewClient(clientOptions)

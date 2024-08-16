@@ -19,7 +19,7 @@
       label="画像"
       rules="required|image|size:5000"
     />
-    <SubmitButton :color="ColorType.Danger">登録</SubmitButton>
+    <SubmitButton>登録</SubmitButton>
   </VForm>
 </template>
 
@@ -35,7 +35,6 @@ import FormField from '@/components/parts/forms/core/FormField.vue';
 import CategorySelect from '@/components/blocks/common/forms/advance/CategorySelect.vue';
 import { useMutation } from '@vue/apollo-composable';
 import { CREATE_POST_MUTATION } from '@/graphQL/Discovery/Post/query';
-import { ColorType } from '@/type/common/ColorType';
 import SubmitButton from '@/components/parts/common/SubmitButton.vue';
 
 // Apollo ClientのuseMutationフックを使ってミューテーションを実行
@@ -46,6 +45,8 @@ const {
 } = useMutation(CREATE_POST_MUTATION);
 
 async function onSubmit(values: FormValues): Promise<void> {
+  console.log('投稿開始:', values);
+
   try {
     await createLiquor({
       name: values[FormKeys.TITLE],
