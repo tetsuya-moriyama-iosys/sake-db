@@ -9,14 +9,22 @@
       :name="FormKeys.CATEGORY"
       :initial-id="initialValues[FormKeys.CATEGORY]"
     />
+    <ErrorMessage :name="FormKeys.CATEGORY" />
     <FormField :name="FormKeys.TITLE" label="名前" />
     <FormField :name="FormKeys.DESCRIPTION" label="説明" />
-    <button>Submit</button>
+    <FormField
+      :name="FormKeys.IMAGE"
+      type="file"
+      as="input"
+      label="画像"
+      rules="required|image|size:5000"
+    />
+    <SubmitButton>登録</SubmitButton>
   </VForm>
 </template>
 
 <script setup lang="ts">
-import { Form as VForm, useForm } from 'vee-validate';
+import { ErrorMessage, Form as VForm } from 'vee-validate';
 import {
   FormKeys,
   type FormValues,
@@ -25,37 +33,26 @@ import {
 } from '@/forms/Post/CreatePostForm';
 import FormField from '@/components/parts/forms/core/FormField.vue';
 import CategorySelect from '@/components/blocks/common/forms/advance/CategorySelect.vue';
-import { useMutation } from '@vue/apollo-composable';
-import { CREATE_POST_MUTATION } from '@/graphQL/Discovery/Post/query';
+import SubmitButton from '@/components/parts/common/SubmitButton.vue';
+import { useToast } from '@/funcs/composable/useToast';
+import type { ToastCommand } from '@/plugins/toast';
+import { useApiMutation } from '@/funcs/composable/useApiMutation';
+import PostAPIType, {
+  type PostRequest,
+  type PostResponse,
+} from '@/type/api/APIType/post/PostForm';
 
-// Apollo ClientのuseMutationフックを使ってミューテーションを実行
-const {
-  mutate: createLiquor,
-  onDone,
-  onError,
-} = useMutation(CREATE_POST_MUTATION);
-
-useForm<FormValues>({
-  validationSchema: validationSchema,
-});
+const toast: ToastCommand = useToast();
+const { mutateAsync } = useApiMutation<PostRequest, PostResponse>(PostAPIType);
 
 async function onSubmit(values: FormValues): Promise<void> {
-  try {
-    await createLiquor({
-      name: values[FormKeys.TITLE],
-      category_id: Number(values[FormKeys.CATEGORY]),
-      description: values[FormKeys.DESCRIPTION],
-    });
-  } catch (e) {
-    console.error(e);
-  }
-
-  onDone((response) => {
-    console.log('Post created successfully:', response.data);
-  });
-
-  onError((error) => {
-    console.error('Error creating post:', error);
+  void mutateAsync(values, {
+    onSuccess(data) {
+      console.log('data:', data);
+      toast.showToast({
+        message: '登録が成功しました！',
+      });
+    },
   });
 }
 </script>

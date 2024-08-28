@@ -1,13 +1,12 @@
 import './styles/main.css';
 
 import { createApp, h, provide } from 'vue';
-import { createPinia } from 'pinia';
 import './styles/tailwind.css';
 
 import App from './App.vue';
-import router from './router';
 import client from '@/apolloClient';
 import { DefaultApolloClient } from '@vue/apollo-composable';
+import { registerPlugins } from '@/plugins';
 
 const app = createApp({
   setup() {
@@ -16,7 +15,7 @@ const app = createApp({
   render: () => h(App),
 });
 
-app.use(createPinia());
-app.use(router);
+// プラグインの登録
+registerPlugins(app);
 
 app.mount('#app');

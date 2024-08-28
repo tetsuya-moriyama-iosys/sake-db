@@ -6,8 +6,16 @@
   </div>
   <div>
     <div v-for="(level, index) in levels" :key="index">
-      <select v-model="selectedValues[index]" @change="handleChange(index)">
-        <!--        <option value="" disabled>未選択</option>-->
+      <select
+        v-model="selectedValues[index]"
+        @change="handleChange(index)"
+        @blur="
+          () => {
+            void validate();
+          }
+        "
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+      >
         <option
           v-for="category in level"
           :key="category.id"
@@ -17,20 +25,25 @@
         </option>
       </select>
     </div>
-    <input type="hidden" :value="finalCategoryId" :name="name" />
+    <FormField as="input" type="hidden" :value="finalCategoryId" :name="name" />
+  </div>
+  <div v-if="errorMessage" class="error">
+    <ErrorMessage :name="name" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { useField } from 'vee-validate';
+import { computed, onMounted, ref, watch } from 'vue';
+import { ErrorMessage, useField } from 'vee-validate';
 import { type Category } from '@/type/common/liquor/Category';
 import useQuery from '@/funcs/composable/useQuery';
 import {
   type Categories,
   GET_QUERY,
 } from '@/type/api/common/liquor/Categories';
+import FormField from '@/components/parts/forms/core/FormField.vue';
 
+//propsのセット
 const {
   label = 'カテゴリ',
   name,
@@ -38,7 +51,7 @@ const {
 } = defineProps<{
   label?: string;
   name: string;
-  initialId?: number | undefined;
+  initialId?: number | null;
 }>();
 
 //階層構造の記憶
@@ -47,6 +60,9 @@ const selectedValues = ref<string[]>([]);
 const levels = ref<Category[][]>([]);
 
 const { fetch } = useQuery<Categories>(GET_QUERY);
+
+// vee-validate用のフィールド定義
+const { value: hiddenField, errorMessage, validate } = useField(name);
 
 //変更時の操作
 const handleChange = (index: number) => {
@@ -87,15 +103,17 @@ const finalCategoryId = computed(() => {
   return lastSelected || '';
 });
 
-// vee-validate用のフィールド定義
-const { value: hiddenField } = useField(name);
+// finalCategoryIdの変更を検知してcategoryIdをセットする
+watch(finalCategoryId, (newVal) => {
+  hiddenField.value = newVal;
+});
 
 // 読み込み時にカテゴリ情報をAPIから取得
 onMounted(async () => {
   const { categories: response } = await fetch();
   levels.value = [response]; // 最初の階層を設定
 
-  if (initialId !== undefined) {
+  if (initialId != null) {
     initializeSelections(initialId, response);
     hiddenField.value = initialId.toString(); // 初期値をhiddenFieldに設定
   }
@@ -141,5 +159,8 @@ const findCategoryPathById = (
 </script>
 
 <style scoped>
-/* スタイルを必要に応じて追加 */
+div.error {
+  color: red;
+  font-size: 75%;
+}
 </style>
