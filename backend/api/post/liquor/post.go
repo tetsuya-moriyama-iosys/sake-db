@@ -112,6 +112,8 @@ func Post(c *gin.Context) {
 		UpdatedAt:   time.Now(),
 	}
 
+	log.Println("DB接続開始")
+
 	_, err = db.GetCollection("liquors").InsertOne(ctx, liquor)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while creating liquor"})
@@ -121,6 +123,4 @@ func Post(c *gin.Context) {
 	// デバッグ用に受信データをログ出力
 	log.Printf("Received liquor data: %+v\n", liquor)
 
-	//データベースに接続
-	db.ConnectDB()
 }

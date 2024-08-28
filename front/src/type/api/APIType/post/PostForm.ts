@@ -13,6 +13,7 @@ export type PostResponse = null;
 const PostAPIType: APIType<PostRequest, PostResponse> = {
   method: 'POST',
   url: createURL('post'),
+  //ファイル送信はContent-Typeをmultipart/form-dataにする
   headers: {
     'Content-Type': 'multipart/form-data',
   },

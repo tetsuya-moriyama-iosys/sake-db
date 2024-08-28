@@ -32,5 +32,8 @@ func ConnectDB() {
 }
 
 func GetCollection(collectionName string) *mongo.Collection {
+	if Client == nil {
+		ConnectDB()
+	}
 	return Client.Database("helloworld").Collection(collectionName)
 }
