@@ -3,24 +3,27 @@ package s3
 import (
 	"bytes"
 	"fmt"
-	"github.com/99designs/gqlgen/graphql"
-	"github.com/google/uuid"
-	"github.com/joho/godotenv"
-	"io"
-	"log"
-	"net/http"
-	"os"
-	"path/filepath"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/google/uuid"
+	"github.com/joho/godotenv"
+	"image"
+	"image/jpeg"
+	"log"
+	"net/http"
+	"os"
 )
 
 // Uploader はS3にファイルをアップロードするための構造体
 type Uploader struct {
 	svc        *s3.S3 //S3のインスタンス
 	bucketName string
+}
+
+type ImageData struct {
+	Image  image.Image // デコードされた画像データ
+	Format string      // 画像のフォーマット（例: "jpeg", "png" など）
 }
 
 // NewS3Uploader はS3Uploaderを初期化するためのファクトリ関数
@@ -40,35 +43,24 @@ func NewS3Uploader(region, bucketName string) (*Uploader, error) {
 }
 
 // UploadFile UploadFileFromForm はHTTPリクエストのフォームから取得したファイルをS3にアップロードし、アップロードされたファイルのURLを返します
-func (u *Uploader) UploadFile(upload *graphql.Upload) (string, error) {
-	// ファイルを開く
-	file := upload.File
-	// fileがio.ReadCloserにキャストできるか確認
-	if closer, ok := file.(io.ReadCloser); ok {
-		defer func() {
-			if err := closer.Close(); err != nil {
-				log.Printf("ファイルを閉じるのに失敗しました: %v", err)
-			}
-		}()
-	}
+func (u *Uploader) UploadFile(image *ImageData) (string, error) {
 
-	// ファイル全体をバッファに読み込む
+	// 画像データをJPEGとしてエンコードするためにバッファに書き込む
 	var buf bytes.Buffer
-	fileSize, err := buf.ReadFrom(file)
+	err := jpeg.Encode(&buf, image.Image, nil)
 	if err != nil {
-		return "", fmt.Errorf("画像データの読み込みに失敗しました: %w", err)
+		return "", fmt.Errorf("画像データのエンコードに失敗しました: %w", err)
 	}
 
 	// UUIDを使って一意なファイル名を生成
-	ext := filepath.Ext(upload.Filename)
-	uniqueFileName := uuid.New().String() + ext
+	uniqueFileName := uuid.New().String() + image.Format
 
 	// S3にファイルをアップロード
 	_, err = u.svc.PutObject(&s3.PutObjectInput{
 		Bucket:        aws.String(u.bucketName),
 		Key:           aws.String(uniqueFileName),
 		Body:          bytes.NewReader(buf.Bytes()),
-		ContentLength: aws.Int64(fileSize),
+		ContentLength: aws.Int64(int64(buf.Len())),
 		ContentType:   aws.String(http.DetectContentType(buf.Bytes())),
 	})
 	if err != nil {
@@ -84,7 +76,7 @@ func (u *Uploader) getFileURL(key string) string {
 	return fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", u.bucketName, *u.svc.Config.Region, key)
 }
 
-func UploadLiquorImage(image *graphql.Upload) (*string, error) {
+func UploadLiquorImage(image *ImageData) (*string, error) {
 	// .envファイルを読み込みます
 	err := godotenv.Load()
 	if err != nil {
