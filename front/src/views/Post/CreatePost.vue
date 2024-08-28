@@ -33,36 +33,26 @@ import {
 } from '@/forms/Post/CreatePostForm';
 import FormField from '@/components/parts/forms/core/FormField.vue';
 import CategorySelect from '@/components/blocks/common/forms/advance/CategorySelect.vue';
-import { useMutation } from '@vue/apollo-composable';
-import { CREATE_POST_MUTATION } from '@/graphQL/Discovery/Post/query';
 import SubmitButton from '@/components/parts/common/SubmitButton.vue';
+import { useToast } from '@/funcs/composable/useToast';
+import type { ToastCommand } from '@/plugins/toast';
+import { useApiMutation } from '@/funcs/composable/useApiMutation';
+import PostAPIType, {
+  type PostRequest,
+  type PostResponse,
+} from '@/type/api/APIType/post/PostForm';
 
-// Apollo ClientのuseMutationフックを使ってミューテーションを実行
-const {
-  mutate: createLiquor,
-  onDone,
-  onError,
-} = useMutation(CREATE_POST_MUTATION);
+const toast: ToastCommand = useToast();
+const { mutateAsync } = useApiMutation<PostRequest, PostResponse>(PostAPIType);
 
 async function onSubmit(values: FormValues): Promise<void> {
-  console.log('投稿開始:', values);
-
-  try {
-    await createLiquor({
-      name: values[FormKeys.TITLE],
-      category_id: Number(values[FormKeys.CATEGORY]),
-      description: values[FormKeys.DESCRIPTION],
-    });
-  } catch (e) {
-    console.error(e);
-  }
-
-  onDone((response) => {
-    console.log('Post created successfully:', response.data);
-  });
-
-  onError((error) => {
-    console.error('Error creating post:', error);
+  void mutateAsync(values, {
+    onSuccess(data) {
+      console.log('data:', data);
+      toast.showToast({
+        message: '登録が成功しました！',
+      });
+    },
   });
 }
 </script>

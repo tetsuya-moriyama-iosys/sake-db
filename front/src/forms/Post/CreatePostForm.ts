@@ -6,6 +6,7 @@ import { number, string } from 'yup';
 import yupLocaleJP from '@/lib/yup/yupLocaleJa';
 import { image } from '@/forms/customValidations/image';
 import { fileSize } from '@/forms/customValidations/filesize';
+import type { PostRequest } from '@/type/api/APIType/post/PostForm';
 
 yup.setLocale(yupLocaleJP);
 
@@ -16,12 +17,7 @@ export const FormKeys = {
   IMAGE: 'image',
 } as const;
 
-export interface FormValues {
-  [FormKeys.CATEGORY]: number;
-  [FormKeys.TITLE]: string;
-  [FormKeys.DESCRIPTION]: string;
-  [FormKeys.IMAGE]: File | null;
-}
+export type FormValues = PostRequest;
 
 export const initialValues = {
   [FormKeys.TITLE]: '',
@@ -31,7 +27,7 @@ export const initialValues = {
 };
 
 export const validationSchema = {
-  [FormKeys.TITLE]: string().max(100).required(),
   [FormKeys.CATEGORY]: number().required(),
+  [FormKeys.TITLE]: string().max(100).required(),
   [FormKeys.IMAGE]: image().concat(fileSize(5)).nullable(),
 };

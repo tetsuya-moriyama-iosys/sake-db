@@ -11,13 +11,11 @@
         @change="handleChange(index)"
         @blur="
           () => {
-            console.log(`blur実行 値：`, finalCategoryId);
             void validate();
           }
         "
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
       >
-        <!--        <option value="" disabled>未選択</option>-->
         <option
           v-for="category in level"
           :key="category.id"
@@ -28,7 +26,6 @@
       </select>
     </div>
     <FormField as="input" type="hidden" :value="finalCategoryId" :name="name" />
-    <!--    <input type="hidden" :value="finalCategoryId" :name="name" />-->
   </div>
   <div v-if="errorMessage" class="error">
     <ErrorMessage :name="name" />
@@ -109,7 +106,6 @@ const finalCategoryId = computed(() => {
 // finalCategoryIdの変更を検知してcategoryIdをセットする
 watch(finalCategoryId, (newVal) => {
   hiddenField.value = newVal;
-  console.log('finalCategoryIdが変更されました:', newVal);
 });
 
 // 読み込み時にカテゴリ情報をAPIから取得

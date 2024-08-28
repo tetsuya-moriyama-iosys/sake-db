@@ -5,12 +5,14 @@ export const CREATE_POST_MUTATION: DocumentNode = gql`
     $name: String!
     $category_id: Int!
     $description: String
+    $image: Upload
   ) {
     createLiquor(
       inputs: {
         name: $name
         category_id: $category_id
         description: $description
+        image: $image
       }
     ) {
       id
