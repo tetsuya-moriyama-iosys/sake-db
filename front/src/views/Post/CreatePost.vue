@@ -41,17 +41,23 @@ import PostAPIType, {
   type PostRequest,
   type PostResponse,
 } from '@/type/api/APIType/post/PostForm';
+import { useLoading } from 'vue-loading-overlay';
 
-const toast: ToastCommand = useToast();
 const { mutateAsync } = useApiMutation<PostRequest, PostResponse>(PostAPIType);
+const toast: ToastCommand = useToast();
+const loading = useLoading();
 
 async function onSubmit(values: FormValues): Promise<void> {
-  void mutateAsync(values, {
+  const loader = loading.show();
+  await mutateAsync(values, {
     onSuccess(data) {
       console.log('data:', data);
       toast.showToast({
         message: '登録が成功しました！',
       });
+    },
+    onSettled() {
+      loader.hide();
     },
   });
 }
