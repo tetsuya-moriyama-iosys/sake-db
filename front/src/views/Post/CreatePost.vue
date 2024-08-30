@@ -50,8 +50,7 @@ const loading = useLoading();
 async function onSubmit(values: FormValues): Promise<void> {
   const loader = loading.show();
   await mutateAsync(values, {
-    onSuccess(data) {
-      console.log('data:', data);
+    onSuccess() {
       toast.showToast({
         message: '登録が成功しました！',
       });

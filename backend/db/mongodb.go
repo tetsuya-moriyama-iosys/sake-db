@@ -11,6 +11,9 @@ import (
 
 var Client *mongo.Client
 
+// データベース名
+var dbName = "helloworld"
+
 func ConnectDB() {
 	// 認証情報を含むMongoDB接続URI
 	clientOptions := options.Client().ApplyURI("mongodb://root:root@localhost:27017/helloworld?authSource=admin")
@@ -35,5 +38,5 @@ func GetCollection(collectionName string) *mongo.Collection {
 	if Client == nil {
 		ConnectDB()
 	}
-	return Client.Database("helloworld").Collection(collectionName)
+	return Client.Database(dbName).Collection(collectionName)
 }

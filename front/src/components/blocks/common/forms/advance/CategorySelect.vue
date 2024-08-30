@@ -37,10 +37,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { ErrorMessage, useField } from 'vee-validate';
 import { type Category } from '@/type/common/liquor/Category';
 import useQuery from '@/funcs/composable/useQuery';
-import {
-  type Categories,
-  GET_QUERY,
-} from '@/type/api/common/liquor/Categories';
+import { type Categories, GET_QUERY } from '@/graphQL/Liquor/categories';
 import FormField from '@/components/parts/forms/core/FormField.vue';
 
 //propsのセット

@@ -2,14 +2,18 @@ package liquor
 
 import (
 	"backend/db"
-	"backend/graph/model"
+	categoryModel "backend/graph/model/category"
+	"backend/graph/model/liquor"
 	"backend/util/amazon/s3"
 	"backend/util/helper"
 	"bytes"
 	"context"
 	"encoding/base64"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"image"
 	"image/jpeg"
 	"log"
@@ -18,19 +22,20 @@ import (
 	"time"
 )
 
-// 画像以外の、ShouldBindでバインドするデータ
+// RequestData 画像以外の、ShouldBindでバインドするデータ
 type RequestData struct {
 	Name        string  `form:"title"`
 	CategoryID  int     `form:"category"`
 	Description *string `form:"description"`
 }
 
+// Base64にリサイズする際の横幅
+var maxWidth uint = 200
+
 func Post(c *gin.Context) {
 	var request RequestData
 	var imageBase64 *string = nil
 	var imageUrl *string = nil
-
-	log.Println("処理開始")
 
 	// 画像以外のフォームデータを構造体にバインド
 	if err := c.ShouldBind(&request); err != nil {
@@ -58,7 +63,6 @@ func Post(c *gin.Context) {
 
 	//画像登録処理
 	if img != nil {
-		log.Println("画像処理開始")
 		defer func(file multipart.File) {
 			err := file.Close()
 			if err != nil {
@@ -80,7 +84,7 @@ func Post(c *gin.Context) {
 		}
 
 		// リサイズ実行
-		thumbnail := helper.ResizeImage(img, 120, 200)
+		thumbnail := helper.ResizeImage(img, maxWidth, maxWidth/9*16)
 
 		// Base64エンコード
 		var thumbBuf bytes.Buffer
@@ -101,26 +105,39 @@ func Post(c *gin.Context) {
 		}
 	}
 
-	liquor := &model.Liquor{
-		ID:          primitive.NewObjectID().Hex(),
-		CategoryID:  request.CategoryID,
-		Name:        request.Name,
-		Description: request.Description,
-		ImageURL:    imageUrl,
-		ImageBase64: imageBase64,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+	//カテゴリ名を取得する
+	var result bson.M
+	err = db.GetCollection(categoryModel.CollectionName).FindOne(context.TODO(), bson.M{"id": request.CategoryID}).Decode(&result)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			fmt.Println("No document found with that ID")
+			return
+		}
+		log.Fatal(err)
 	}
 
-	log.Println("DB接続開始")
+	// nameフィールドを取得
+	name, ok := result[categoryModel.Name].(string)
+	if !ok {
+		fmt.Println("name field is not found or not a string")
+		return
+	}
 
-	_, err = db.GetCollection("liquors").InsertOne(ctx, liquor)
+	record := &liquorModel.Schema{
+		ID:           primitive.NewObjectID(),
+		CategoryID:   request.CategoryID,
+		CategoryName: name,
+		Name:         request.Name,
+		Description:  request.Description,
+		ImageURL:     imageUrl,
+		ImageBase64:  imageBase64,
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
+	}
+
+	_, err = db.GetCollection("liquors").InsertOne(ctx, record)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while creating liquor"})
 		return
 	}
-
-	// デバッグ用に受信データをログ出力
-	log.Printf("Received liquor data: %+v\n", liquor)
-
 }

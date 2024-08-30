@@ -1,6 +1,10 @@
 <!--トップページ-->
-<template>IndexPage</template>
+<template>
+  <IndexMain />
+</template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import IndexMain from '@/components/templates/IndexMain.vue';
+</script>
 
 <style scoped></style>
