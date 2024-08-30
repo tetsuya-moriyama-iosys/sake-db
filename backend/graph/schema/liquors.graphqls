@@ -6,8 +6,8 @@ type Liquor {
   category_id: Int!
   name: String!
   description: String
-  imageUrl: String        # S3に保存された画像のURL
-  imageBase64: String     # 縮小された画像のBase64エンコードデータ
+  image_url: String        # S3に保存された画像のURL
+  image_base64: String     # 縮小された画像のBase64エンコードデータ
   created_at: DateTime!
   updated_at: DateTime!
 }
@@ -15,15 +15,5 @@ type Liquor {
 extend type Query {
   liquors:[Liquor!]!
   liquor(id: Int!): Liquor!
-}
-
-input CreateLiquorRequest {
-  name: String!
-  category_id: Int!
-  description: String
-  image: Upload          # 画像ファイルをアップロードするフィールド
-}
-
-extend type Mutation {
-    createLiquor(inputs: CreateLiquorRequest!): Liquor!
+  randomRecommendList(limit: Int!): [Liquor!]! #ランダムなリスト
 }

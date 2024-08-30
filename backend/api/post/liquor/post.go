@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-// 画像以外の、ShouldBindでバインドするデータ
+// RequestData 画像以外の、ShouldBindでバインドするデータ
 type RequestData struct {
 	Name        string  `form:"title"`
 	CategoryID  int     `form:"category"`
@@ -29,8 +29,6 @@ func Post(c *gin.Context) {
 	var request RequestData
 	var imageBase64 *string = nil
 	var imageUrl *string = nil
-
-	log.Println("処理開始")
 
 	// 画像以外のフォームデータを構造体にバインド
 	if err := c.ShouldBind(&request); err != nil {
@@ -58,7 +56,6 @@ func Post(c *gin.Context) {
 
 	//画像登録処理
 	if img != nil {
-		log.Println("画像処理開始")
 		defer func(file multipart.File) {
 			err := file.Close()
 			if err != nil {
@@ -111,8 +108,6 @@ func Post(c *gin.Context) {
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}
-
-	log.Println("DB接続開始")
 
 	_, err = db.GetCollection("liquors").InsertOne(ctx, liquor)
 	if err != nil {

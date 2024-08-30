@@ -4,8 +4,6 @@ package model
 
 import (
 	"time"
-
-	"github.com/99designs/gqlgen/graphql"
 )
 
 type Category struct {
@@ -15,20 +13,13 @@ type Category struct {
 	Children []*Category `json:"children,omitempty"`
 }
 
-type CreateLiquorRequest struct {
-	Name        string          `json:"name"`
-	CategoryID  int             `json:"category_id"`
-	Description *string         `json:"description,omitempty"`
-	Image       *graphql.Upload `json:"image,omitempty"`
-}
-
 type Liquor struct {
 	ID          string    `json:"id"`
 	CategoryID  int       `json:"category_id"`
 	Name        string    `json:"name"`
 	Description *string   `json:"description,omitempty"`
-	ImageURL    *string   `json:"imageUrl,omitempty"`
-	ImageBase64 *string   `json:"imageBase64,omitempty"`
+	ImageURL    *string   `json:"image_url,omitempty"`
+	ImageBase64 *string   `json:"image_base64,omitempty"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
