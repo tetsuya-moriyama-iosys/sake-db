@@ -1,0 +1,208 @@
+[{
+  "_id": {
+    "$oid": "66af71756c7449be3ca902b6"
+  },
+  "id": 1,
+  "name": "蒸留酒",
+  "parent": null
+},
+{
+  "_id": {
+    "$oid": "66af71976c7449be3ca902b8"
+  },
+  "id": 2,
+  "name": "醸造酒",
+  "parent": null
+},
+{
+  "_id": {
+    "$oid": "66af71b16c7449be3ca902ba"
+  },
+  "id": 3,
+  "name": "混成酒(リキュール)",
+  "parent": null
+},
+{
+  "_id": {
+    "$oid": "66af71c16c7449be3ca902bc"
+  },
+  "id": 4,
+  "name": "その他",
+  "parent": null
+},
+{
+  "_id": {
+    "$oid": "66af72556c7449be3ca902bf"
+  },
+  "name": "ウイスキー",
+  "parent": 1,
+  "id": 11
+},
+{
+  "_id": {
+    "$oid": "66af728f6c7449be3ca902c1"
+  },
+  "id": 12,
+  "name": "ジン",
+  "parent": 1
+},
+{
+  "_id": {
+    "$oid": "66af72c56c7449be3ca902c3"
+  },
+  "id": 13,
+  "name": "ラム",
+  "parent": 1
+},
+{
+  "_id": {
+    "$oid": "66af72d76c7449be3ca902c5"
+  },
+  "id": 14,
+  "name": "ブランデー",
+  "parent": 1
+},
+{
+  "_id": {
+    "$oid": "66af72e36c7449be3ca902c7"
+  },
+  "id": 15,
+  "name": "ウォッカ",
+  "parent": 1
+},
+{
+  "_id": {
+    "$oid": "66af72ee6c7449be3ca902c9"
+  },
+  "id": 16,
+  "name": "テキーラ",
+  "parent": 1
+},
+{
+  "_id": {
+    "$oid": "66af742f6c7449be3ca902cb"
+  },
+  "id": 17,
+  "name": "その他",
+  "parent": 1
+},
+{
+  "_id": {
+    "$oid": "66af74f96c7449be3ca902cd"
+  },
+  "id": 51,
+  "name": "日本酒",
+  "parent": 2
+},
+{
+  "_id": {
+    "$oid": "66af75096c7449be3ca902cf"
+  },
+  "id": 52,
+  "name": "ビール",
+  "parent": 2
+},
+{
+  "_id": {
+    "$oid": "66af75186c7449be3ca902d1"
+  },
+  "id": 53,
+  "name": "ワイン",
+  "parent": 2
+},
+{
+  "_id": {
+    "$oid": "66af75276c7449be3ca902d3"
+  },
+  "id": 54,
+  "name": "その他",
+  "parent": 2
+},
+{
+  "_id": {
+    "$oid": "66b03b2c6c7449be3ca902d5"
+  },
+  "id": 101,
+  "name": "スコッチウイスキー",
+  "parent": 11
+},
+{
+  "_id": {
+    "$oid": "66b03b546c7449be3ca902d7"
+  },
+  "id": 102,
+  "name": "アイリッシュウイスキー",
+  "parent": 11
+},
+{
+  "_id": {
+    "$oid": "66b03b816c7449be3ca902d9"
+  },
+  "id": 103,
+  "name": "アメリカンウイスキー",
+  "parent": 11
+},
+{
+  "_id": {
+    "$oid": "66b03b966c7449be3ca902db"
+  },
+  "id": 104,
+  "name": "カナディアンウイスキー",
+  "parent": 11
+},
+{
+  "_id": {
+    "$oid": "66b03ba56c7449be3ca902dd"
+  },
+  "id": 105,
+  "name": "ジャパニーズウイスキー",
+  "parent": 11
+},
+{
+  "_id": {
+    "$oid": "66b03c426c7449be3ca902df"
+  },
+  "id": 106,
+  "name": "スペイサイド",
+  "parent": 101
+},
+{
+  "_id": {
+    "$oid": "66b03c6d6c7449be3ca902e1"
+  },
+  "id": 107,
+  "name": "ハイランド",
+  "parent": 101
+},
+{
+  "_id": {
+    "$oid": "66b03cae6c7449be3ca902e3"
+  },
+  "id": 108,
+  "name": "ローランド",
+  "parent": 101
+},
+{
+  "_id": {
+    "$oid": "66b03cdf6c7449be3ca902e6"
+  },
+  "id": 109,
+  "name": "アイランズ",
+  "parent": 101
+},
+{
+  "_id": {
+    "$oid": "66b03d7c6c7449be3ca902ea"
+  },
+  "id": 110,
+  "name": "アイラ",
+  "parent": 101
+},
+{
+  "_id": {
+    "$oid": "66b03d886c7449be3ca902ec"
+  },
+  "id": 111,
+  "name": "キャンベルタウン",
+  "parent": 101
+}]

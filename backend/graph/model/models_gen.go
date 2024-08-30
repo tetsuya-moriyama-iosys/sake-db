@@ -14,14 +14,15 @@ type Category struct {
 }
 
 type Liquor struct {
-	ID          string    `json:"id"`
-	CategoryID  int       `json:"category_id"`
-	Name        string    `json:"name"`
-	Description *string   `json:"description,omitempty"`
-	ImageURL    *string   `json:"image_url,omitempty"`
-	ImageBase64 *string   `json:"image_base64,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID           string    `json:"id"`
+	CategoryID   int       `json:"categoryId"`
+	CategoryName string    `json:"categoryName"`
+	Name         string    `json:"name"`
+	Description  *string   `json:"description,omitempty"`
+	ImageURL     *string   `json:"imageUrl,omitempty"`
+	ImageBase64  *string   `json:"imageBase64,omitempty"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
 }
 
 type Mutation struct {

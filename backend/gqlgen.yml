@@ -79,6 +79,9 @@ models:
   ID:
     model:
       - github.com/99designs/gqlgen/graphql.ID
+  ObjectID:
+    model:
+      - go.mongodb.org/mongo-driver/bson/primitive.ObjectID
   DateTime:
     model:
       - github.com/99designs/gqlgen/graphql.Time

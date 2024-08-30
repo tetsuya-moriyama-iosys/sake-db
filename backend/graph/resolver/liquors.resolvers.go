@@ -7,27 +7,37 @@ package resolver
 import (
 	"backend/db"
 	"backend/graph/model"
+	liquorModel "backend/graph/model/liquor"
 	"context"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// Liquors is the resolver for the liquors field.
-func (r *queryResolver) Liquors(ctx context.Context) ([]*model.Liquor, error) {
-	panic(fmt.Errorf("not implemented: Liquors - liquors"))
-}
-
 // Liquor is the resolver for the liquor field.
-func (r *queryResolver) Liquor(ctx context.Context, id int) (*model.Liquor, error) {
-	panic(fmt.Errorf("not implemented: Liquor - liquor"))
+func (r *queryResolver) Liquor(ctx context.Context, id string) (*model.Liquor, error) {
+	// idをObjectIDに変換
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, fmt.Errorf("無効なID形式: %s", id)
+	}
+
+	// コレクションを取得
+	var liquor liquorModel.Schema
+	if err := db.GetCollection(liquorModel.CollectionName).FindOne(context.TODO(), bson.M{liquorModel.ID: objectID}).Decode(&liquor); err != nil {
+		log.Println("デコードエラー:", err)
+		return nil, err
+	}
+	return liquor.ToGraphQL(), nil
 }
 
 // RandomRecommendList is the resolver for the randomRecommendList field.
 func (r *queryResolver) RandomRecommendList(ctx context.Context, limit int) ([]*model.Liquor, error) {
 	// コレクションを取得
-	collection := db.GetCollection("liquors")
+	collection := db.GetCollection(liquorModel.CollectionName)
 
 	// $sampleパイプラインを使ってランダムに指定件数を取得
 	cursor, err := collection.Aggregate(ctx, mongo.Pipeline{
@@ -38,9 +48,15 @@ func (r *queryResolver) RandomRecommendList(ctx context.Context, limit int) ([]*
 	}
 	defer cursor.Close(ctx)
 
-	var results []*model.Liquor
-	if err = cursor.All(ctx, &results); err != nil {
+	var collections []*liquorModel.Schema
+	if err = cursor.All(ctx, &collections); err != nil {
 		return nil, err
+	}
+
+	var results []*model.Liquor
+	// 結果をGraphQLの構造体にマッピング（スネークケースからキャメルケースへの変換）
+	for _, liquor := range collections {
+		results = append(results, liquor.ToGraphQL())
 	}
 
 	return results, nil

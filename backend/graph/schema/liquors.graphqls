@@ -2,18 +2,18 @@ scalar DateTime
 scalar Upload
 
 type Liquor {
-  id: ID!
-  category_id: Int!
+  id: String!
+  categoryId: Int!
+  categoryName: String!
   name: String!
   description: String
-  image_url: String        # S3に保存された画像のURL
-  image_base64: String     # 縮小された画像のBase64エンコードデータ
-  created_at: DateTime!
-  updated_at: DateTime!
+  imageUrl: String        # S3に保存された画像のURL
+  imageBase64: String     # 縮小された画像のBase64エンコードデータ
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 extend type Query {
-  liquors:[Liquor!]!
-  liquor(id: Int!): Liquor!
+  liquor(id: String!): Liquor!
   randomRecommendList(limit: Int!): [Liquor!]! #ランダムなリスト
 }

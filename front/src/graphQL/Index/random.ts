@@ -1,11 +1,17 @@
 import { gql, type DocumentNode } from '@apollo/client/core';
 
 export interface RecommendLiquorResponse {
-  id: number;
+  randomRecommendList: Liquor[];
+}
+
+export interface Liquor {
+  id: string;
   name: string;
-  image_base64: Blob;
+  categoryId: number;
+  categoryName: string;
+  imageBase64: string;
   description: string;
-  updated_at: Date;
+  updatedAt: Date;
 }
 
 export const RANDOM_RECOMMEND_LIST: DocumentNode = gql`
@@ -13,9 +19,11 @@ export const RANDOM_RECOMMEND_LIST: DocumentNode = gql`
     randomRecommendList(limit: $limit) {
       id
       name
-      image_base64
+      categoryId
+      categoryName
       description
-      updated_at
+      imageBase64
+      updatedAt
     }
   }
 `;
