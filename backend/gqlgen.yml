@@ -14,8 +14,8 @@ exec:
 
 # Where should any generated models go?
 model:
-  filename: graph/model/models_gen.go
-  package: model
+  filename: graph/graphModel/models_gen.go
+  package: graphModel
 
 # Where should the resolver implementations go?
 resolver:
@@ -66,7 +66,7 @@ resolver:
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
 autobind:
- - "backend/graph/model"
+ - "backend/graph/graphModel"
 
 #  - "backend/graph/model"
 

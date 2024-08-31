@@ -11,7 +11,7 @@
     />
     <ErrorMessage :name="FormKeys.CATEGORY" />
     <FormField :name="FormKeys.TITLE" label="名前" />
-    <FormField :name="FormKeys.DESCRIPTION" label="説明" />
+    <FormField :name="FormKeys.DESCRIPTION" label="説明" as="textarea" />
     <FormField
       :name="FormKeys.IMAGE"
       type="file"

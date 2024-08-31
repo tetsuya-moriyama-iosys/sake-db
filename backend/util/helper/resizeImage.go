@@ -5,29 +5,35 @@ import (
 	"image"
 )
 
-func ResizeImage(img image.Image, maxWidth uint, maxHeight uint) image.Image {
+func ResizeImage(img image.Image, maxWidth *uint, maxHeight *uint) image.Image {
 	// 画像の幅と高さを取得
 	origWidth := img.Bounds().Dx()
 	origHeight := img.Bounds().Dy()
 
+	// デフォルト値の設定
+	var newWidth, newHeight uint
+	if maxWidth == nil {
+		newWidth = uint(origWidth)
+	} else {
+		newWidth = *maxWidth
+	}
+
+	if maxHeight == nil {
+		newHeight = uint(origHeight)
+	} else {
+		newHeight = *maxHeight
+	}
+
 	// アスペクト比を維持しつつ、指定された領域に収めるための計算
 	ratio := float64(origWidth) / float64(origHeight)
 
-	var newWidth, newHeight uint
-
-	if uint(origWidth) > maxWidth || uint(origHeight) > maxHeight {
+	if newWidth < uint(origWidth) || newHeight < uint(origHeight) {
 		// 画像が指定された領域を超える場合
-		if float64(maxWidth)/ratio <= float64(maxHeight) {
-			newWidth = maxWidth
-			newHeight = uint(float64(maxWidth) / ratio)
+		if float64(newWidth)/ratio <= float64(newHeight) {
+			newHeight = uint(float64(newWidth) / ratio)
 		} else {
-			newHeight = maxHeight
-			newWidth = uint(float64(maxHeight) * ratio)
+			newWidth = uint(float64(newHeight) * ratio)
 		}
-	} else {
-		// 画像が指定された領域内に収まる場合、そのままのサイズ
-		newWidth = uint(origWidth)
-		newHeight = uint(origHeight)
 	}
 
 	// リサイズ実行
