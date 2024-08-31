@@ -17,5 +17,5 @@ func (r *queryResolver) Categories(ctx context.Context) ([]*graphModel.Category,
 	if err != nil {
 		return nil, err
 	}
-	return categories, nil
+	return categoryService.ConvertToModelCategories(categories), nil
 }

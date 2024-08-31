@@ -18,16 +18,24 @@ func sortCategories(categories []*categoriesRepository.Category) {
 	}
 }
 
-func ConvertToModelCategory(c *categoriesRepository.Category) *graphModel.Category {
-	mc := &graphModel.Category{
-		ID:   c.ID,
-		Name: c.Name,
+// ConvertToModelCategories 再帰的に Category を graphModel.Category に変換する
+func ConvertToModelCategories(categories []*categoriesRepository.Category) []*graphModel.Category {
+	var modelCategories []*graphModel.Category
+
+	for _, category := range categories {
+		// 子カテゴリを再帰的に変換
+		children := ConvertToModelCategories(category.Children)
+
+		// graphModel.Category を作成
+		modelCategory := &graphModel.Category{
+			ID:       category.ID,
+			Name:     category.Name,
+			Parent:   category.Parent, // 親カテゴリのIDをそのまま保持
+			Children: children,        // 再帰的に変換された子カテゴリをセット
+		}
+
+		modelCategories = append(modelCategories, modelCategory)
 	}
-	if c.Parent != nil {
-		mc.Parent = c.Parent
-	}
-	for _, child := range c.Children {
-		mc.Children = append(mc.Children, ConvertToModelCategory(child))
-	}
-	return mc
+
+	return modelCategories
 }

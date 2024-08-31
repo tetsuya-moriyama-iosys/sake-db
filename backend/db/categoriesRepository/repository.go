@@ -60,17 +60,14 @@ func (r *CategoryRepository) GetCategories(ctx context.Context) ([]*Category, er
 
 // GetCategoryNameByID IDからカテゴリ名を取得する
 func (r *CategoryRepository) GetCategoryNameByID(ctx context.Context, id int) (string, error) {
-	log.Println("category_id is:", id)
 	var result bson.M
 	err := r.collection.FindOne(ctx, bson.M{"id": id}).Decode(&result)
 	if err != nil {
-		log.Println("not found")
 		if err == mongo.ErrNoDocuments {
 			return "", errors.New("category not found")
 		}
 		return "", err
 	}
-	log.Println("found:", result)
 
 	name, ok := result[categoryModel.Name].(string)
 	if !ok {
