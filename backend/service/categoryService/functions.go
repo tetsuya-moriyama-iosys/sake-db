@@ -2,7 +2,7 @@ package categoryService
 
 import (
 	"backend/db/categoriesRepository"
-	"backend/graph/model"
+	"backend/graph/graphModel"
 	"sort"
 )
 
@@ -18,8 +18,8 @@ func sortCategories(categories []*categoriesRepository.Category) {
 	}
 }
 
-func ConvertToModelCategory(c *categoriesRepository.Category) *model.Category {
-	mc := &model.Category{
+func ConvertToModelCategory(c *categoriesRepository.Category) *graphModel.Category {
+	mc := &graphModel.Category{
 		ID:   c.ID,
 		Name: c.Name,
 	}

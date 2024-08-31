@@ -1,7 +1,7 @@
 package liquorPost
 
 import (
-	"backend/graph/model/liquor"
+	"backend/graph/graphModel/liquor"
 	"backend/util/amazon/s3"
 	"backend/util/helper"
 	"context"

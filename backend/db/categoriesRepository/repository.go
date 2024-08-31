@@ -2,7 +2,7 @@ package categoriesRepository
 
 import (
 	"backend/db"
-	categoryModel "backend/graph/model/category"
+	"backend/graph/graphModel/category"
 	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -38,19 +38,24 @@ func (r *CategoryRepository) GetCategories(ctx context.Context) ([]*Category, er
 		log.Fatal("データ取得エラー:", err)
 		return nil, err
 	}
-	defer cursor.Close(context.TODO())
+	defer cursor.Close(ctx)
 
-	var categoryMap []*Category
-	for cursor.Next(context.TODO()) {
+	var categoryList []*Category
+	for cursor.Next(ctx) {
 		var category Category
 		if err := cursor.Decode(&category); err != nil {
 			log.Fatal("デコードエラー:", err)
 			return nil, err
 		}
-		categoryMap[category.ID] = &category
+		categoryList = append(categoryList, &category)
 	}
 
-	return categoryMap, nil
+	if err := cursor.Err(); err != nil {
+		log.Fatal("カーソルエラー:", err)
+		return nil, err
+	}
+
+	return categoryList, nil
 }
 
 // GetCategoryNameByID IDからカテゴリ名を取得する

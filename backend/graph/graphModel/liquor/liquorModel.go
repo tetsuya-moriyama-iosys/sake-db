@@ -1,7 +1,7 @@
 package liquorModel
 
 import (
-	"backend/graph/model"
+	"backend/graph/graphModel"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
@@ -32,8 +32,8 @@ type Schema struct {
 	UpdatedAt    time.Time          `bson:"updated_at"`
 }
 
-func (ldb *Schema) ToGraphQL() *model.Liquor {
-	return &model.Liquor{
+func (ldb *Schema) ToGraphQL() *graphModel.Liquor {
+	return &graphModel.Liquor{
 		ID:           ldb.ID.Hex(),
 		CategoryID:   ldb.CategoryID,
 		CategoryName: ldb.CategoryName,
@@ -46,7 +46,7 @@ func (ldb *Schema) ToGraphQL() *model.Liquor {
 	}
 }
 
-func FromGraphQL(l *model.Liquor) *Schema {
+func FromGraphQL(l *graphModel.Liquor) *Schema {
 	objectID, err := primitive.ObjectIDFromHex(l.ID)
 	if err != nil {
 		fmt.Println("Invalid ObjectID string")

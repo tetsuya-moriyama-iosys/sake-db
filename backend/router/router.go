@@ -19,13 +19,14 @@ func configureRoutes(r *gin.Engine, srv *handler.Server, handlers *handlers.Hand
 	//r.POST("/login", func(c *gin.Context) {
 	//	login.Login(c)
 	//})
+
+	// 酒データの投稿
 	r.POST("/post", func(c *gin.Context) {
 		handlers.LiquorHandler.Post(c)
 	})
 
 	// GraphQLインターフェース
 	r.POST("/query", func(c *gin.Context) {
-		log.Println("GraphQL playground handler called - post")
 		defer func() {
 			if r := recover(); r != nil {
 				log.Printf("Panic occurred: %v", r)
@@ -40,7 +41,6 @@ func configureRoutes(r *gin.Engine, srv *handler.Server, handlers *handlers.Hand
 		srv.ServeHTTP(c.Writer, c.Request)
 	})
 	r.GET("/query", func(c *gin.Context) {
-		log.Println("GraphQL playground handler called - get")
 		playground.Handler("GraphQL", "/query").ServeHTTP(c.Writer, c.Request)
 	})
 }

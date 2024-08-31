@@ -4,7 +4,6 @@ import (
 	"backend/db/categoriesRepository"
 	"backend/db/liquorRepository"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/google/wire"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -24,7 +23,3 @@ func NewHandler(db *mongo.Database, s3Client *s3.S3, categoryRepo categoriesRepo
 		LiquorsRepo:  LiquorsRepo,
 	}
 }
-
-var Dependencies = wire.NewSet(
-	NewHandler, // LiquorHandler のコンストラクタ
-)
