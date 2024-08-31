@@ -26,6 +26,20 @@ type ImageData struct {
 	Format string      // 画像のフォーマット（例: "jpeg", "png" など）
 }
 
+func NewS3Client() (*s3.S3, error) {
+	awsRegion := os.Getenv("AWS_REGION")
+
+	sess, err := session.NewSession(&aws.Config{
+		Region: aws.String(awsRegion),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return s3.New(sess), nil
+}
+
 // NewS3Uploader はS3Uploaderを初期化するためのファクトリ関数
 func NewS3Uploader(region, bucketName string) (*Uploader, error) {
 	sess, err := session.NewSession(&aws.Config{

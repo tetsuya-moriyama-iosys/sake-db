@@ -1,39 +1,23 @@
 package helper
 
 import (
-	"bytes"
-	"fmt"
 	"image"
-	"io"
+	"mime/multipart"
 )
 
-func GetBufImage(image io.ReadSeeker) (*bytes.Buffer, error) {
-	// 画像データをバイトスライスとして読み取る
-	var buf bytes.Buffer
-	_, err := io.Copy(&buf, image)
+func DecodeImage(img multipart.File) (image.Image, string, error) {
+	defer func(file multipart.File) {
+		err := file.Close()
+		if err != nil {
+			return
+		}
+	}(img)
+
+	// 画像データをデコードして、ImageData構造体に格納
+	result, format, err := image.Decode(img)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read image file: %v", err)
+		return nil, "", err
 	}
 
-	return &buf, nil
-}
-
-func DecodeImage(buf *bytes.Buffer) (image.Image, error) {
-	img, _, err := image.Decode(buf)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode image: %v", err)
-	}
-	return img, nil
-}
-
-func GetImageFromRequest(image io.ReadSeeker) (image.Image, error) {
-	buf, err := GetBufImage(image)
-	if err != nil {
-		return nil, err
-	}
-	img, err := DecodeImage(buf)
-	if err != nil {
-		return nil, err
-	}
-	return img, nil
+	return result, format, err
 }

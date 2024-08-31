@@ -2,41 +2,61 @@ package db
 
 import (
 	"context"
-	"log"
+	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var Client *mongo.Client
-
-// データベース名
-var dbName = "helloworld"
-
-func ConnectDB() {
-	// 認証情報を含むMongoDB接続URI
-	clientOptions := options.Client().ApplyURI("mongodb://root:root@localhost:27017/helloworld?authSource=admin")
-	client, err := mongo.Connect(context.TODO(), clientOptions)
-	if err != nil {
-		log.Fatal("Error connecting to MongoDB:", err)
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	err = client.Ping(ctx, nil)
-	if err != nil {
-		log.Fatal("Error pinging MongoDB:", err)
-	}
-
-	Client = client
-	log.Println("Connected to MongoDB!")
+type Database interface {
+	Collection(name string) *mongo.Collection
 }
 
-func GetCollection(collectionName string) *mongo.Collection {
-	if Client == nil {
-		ConnectDB()
+// DB 接続情報を格納する構造体
+type DB struct {
+	Client *mongo.Client
+	DBName string
+}
+
+func NewMongoClient() (*mongo.Client, error) {
+	mongoURI := os.Getenv("MONGO_URI")
+	clientOptions := options.Client().ApplyURI(mongoURI)
+	client, err := mongo.NewClient(clientOptions)
+
+	if err != nil {
+		return nil, err
 	}
-	return Client.Database(dbName).Collection(collectionName)
+
+	// Connect to MongoDB
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	err = client.Connect(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Ping the MongoDB server to verify connection
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
+}
+
+func NewDB(client *mongo.Client) *DB {
+	dbName := os.Getenv("MAIN_DB_NAME")
+	return &DB{
+		Client: client,
+		DBName: dbName,
+	}
+}
+
+func ProvideMongoDatabase(db *DB) *mongo.Database {
+	return db.Client.Database(db.DBName)
+}
+
+func (db *DB) Collection(name string) *mongo.Collection {
+	return db.Client.Database(db.DBName).Collection(name)
 }

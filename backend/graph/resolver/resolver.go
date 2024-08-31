@@ -1,10 +1,18 @@
 package resolver
 
 import (
-	"go.mongodb.org/mongo-driver/mongo"
+	"backend/db/categoriesRepository"
+	"backend/db/liquorRepository"
 )
 
 type Resolver struct {
-	DB        *mongo.Database
-	SecretKey string
+	CategoryRepo categoriesRepository.CategoryRepository
+	LiquorRepo   liquorRepository.LiquorsRepository
+}
+
+func NewResolver(categoryRepo categoriesRepository.CategoryRepository, liquorRepo liquorRepository.LiquorsRepository) *Resolver {
+	return &Resolver{
+		CategoryRepo: categoryRepo,
+		LiquorRepo:   liquorRepo,
+	}
 }
