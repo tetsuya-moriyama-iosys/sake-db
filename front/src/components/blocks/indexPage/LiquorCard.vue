@@ -11,6 +11,10 @@
       </div>
     </router-link>
     <div class="bottom-content">
+      <router-link
+        :to="{ name: 'CategoryDetail', params: { id: liquor.categoryId } }"
+        ><p class="category-name">{{ liquor.categoryName }}</p></router-link
+      >
       <router-link :to="{ name: 'LiquorDetail', params: { id: liquor.id } }"
         ><p class="title">{{ liquor.name }}</p></router-link
       >
@@ -43,6 +47,9 @@ div.liquor-container {
     }
   }
   div.bottom-content {
+    p.category-name {
+      font-size: 75%;
+    }
     p.title {
       font-weight: bold;
     }

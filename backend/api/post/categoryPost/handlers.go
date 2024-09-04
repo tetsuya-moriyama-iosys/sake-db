@@ -1,4 +1,4 @@
-package liquorPost
+package categoryPost
 
 import (
 	"backend/db/repository/categoriesRepository"
@@ -11,7 +11,6 @@ type Handler struct {
 	DB           *mongo.Database
 	S3Client     *s3.S3
 	CategoryRepo categoriesRepository.CategoryRepository
-	LiquorsRepo  liquorRepository.LiquorsRepository
 }
 
 // NewHandler 新しいLiquorHandlerを作成するコンストラクタ
@@ -20,6 +19,5 @@ func NewHandler(db *mongo.Database, s3Client *s3.S3, categoryRepo categoriesRepo
 		DB:           db,
 		S3Client:     s3Client,
 		CategoryRepo: categoryRepo,
-		LiquorsRepo:  LiquorsRepo,
 	}
 }

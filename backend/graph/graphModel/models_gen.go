@@ -7,10 +7,16 @@ import (
 )
 
 type Category struct {
-	ID       int         `json:"id"`
-	Name     string      `json:"name"`
-	Parent   *int        `json:"parent,omitempty"`
-	Children []*Category `json:"children,omitempty"`
+	ID          int         `json:"id"`
+	Name        string      `json:"name"`
+	Parent      *int        `json:"parent,omitempty"`
+	Description *string     `json:"description,omitempty"`
+	ImageURL    *string     `json:"imageUrl,omitempty"`
+	ImageBase64 *string     `json:"imageBase64,omitempty"`
+	VersionNo   *int        `json:"versionNo,omitempty"`
+	CreatedAt   time.Time   `json:"createdAt"`
+	UpdatedAt   time.Time   `json:"updatedAt"`
+	Children    []*Category `json:"children,omitempty"`
 }
 
 type Liquor struct {
@@ -23,6 +29,7 @@ type Liquor struct {
 	ImageBase64  *string   `json:"imageBase64,omitempty"`
 	CreatedAt    time.Time `json:"createdAt"`
 	UpdatedAt    time.Time `json:"updatedAt"`
+	VersionNo    int       `json:"versionNo"`
 }
 
 type Query struct {

@@ -1,8 +1,6 @@
 <!--酒の情報ページ-->
 <template>
-  <div v-if="liquor">
-    <LiquorDetail :liquor="liquor" />
-  </div>
+  <LiquorDetail v-if="liquor" :liquor="liquor" />
 </template>
 
 <script setup lang="ts">
@@ -16,21 +14,26 @@ import {
 } from '@/graphQL/Liquor/liquor';
 import { useRoute } from 'vue-router';
 
+const isLoading = ref<boolean>(true);
+
 const route = useRoute(); // 現在のルートを取得
-const { fetch } = useQuery<LiquorResponse>(LIQUOR_DETAIL_GET);
+const { fetch } = useQuery<LiquorResponse<Liquor>>(LIQUOR_DETAIL_GET);
 
 const liquor = ref<Liquor | null>(null);
 
 // 読み込み時に情報をAPIから取得
 onMounted(async () => {
   const id = route.params.id as string; // ルートパラメータからidを取得
+  if (!id) {
+    isLoading.value = false;
+    return;
+  }
   const { liquor: response } = await fetch({
     variables: {
       id: id,
     },
   });
   liquor.value = response;
+  isLoading.value = false;
 });
 </script>
-
-<style scoped></style>

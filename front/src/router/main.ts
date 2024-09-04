@@ -3,8 +3,10 @@
  */
 import Layout from '@/components/layouts/main/BaseLayout.vue';
 import IndexPage from '@/views/Discovery/IndexPage.vue';
-import CreatePost from '@/views/Post/CreatePost.vue';
-import DetailPage from '@/views/Discovery/Liquor/DetailPage.vue';
+import CreatePost from '@/views/Post/LiquorEditPage.vue';
+import DetailPage from '@/views/Discovery/Liquor/LiquorPage.vue';
+import CategoryPage from '@/views/Discovery/Category/CategoryPage.vue';
+import CategoryEditPage from '@/views/Post/CategoryEditPage.vue';
 
 const MainRouter = {
   path: '/',
@@ -17,14 +19,24 @@ const MainRouter = {
       component: IndexPage,
     },
     {
-      path: '/post',
-      name: 'Post',
+      path: '/post/:id?',
+      name: 'LiquorEdit',
       component: CreatePost,
     },
     {
-      path: '/liquor/:id',
-      name: 'LiquorDetail',
-      component: DetailPage,
+      path: '/liquor',
+      children: [{ path: ':id?', name: 'LiquorDetail', component: DetailPage }],
+    },
+    {
+      path: '/category',
+      children: [
+        { path: ':id', name: 'CategoryDetail', component: CategoryPage },
+        {
+          path: 'edit/:id?',
+          name: 'CategoryEdit',
+          component: CategoryEditPage,
+        },
+      ],
     },
   ],
 };

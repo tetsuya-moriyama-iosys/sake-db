@@ -1,15 +1,14 @@
-package liquorPost
+package categoryPost
 
 import (
 	"backend/const/errorMsg"
 	"backend/db"
-	"backend/db/repository/liquorRepository"
+	"backend/db/repository/categoriesRepository"
 	"backend/util/amazon/s3"
 	"backend/util/helper"
 	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 	"time"
@@ -17,9 +16,9 @@ import (
 
 // RequestData 画像以外の、ShouldBindでバインドするデータ
 type RequestData struct {
-	Id          string  `form:"id"`
+	Id          int     `form:"id"`
 	Name        string  `form:"name"`
-	CategoryID  int     `form:"category"`
+	Parent      int     `form:"parent"`
 	Description *string `form:"description"`
 	VersionNo   *int    `form:"version_no"`
 }
@@ -27,7 +26,7 @@ type RequestData struct {
 // Base64にリサイズする際の横幅
 var maxWidth uint = 200
 
-func (h *Handler) Post(c *gin.Context) (*string, error) {
+func (h *Handler) Post(c *gin.Context) (*int, error) {
 	var request RequestData
 	var imageBase64 *string
 	var imageUrl *string
@@ -42,11 +41,11 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 	}
 
 	//logsに代入する現在のドキュメントを取得する
-	old, err := h.LiquorsRepo.GetLiquorById(ctx, request.Id)
+	old, err := h.CategoryRepo.GetCategoryByID(ctx, request.Id)
 
 	//IDが空でない(=編集)の場合、バージョンnoのチェックを行う
 	if !helper.IsEmpty(&request.Id) {
-		if old.VersionNo != *request.VersionNo {
+		if old.VersionNo != request.VersionNo {
 			return nil, errors.New(errorMsg.VERSION)
 		}
 	}
@@ -91,24 +90,21 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 		}
 	}
 
-	//カテゴリ名を取得する
-	category, err := h.CategoryRepo.GetCategoryByID(ctx, request.CategoryID)
-	if err != nil {
-		return nil, err
-	}
-
 	//新バージョンNoを作成する
 	var newVersionNo int
 	var newCreatedAt time.Time
-	var id primitive.ObjectID
+	var id int
 	if request.VersionNo != nil {
 		//更新の場合
-		id, _ = primitive.ObjectIDFromHex(request.Id) //エラーが出ることはここでは考慮しない
+		id = request.Id
 		newVersionNo = *request.VersionNo + 1
-		newCreatedAt = old.CreatedAt
 	} else {
 		//初回作成の場合
-		id = primitive.NewObjectID()
+		maxId, err := h.CategoryRepo.GetMaxID(ctx)
+		if err != nil {
+			return nil, err
+		}
+		id = maxId + 1
 		newVersionNo = 1 // 初回作成の場合、VersionNoを1に設定
 		newCreatedAt = time.Now()
 	}
@@ -125,49 +121,48 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 	}
 
 	//挿入するドキュメントを作成
-	record := &liquorRepository.Model{
-		ID:           id,
-		CategoryID:   request.CategoryID,
-		CategoryName: category.Name,
-		Name:         request.Name,
-		Description:  request.Description,
-		ImageURL:     newImageURL,
-		ImageBase64:  newBase64,
-		CreatedAt:    newCreatedAt,
-		UpdatedAt:    time.Now(),
-		VersionNo:    newVersionNo,
+	record := &categoriesRepository.Model{
+		ID:          id,
+		Parent:      &request.Parent,
+		Name:        request.Name,
+		Description: request.Description,
+		ImageURL:    newImageURL,
+		ImageBase64: newBase64,
+		CreatedAt:   newCreatedAt,
+		UpdatedAt:   time.Now(),
+		VersionNo:   &newVersionNo,
 	}
 
 	//トランザクション
-	newId, err := db.WithTransaction(ctx, h.DB.Client(), func(sc mongo.SessionContext) (*string, error) {
+	_, err = db.WithTransaction(ctx, h.DB.Client(), func(sc mongo.SessionContext) (struct{}, error) {
+		zero := struct{}{}
+
 		// トランザクション内での操作1
 		if old == nil {
 			//新規追加
-			newObjId, err := h.LiquorsRepo.InsertOne(ctx, record)
+			err := h.CategoryRepo.InsertOne(ctx, record)
 			if err != nil {
-				return nil, err
+				return zero, err
 			}
-			newObjIdStr := newObjId.Hex()
-			return &newObjIdStr, nil
+			return zero, nil
 		}
 		//更新
-		newObjId, err := h.LiquorsRepo.UpdateOne(ctx, record)
+		err := h.CategoryRepo.UpdateOne(ctx, record)
 		if err != nil {
-			return nil, err
+			return zero, err
 		}
 
 		//logsに追加
 		if !helper.IsEmpty(&request.Id) {
-			err = h.LiquorsRepo.InsertOneToLog(ctx, old)
+			err = h.CategoryRepo.InsertOneToLog(ctx, old)
 			if err != nil {
-				return nil, err
+				return zero, err
 			}
 		}
-		newObjIdStr := newObjId.Hex()
-		return &newObjIdStr, nil
+		return zero, nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	return newId, nil
+	return &record.ID, nil
 }

@@ -11,6 +11,7 @@ type Liquor {
   imageBase64: String     # 縮小された画像のBase64エンコードデータ
   createdAt: DateTime!
   updatedAt: DateTime!
+  versionNo: Int!
 }
 
 extend type Query {
