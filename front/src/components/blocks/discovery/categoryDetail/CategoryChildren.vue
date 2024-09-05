@@ -8,7 +8,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import type { Category } from '@/graphQL/Liquor/categories';
+import type { Category } from '@/graphQL/Category/categories';
 
 interface Props {
   categoryList: Category[];

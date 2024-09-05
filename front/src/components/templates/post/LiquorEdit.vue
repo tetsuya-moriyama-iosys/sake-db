@@ -30,7 +30,11 @@
 </template>
 
 <script setup lang="ts">
-import { ErrorMessage, Form as VForm } from 'vee-validate';
+import {
+  ErrorMessage,
+  Form as VForm,
+  type SubmissionHandler,
+} from 'vee-validate';
 import {
   FormKeys,
   type FormValues,
@@ -50,6 +54,8 @@ import PostAPIType, {
 import { useLoading } from 'vue-loading-overlay';
 import type { LiquorForEdit } from '@/graphQL/Liquor/liquor';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import type { AxiosResponse } from 'axios';
 
 // propsから受け取る初期値
 const { initialData } = defineProps<{
@@ -58,27 +64,37 @@ const { initialData } = defineProps<{
 
 //必要な関数をインポート
 const { mutateAsync } = useApiMutation<PostRequest, PostResponse>(PostAPIType);
+const router = useRouter();
 const toast: ToastCommand = useToast();
 const loading = useLoading();
 
 // 初期値を定義
 const initialValues = ref<FormValues>(generateInitialValues(initialData));
 
-async function onSubmit(values: FormValues): Promise<void> {
+// extends GenericObjectは型が広すぎるのでキャストして対応する
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-expect-error
+const onSubmit: SubmissionHandler = async (
+  values: FormValues,
+): Promise<void> => {
   const loader = loading.show();
   //Categoryが空はバリデーションで弾かれる想定なのでキャスト
   await mutateAsync(<PostRequest>values, {
-    onSuccess(value) {
-      console.log('レスポンス：', value);
+    onSuccess(value: AxiosResponse<PostResponse>) {
       toast.showToast({
         message: '登録が成功しました！',
+      });
+      router.push({
+        name: 'LiquorDetail',
+        params: { id: value.data.id },
+        state: { noCache: true },
       });
     },
     onSettled() {
       loader.hide();
     },
   });
-}
+};
 </script>
 
 <style scoped></style>

@@ -56,3 +56,51 @@ func PartialLeveledCategoriesGet(ctx context.Context, targetId int, r *categorie
 	}
 	return nil, nil
 }
+
+func GetBelongCategoryIdList(ctx context.Context, targetId int, r *categoriesRepository.CategoryRepository) ([]int, error) {
+	var result []int
+	categoryList, err := PartialLeveledCategoriesGet(ctx, targetId, r)
+	if err != nil {
+		return result, err
+	}
+
+	// IDリストを取得するためのヘルパー関数
+	var collectCategoryIDs func(category *categoriesRepository.Model)
+	collectCategoryIDs = func(category *categoriesRepository.Model) {
+		// まず、自身のIDを追加
+		result = append(result, category.ID)
+		for _, child := range category.Children {
+			// 子カテゴリがある場合は再帰的にIDを収集
+			collectCategoryIDs(child)
+		}
+	}
+
+	// categoryListのIDを収集
+	collectCategoryIDs(categoryList)
+
+	return result, nil
+}
+
+// GetCategoryTrail 指定されたカテゴリIDのパンくずリストを配列として作成する
+func GetCategoryTrail(ctx context.Context, targetId int, r *categoriesRepository.CategoryRepository) (*[]categoriesRepository.Model, error) {
+	var result []categoriesRepository.Model
+	//DBからデータを取得
+	categories, err := r.GetCategories(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// IDを取得するためのヘルパー関数
+	var appendCategory func(category *categoriesRepository.Model)
+	appendCategory = func(category *categoriesRepository.Model) {
+		// まず、配列の先頭に自身を追加
+		result = append([]categoriesRepository.Model{*category}, result...)
+		if category.Parent != nil {
+			appendCategory(FindCategoryByID(categories, *category.Parent))
+		}
+	}
+
+	appendCategory(FindCategoryByID(categories, targetId))
+
+	return &result, nil
+}

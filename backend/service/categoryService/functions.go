@@ -46,8 +46,10 @@ func FindCategoryByID(rootCategories []*categoriesRepository.Model, targetID int
 			return category
 		}
 		// 子カテゴリに対して再帰的に検索
-		if foundCategory := FindCategoryByID(category.Children, targetID); foundCategory != nil {
-			return foundCategory
+		if category.Children != nil {
+			if foundCategory := FindCategoryByID(category.Children, targetID); foundCategory != nil {
+				return foundCategory
+			}
 		}
 	}
 	return nil

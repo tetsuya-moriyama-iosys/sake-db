@@ -19,17 +19,23 @@ type Category struct {
 	Children    []*Category `json:"children,omitempty"`
 }
 
+type CategoryTrail struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
 type Liquor struct {
-	ID           string    `json:"id"`
-	CategoryID   int       `json:"categoryId"`
-	CategoryName string    `json:"categoryName"`
-	Name         string    `json:"name"`
-	Description  *string   `json:"description,omitempty"`
-	ImageURL     *string   `json:"imageUrl,omitempty"`
-	ImageBase64  *string   `json:"imageBase64,omitempty"`
-	CreatedAt    time.Time `json:"createdAt"`
-	UpdatedAt    time.Time `json:"updatedAt"`
-	VersionNo    int       `json:"versionNo"`
+	ID            string           `json:"id"`
+	CategoryID    int              `json:"categoryId"`
+	CategoryName  string           `json:"categoryName"`
+	CategoryTrail []*CategoryTrail `json:"categoryTrail,omitempty"`
+	Name          string           `json:"name"`
+	Description   *string          `json:"description,omitempty"`
+	ImageURL      *string          `json:"imageUrl,omitempty"`
+	ImageBase64   *string          `json:"imageBase64,omitempty"`
+	CreatedAt     time.Time        `json:"createdAt"`
+	UpdatedAt     time.Time        `json:"updatedAt"`
+	VersionNo     int              `json:"versionNo"`
 }
 
 type Query struct {

@@ -1,7 +1,6 @@
-import './styles/main.css';
-
 import { createApp, h, provide } from 'vue';
 import './styles/tailwind.css';
+import './styles/main.css';
 
 import App from './App.vue';
 import client from '@/apolloClient';

@@ -120,8 +120,10 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 		newBase64 = imageBase64
 		newImageURL = imageUrl
 	} else {
-		newBase64 = old.ImageBase64
-		newImageURL = old.ImageURL
+		if old != nil {
+			newBase64 = old.ImageBase64
+			newImageURL = old.ImageURL
+		}
 	}
 
 	//挿入するドキュメントを作成

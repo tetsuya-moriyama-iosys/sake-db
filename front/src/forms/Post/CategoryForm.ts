@@ -7,7 +7,7 @@ import yupLocaleJP from '@/lib/yup/yupLocaleJa';
 import { image } from '@/forms/customValidations/image';
 import { fileSize } from '@/forms/customValidations/filesize';
 import type { CategoryRequest } from '@/type/api/APIType/post/CategoryForm';
-import type { CategoryForEdit } from '@/graphQL/Liquor/categories';
+import type { CategoryForEdit } from '@/graphQL/Category/categories';
 
 yup.setLocale(yupLocaleJP);
 

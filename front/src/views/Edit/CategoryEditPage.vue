@@ -12,7 +12,7 @@ import {
   type CategoryForEdit,
   type CategoryResponse,
   GET_DETAIL_FOR_EDIT,
-} from '@/graphQL/Liquor/categories';
+} from '@/graphQL/Category/categories';
 
 const isLoading = ref<boolean>(true);
 const category = ref<CategoryForEdit | null>(null);
@@ -23,18 +23,22 @@ const { fetch } =
 
 // 読み込み時に情報をAPIから取得
 onMounted(async () => {
-  const id = route.params.id as string; // ルートパラメータからidを取得
+  const id: string = route.params.id as string; // ルートパラメータからidを取得
   if (!id) {
     isLoading.value = false;
     return;
   }
-  const { category: response } = await fetch({
+  await fetch({
     variables: {
-      id: id,
+      id,
     },
-  });
-  category.value = response;
-  isLoading.value = false;
+  })
+    .then((response) => {
+      category.value = response.category;
+    })
+    .finally(() => {
+      isLoading.value = false;
+    });
 });
 </script>
 

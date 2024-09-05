@@ -1,6 +1,6 @@
 <!--ランダムレコメンドのカード-->
 <template>
-  <div class="liquor-container">
+  <div v-if="liquor" class="liquor-container">
     <router-link :to="{ name: 'LiquorDetail', params: { id: liquor.id } }">
       <div class="top-content">
         <img
@@ -12,7 +12,7 @@
     </router-link>
     <div class="bottom-content">
       <router-link
-        :to="{ name: 'CategoryDetail', params: { id: liquor.categoryId } }"
+        :to="{ name: 'CategoryNarrowDown', params: { id: liquor.categoryId } }"
         ><p class="category-name">{{ liquor.categoryName }}</p></router-link
       >
       <router-link :to="{ name: 'LiquorDetail', params: { id: liquor.id } }"

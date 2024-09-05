@@ -16,7 +16,7 @@ import (
 
 // RequestData 画像以外の、ShouldBindでバインドするデータ
 type RequestData struct {
-	Id          int     `form:"id"`
+	Id          *int    `form:"id"`
 	Name        string  `form:"name"`
 	Parent      int     `form:"parent"`
 	Description *string `form:"description"`
@@ -30,6 +30,7 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 	var request RequestData
 	var imageBase64 *string
 	var imageUrl *string
+	var old *categoriesRepository.Model
 
 	ctx := c.Request.Context()
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
@@ -40,13 +41,23 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 		return nil, errors.New("invalid form data")
 	}
 
-	//logsに代入する現在のドキュメントを取得する
-	old, err := h.CategoryRepo.GetCategoryByID(ctx, request.Id)
-
-	//IDが空でない(=編集)の場合、バージョンnoのチェックを行う
-	if !helper.IsEmpty(&request.Id) {
-		if old.VersionNo != request.VersionNo {
-			return nil, errors.New(errorMsg.VERSION)
+	if request.Id != nil {
+		//更新時のみ行う処理
+		//logsに代入する現在のドキュメントを取得する
+		var err error
+		old, err = h.CategoryRepo.GetCategoryByID(ctx, *request.Id)
+		if old.VersionNo == nil {
+			zero := 0
+			old.VersionNo = &zero
+		}
+		if err != nil {
+			return nil, err
+		}
+		//IDが空でない(=編集)の場合、バージョンnoのチェックを行う
+		if !helper.IsEmpty(&request.Id) {
+			if *old.VersionNo != *request.VersionNo {
+				return nil, errors.New(errorMsg.VERSION)
+			}
 		}
 	}
 
@@ -58,7 +69,7 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 			rawImg = nil
 		} else {
 			// その他のエラーの場合
-			return nil, errors.New("failed to process image file")
+			return nil, err
 		}
 	}
 
@@ -67,7 +78,7 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 		// 画像データをデコード
 		img, format, err := helper.DecodeImage(rawImg)
 		if err != nil {
-			return nil, errors.New("failed to decode image")
+			return nil, err
 		}
 
 		//base64エンコードしたデータを取得
@@ -77,7 +88,7 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 			MaxHeight: &maxHeight,
 		})
 		if err != nil {
-			return nil, errors.New("failed to convert image to base64")
+			return nil, err
 		}
 
 		//S3にアップロードし、URLを取得する
@@ -86,18 +97,24 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 			Format: format,
 		})
 		if err != nil {
-			return nil, errors.New("failed to upload image")
+			return nil, err
 		}
 	}
 
+	//ここから新規・更新で処理を共通にする
 	//新バージョンNoを作成する
 	var newVersionNo int
 	var newCreatedAt time.Time
 	var id int
-	if request.VersionNo != nil {
+	if request.Id != nil {
 		//更新の場合
-		id = request.Id
-		newVersionNo = *request.VersionNo + 1
+		id = *request.Id
+		if request.VersionNo == nil {
+			//初期アセットの場合(version_noを入れていない)
+			newVersionNo = 1
+		} else {
+			newVersionNo = *request.VersionNo + 1
+		}
 	} else {
 		//初回作成の場合
 		maxId, err := h.CategoryRepo.GetMaxID(ctx)
@@ -116,8 +133,11 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 		newBase64 = imageBase64
 		newImageURL = imageUrl
 	} else {
-		newBase64 = old.ImageBase64
-		newImageURL = old.ImageURL
+		//画像が更新されなかった場合、旧データがある場合はそこからコピーする
+		if old != nil {
+			newBase64 = old.ImageBase64
+			newImageURL = old.ImageURL
+		}
 	}
 
 	//挿入するドキュメントを作成

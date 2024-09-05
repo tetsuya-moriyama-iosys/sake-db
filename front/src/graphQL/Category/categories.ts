@@ -48,6 +48,7 @@ export const GET_DETAIL_FOR_EDIT: DocumentNode = gql`
     category(id: $id) {
       id
       name
+      parent
       description
       imageBase64
       description

@@ -10,7 +10,9 @@ export interface PostRequest {
   version_no: number | null;
 }
 
-export type PostResponse = null;
+export type PostResponse = {
+  id: string;
+};
 
 const PostAPIType: APIType<PostRequest, PostResponse> = {
   method: 'POST',

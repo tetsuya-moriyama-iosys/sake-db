@@ -6,7 +6,7 @@
 <script setup lang="ts">
 import useQuery from '@/funcs/composable/useQuery';
 import { onMounted, ref } from 'vue';
-import LiquorDetail from '@/components/templates/discovery/LiquorDetail.vue';
+import LiquorDetail from '@/components/templates/discovery/details/LiquorDetail.vue';
 import {
   type Liquor,
   LIQUOR_DETAIL_GET,
@@ -21,6 +21,8 @@ const { fetch } = useQuery<LiquorResponse<Liquor>>(LIQUOR_DETAIL_GET);
 
 const liquor = ref<Liquor | null>(null);
 
+const isNoCache: boolean = window.history.state?.noCache ?? false; //TODO:何故か常にtrueになってる...？
+
 // 読み込み時に情報をAPIから取得
 onMounted(async () => {
   const id = route.params.id as string; // ルートパラメータからidを取得
@@ -28,10 +30,12 @@ onMounted(async () => {
     isLoading.value = false;
     return;
   }
+
   const { liquor: response } = await fetch({
     variables: {
       id: id,
     },
+    fetchPolicy: isNoCache ? 'no-cache' : undefined, //更新直後だとキャッシュが残っているため、キャッシュを無効化
   });
   liquor.value = response;
   isLoading.value = false;

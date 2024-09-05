@@ -10,7 +10,9 @@ export interface CategoryRequest {
   version_no: number | null;
 }
 
-export type CategoryResponse = null;
+export type CategoryResponse = {
+  id: number;
+};
 
 const CategoryPostAPIType: APIType<CategoryRequest, CategoryResponse> = {
   method: 'POST',

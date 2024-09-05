@@ -59,6 +59,28 @@ func (r *LiquorsRepository) GetRandomLiquors(ctx context.Context, limit int) ([]
 	return collections, nil
 }
 
+func (r *LiquorsRepository) GetLiquorsFromCategoryIds(ctx context.Context, ids []int) ([]*Model, error) {
+	// クエリフィルターを作成。カテゴリIDがidsのいずれかに一致するリカーを取得
+	filter := bson.M{"category_id": bson.M{"$in": ids}}
+
+	// コレクションからフィルタに一致するドキュメントを取得
+	cursor, err := r.collection.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	// 結果を格納するスライス
+	var liquors []*Model
+
+	// 取得したドキュメントをスライスにデコード
+	if err = cursor.All(ctx, &liquors); err != nil {
+		return nil, err
+	}
+
+	return liquors, nil
+}
+
 func (r *LiquorsRepository) InsertOne(ctx context.Context, liquor *Model) (primitive.ObjectID, error) {
 	result, err := r.collection.InsertOne(ctx, liquor)
 	if err != nil {

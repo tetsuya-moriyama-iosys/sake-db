@@ -74,7 +74,7 @@ func (r *CategoryRepository) InsertOne(ctx context.Context, category *Model) err
 	}
 
 	// InsertOneResultからIDを取得
-	id, ok := result.InsertedID.(primitive.ObjectID)
+	_, ok := result.InsertedID.(primitive.ObjectID)
 	if !ok {
 		return err
 	}

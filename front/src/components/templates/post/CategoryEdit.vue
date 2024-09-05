@@ -5,12 +5,14 @@
     :validation-schema="validationSchema"
     :initial-values="initialValues"
   >
+    親カテゴリ
     <CategorySelect
       :name="FormKeys.PARENT"
       :initial-id="initialValues[FormKeys.PARENT]"
     />
     <ErrorMessage :name="FormKeys.PARENT" />
     <FormField :name="FormKeys.ID" type="hidden" />
+    <FormField :name="FormKeys.VERSION_NO" type="hidden" />
     <FormField :name="FormKeys.NAME" label="名前" />
     <FormField :name="FormKeys.DESCRIPTION" label="説明" as="textarea" />
     <img
@@ -30,7 +32,11 @@
 </template>
 
 <script setup lang="ts">
-import { ErrorMessage, Form as VForm } from 'vee-validate';
+import {
+  ErrorMessage,
+  Form as VForm,
+  type SubmissionHandler,
+} from 'vee-validate';
 import FormField from '@/components/parts/forms/core/FormField.vue';
 import CategorySelect from '@/components/blocks/common/forms/advance/CategorySelect.vue';
 import SubmitButton from '@/components/parts/common/SubmitButton.vue';
@@ -39,7 +45,7 @@ import type { ToastCommand } from '@/plugins/toast';
 import { useApiMutation } from '@/funcs/composable/useApiMutation';
 import { useLoading } from 'vue-loading-overlay';
 import { ref } from 'vue';
-import type { CategoryForEdit } from '@/graphQL/Liquor/categories';
+import type { CategoryForEdit } from '@/graphQL/Category/categories';
 import CategoryPostAPIType, {
   type CategoryRequest,
   type CategoryResponse,
@@ -50,37 +56,53 @@ import {
   generateInitialValues,
   validationSchema,
 } from '@/forms/Post/CategoryForm';
+import { useRouter } from 'vue-router';
+import type { AxiosResponse } from 'axios';
 
 // propsから受け取る初期値
 const { initialData } = defineProps<{
   initialData: CategoryForEdit | null;
 }>();
 
+console.log('initialData:', initialData);
+
 //必要な関数をインポート
 const { mutateAsync } = useApiMutation<CategoryRequest, CategoryResponse>(
   CategoryPostAPIType,
 );
+const router = useRouter();
 const toast: ToastCommand = useToast();
 const loading = useLoading();
 
 // 初期値を定義
 const initialValues = ref<FormValues>(generateInitialValues(initialData));
 
-async function onSubmit(values: FormValues): Promise<void> {
+console.log('initialValues:', initialValues.value);
+
+// extends GenericObjectは型が広すぎるのでキャストして対応する
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-expect-error
+const onSubmit: SubmissionHandler = async (
+  values: FormValues,
+): Promise<void> => {
   const loader = loading.show();
   //Categoryが空はバリデーションで弾かれる想定なのでキャスト
   await mutateAsync(<CategoryRequest>values, {
-    onSuccess(value) {
-      console.log('レスポンス：', value);
+    onSuccess(value: AxiosResponse<CategoryResponse>) {
       toast.showToast({
         message: '登録が成功しました！',
+      });
+      router.push({
+        name: 'LiquorDetail',
+        params: { id: value.data.id },
+        state: { noCache: true },
       });
     },
     onSettled() {
       loader.hide();
     },
   });
-}
+};
 </script>
 
 <style scoped></style>
