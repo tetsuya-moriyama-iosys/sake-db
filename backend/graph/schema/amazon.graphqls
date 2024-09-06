@@ -1,0 +1,27 @@
+scalar DateTime
+scalar Upload
+
+type CategoryTrail {
+  id:Int!
+  name:String!
+}
+
+type Liquor {
+  id: String!
+  categoryId: Int!
+  categoryName: String!
+  categoryTrail:[CategoryTrail!]
+  name: String!
+  description: String
+  imageUrl: String        # S3に保存された画像のURL
+  imageBase64: String     # 縮小された画像のBase64エンコードデータ
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  versionNo: Int!
+}
+
+extend type Query {
+  liquor(id: String!): Liquor!
+  randomRecommendList(limit: Int!): [Liquor!]! #ランダムなリスト
+  listFromCategory(categoryId: Int!): [Liquor!]! #カテゴリで絞り込んだリスト
+}
