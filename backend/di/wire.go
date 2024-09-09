@@ -6,9 +6,10 @@
 package di
 
 import (
+	"backend/api/post/categoryPost"
 	"backend/api/post/liquorPost"
-	"backend/db/categoriesRepository"
-	"backend/db/liquorRepository"
+	"backend/db/repository/categoriesRepository"
+	"backend/db/repository/liquorRepository"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 )
@@ -22,6 +23,7 @@ func InitializeHandler() (*gin.Engine, error) {
 		liquorRepository.NewLiquorsRepository,
 		//REST APIのハンドラ
 		liquorPost.NewHandler,
+		categoryPost.NewHandler,
 	)
 	return &gin.Engine{}, nil
 }

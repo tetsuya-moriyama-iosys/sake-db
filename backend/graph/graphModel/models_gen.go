@@ -6,23 +6,59 @@ import (
 	"time"
 )
 
+type AffiliateData struct {
+	Items       []*AffiliateItem `json:"items,omitempty"`
+	LowestPrice *int             `json:"lowestPrice,omitempty"`
+}
+
+type AffiliateItem struct {
+	Name     string  `json:"name"`
+	Price    *int    `json:"price,omitempty"`
+	URL      string  `json:"URL"`
+	ImageURL *string `json:"imageURL,omitempty"`
+}
+
 type Category struct {
-	ID       int         `json:"id"`
-	Name     string      `json:"name"`
-	Parent   *int        `json:"parent,omitempty"`
-	Children []*Category `json:"children,omitempty"`
+	ID          int         `json:"id"`
+	Name        string      `json:"name"`
+	Parent      *int        `json:"parent,omitempty"`
+	Description *string     `json:"description,omitempty"`
+	ImageURL    *string     `json:"imageUrl,omitempty"`
+	ImageBase64 *string     `json:"imageBase64,omitempty"`
+	VersionNo   *int        `json:"versionNo,omitempty"`
+	CreatedAt   *time.Time  `json:"createdAt,omitempty"`
+	UpdatedAt   *time.Time  `json:"updatedAt,omitempty"`
+	Children    []*Category `json:"children,omitempty"`
+}
+
+type CategoryHistory struct {
+	Now       *Category   `json:"now"`
+	Histories []*Category `json:"histories,omitempty"`
+}
+
+type CategoryTrail struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 type Liquor struct {
-	ID           string    `json:"id"`
-	CategoryID   int       `json:"categoryId"`
-	CategoryName string    `json:"categoryName"`
-	Name         string    `json:"name"`
-	Description  *string   `json:"description,omitempty"`
-	ImageURL     *string   `json:"imageUrl,omitempty"`
-	ImageBase64  *string   `json:"imageBase64,omitempty"`
-	CreatedAt    time.Time `json:"createdAt"`
-	UpdatedAt    time.Time `json:"updatedAt"`
+	ID            string           `json:"id"`
+	CategoryID    int              `json:"categoryId"`
+	CategoryName  string           `json:"categoryName"`
+	CategoryTrail []*CategoryTrail `json:"categoryTrail,omitempty"`
+	Name          string           `json:"name"`
+	Description   *string          `json:"description,omitempty"`
+	ImageURL      *string          `json:"imageUrl,omitempty"`
+	ImageBase64   *string          `json:"imageBase64,omitempty"`
+	CreatedAt     time.Time        `json:"createdAt"`
+	UpdatedAt     time.Time        `json:"updatedAt"`
+	VersionNo     int              `json:"versionNo"`
+}
+
+type ListFromCategory struct {
+	CategoryName        string    `json:"categoryName"`
+	CategoryDescription *string   `json:"categoryDescription,omitempty"`
+	Liquors             []*Liquor `json:"liquors"`
 }
 
 type Query struct {

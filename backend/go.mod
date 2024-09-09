@@ -11,6 +11,7 @@ require (
 	github.com/google/wire v0.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
+	github.com/utekaravinash/gopaapi5 v1.3.3
 	github.com/vektah/gqlparser/v2 v2.5.16
 	go.mongodb.org/mongo-driver v1.12.0-prerelease
 	golang.org/x/net v0.26.0

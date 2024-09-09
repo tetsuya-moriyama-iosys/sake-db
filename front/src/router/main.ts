@@ -3,8 +3,11 @@
  */
 import Layout from '@/components/layouts/main/BaseLayout.vue';
 import IndexPage from '@/views/Discovery/IndexPage.vue';
-import CreatePost from '@/views/Post/CreatePost.vue';
-import DetailPage from '@/views/Discovery/Liquor/DetailPage.vue';
+import CreatePost from '@/views/Edit/LiquorEditPage.vue';
+import DetailPage from '@/views/Discovery/Details/LiquorPage.vue';
+import CategoryPage from '@/views/Discovery/Details/CategoryPage.vue';
+import CategoryEditPage from '@/views/Edit/CategoryEditPage.vue';
+import CategoryNarrowDownPage from '@/views/Discovery/NarrowDowns/CategoryNarrowDownPage.vue';
 
 const MainRouter = {
   path: '/',
@@ -17,14 +20,34 @@ const MainRouter = {
       component: IndexPage,
     },
     {
-      path: '/post',
-      name: 'Post',
+      path: '/post/:id?',
+      name: 'LiquorEdit',
       component: CreatePost,
     },
     {
-      path: '/liquor/:id',
-      name: 'LiquorDetail',
-      component: DetailPage,
+      path: '/discovery',
+      children: [
+        {
+          path: 'category/:id?',
+          name: 'CategoryNarrowDown',
+          component: CategoryNarrowDownPage,
+        },
+      ],
+    },
+    {
+      path: '/liquor',
+      children: [{ path: ':id?', name: 'LiquorDetail', component: DetailPage }],
+    },
+    {
+      path: '/category',
+      children: [
+        { path: ':id', name: 'CategoryDetail', component: CategoryPage },
+        {
+          path: 'edit/:id?',
+          name: 'CategoryEdit',
+          component: CategoryEditPage,
+        },
+      ],
     },
   ],
 };

@@ -10,6 +10,24 @@ import (
 	"context"
 )
 
+// Category is the resolver for the category field.
+func (r *queryResolver) Category(ctx context.Context, id int) (*graphModel.Category, error) {
+	//DB上に存在しないキーであり、gqlgenでしか書かない値なので一旦ハードコーディング。childrenを要求していた場合、子カテゴリを取得する。
+	if !r.Resolver.isFieldRequested(ctx, "children") {
+		category, err := r.CategoryRepo.GetCategoryByID(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		return category.ToGraphQL(), nil
+	}
+	//childrenが存在する場合、再帰的な構造を返す
+	category, err := categoryService.PartialLeveledCategoriesGet(ctx, id, &r.CategoryRepo)
+	if err != nil {
+		return nil, err
+	}
+	return category.ToGraphQL(), nil
+}
+
 // Categories is the resolver for the categories field.
 func (r *queryResolver) Categories(ctx context.Context) ([]*graphModel.Category, error) {
 	// 構造化されたカテゴリ一覧を返す
@@ -18,4 +36,29 @@ func (r *queryResolver) Categories(ctx context.Context) ([]*graphModel.Category,
 		return nil, err
 	}
 	return categoryService.ConvertToModelCategories(categories), nil
+}
+
+// Histories is the resolver for the histories field.
+func (r *queryResolver) Histories(ctx context.Context, id int) (*graphModel.CategoryHistory, error) {
+	//まず対象のカテゴリ情報を取得
+	category, err := r.CategoryRepo.GetCategoryByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	logs, err := r.CategoryRepo.GetLogsById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	var graphLogs []*graphModel.Category
+	if logs != nil {
+		for _, log := range logs {
+			graphLogs = append(graphLogs, log.ToGraphQL())
+		}
+	}
+	result := &graphModel.CategoryHistory{
+		Now:       category.ToGraphQL(),
+		Histories: graphLogs,
+	}
+	return result, nil
 }

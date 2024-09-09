@@ -1,0 +1,15 @@
+type AffiliateData {
+  items: [AffiliateItem!]
+  lowestPrice: Int
+}
+
+type AffiliateItem{
+  name: String!
+  price: Int
+  URL:String!
+  imageURL:String
+}
+
+extend type Query {
+  data(name: String!,limit:Int): AffiliateData!
+}

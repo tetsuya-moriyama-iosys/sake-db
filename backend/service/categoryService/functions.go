@@ -1,13 +1,13 @@
 package categoryService
 
 import (
-	"backend/db/categoriesRepository"
+	"backend/db/repository/categoriesRepository"
 	"backend/graph/graphModel"
 	"sort"
 )
 
 // 再帰的にカテゴリをID順にソートする関数
-func sortCategories(categories []*categoriesRepository.Category) {
+func sortCategories(categories []*categoriesRepository.Model) {
 	sort.Slice(categories, func(i, j int) bool {
 		return categories[i].ID < categories[j].ID
 	})
@@ -19,7 +19,7 @@ func sortCategories(categories []*categoriesRepository.Category) {
 }
 
 // ConvertToModelCategories 再帰的に Category を graphModel.Category に変換する
-func ConvertToModelCategories(categories []*categoriesRepository.Category) []*graphModel.Category {
+func ConvertToModelCategories(categories []*categoriesRepository.Model) []*graphModel.Category {
 	var modelCategories []*graphModel.Category
 
 	for _, category := range categories {
@@ -38,4 +38,19 @@ func ConvertToModelCategories(categories []*categoriesRepository.Category) []*gr
 	}
 
 	return modelCategories
+}
+
+func FindCategoryByID(rootCategories []*categoriesRepository.Model, targetID int) *categoriesRepository.Model {
+	for _, category := range rootCategories {
+		if category.ID == targetID {
+			return category
+		}
+		// 子カテゴリに対して再帰的に検索
+		if category.Children != nil {
+			if foundCategory := FindCategoryByID(category.Children, targetID); foundCategory != nil {
+				return foundCategory
+			}
+		}
+	}
+	return nil
 }

@@ -2,13 +2,17 @@ import type { APIType } from '@/type/api/APIType/APIType';
 import createURL from '@/funcs/util/core/createURL';
 
 export interface PostRequest {
+  id: string | null;
   category: number;
-  title: string;
+  name: string;
   description: string;
   image: File | null;
+  version_no: number | null;
 }
 
-export type PostResponse = null;
+export type PostResponse = {
+  id: string;
+};
 
 const PostAPIType: APIType<PostRequest, PostResponse> = {
   method: 'POST',

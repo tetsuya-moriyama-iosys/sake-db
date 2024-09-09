@@ -6,6 +6,7 @@ package resolver
 
 import (
 	"backend/graph/graphModel"
+	"backend/service/categoryService"
 	"context"
 )
 
@@ -15,8 +16,25 @@ func (r *queryResolver) Liquor(ctx context.Context, id string) (*graphModel.Liqu
 	if err != nil {
 		return nil, err
 	}
+	//所属するカテゴリのリストを取得する
+	trails, err := categoryService.GetCategoryTrail(ctx, liquor.CategoryID, &r.CategoryRepo)
+	if err != nil {
+		return nil, err
+	}
+
 	//GraphQLが期待する型に変換
-	return liquor.ToGraphQL(), nil
+	var trailQL []*graphModel.CategoryTrail
+	for _, trail := range *trails {
+		t := graphModel.CategoryTrail{
+			ID:   trail.ID,
+			Name: trail.Name,
+		}
+		trailQL = append(trailQL, &t)
+	}
+
+	result := liquor.ToGraphQL()
+	result.CategoryTrail = trailQL
+	return result, nil
 }
 
 // RandomRecommendList is the resolver for the randomRecommendList field.
@@ -33,4 +51,34 @@ func (r *queryResolver) RandomRecommendList(ctx context.Context, limit int) ([]*
 	}
 
 	return results, nil
+}
+
+// ListFromCategory is the resolver for the listFromCategory field.
+func (r *queryResolver) ListFromCategory(ctx context.Context, categoryID int) (*graphModel.ListFromCategory, error) {
+	ids, err := categoryService.GetBelongCategoryIdList(ctx, categoryID, &r.CategoryRepo)
+	if err != nil {
+		return nil, err
+	}
+	list, err := r.LiquorRepo.GetLiquorsFromCategoryIds(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	var liquors []*graphModel.Liquor
+	//GraphQLスキーマに変換
+	for _, liquor := range list {
+		liquors = append(liquors, liquor.ToGraphQL())
+	}
+	//カテゴリ名を取得する
+	category, err := r.CategoryRepo.GetCategoryByID(ctx, categoryID)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &graphModel.ListFromCategory{
+		CategoryName:        category.Name,
+		CategoryDescription: category.Description,
+		Liquors:             liquors,
+	}
+
+	return result, err
 }

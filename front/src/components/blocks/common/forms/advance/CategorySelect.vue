@@ -1,9 +1,7 @@
 <!--カテゴリ選択-->
 
 <template>
-  <div>
-    {{ label }}
-  </div>
+  <div>{{ label }}</div>
   <div>
     <div v-for="(level, index) in levels" :key="index">
       <select
@@ -33,19 +31,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { ErrorMessage, useField } from 'vee-validate';
-import { type Category } from '@/type/common/liquor/Category';
 import useQuery from '@/funcs/composable/useQuery';
-import { type Categories, GET_QUERY } from '@/graphQL/Liquor/categories';
+import {
+  type Categories,
+  type Category,
+  GET_QUERY,
+} from '@/graphQL/Category/categories';
 import FormField from '@/components/parts/forms/core/FormField.vue';
 
 //propsのセット
-const {
-  label = 'カテゴリ',
-  name,
-  initialId,
-} = defineProps<{
+const props = defineProps<{
   label?: string;
   name: string;
   initialId?: number | null;
@@ -59,7 +56,20 @@ const levels = ref<Category[][]>([]);
 const { fetch } = useQuery<Categories>(GET_QUERY);
 
 // vee-validate用のフィールド定義
-const { value: hiddenField, errorMessage, validate } = useField(name);
+const { value: hiddenField, errorMessage, validate } = useField(props.name);
+
+// 初期IDが変更されたら、選択肢を再初期化
+watch(
+  () => props.initialId,
+  async (newVal) => {
+    if (newVal == null) return;
+    const { categories: response } = await fetch();
+    levels.value = [response]; // 最初の階層を設定
+    initializeSelections(newVal, response); // 初期値で選択肢を初期化
+    hiddenField.value = newVal.toString(); // hiddenFieldにも設定
+  },
+  { immediate: true }, // 初回に監視対象がある場合も実行
+);
 
 //変更時の操作
 const handleChange = (index: number) => {
@@ -103,17 +113,6 @@ const finalCategoryId = computed(() => {
 // finalCategoryIdの変更を検知してcategoryIdをセットする
 watch(finalCategoryId, (newVal) => {
   hiddenField.value = newVal;
-});
-
-// 読み込み時にカテゴリ情報をAPIから取得
-onMounted(async () => {
-  const { categories: response } = await fetch();
-  levels.value = [response]; // 最初の階層を設定
-
-  if (initialId != null) {
-    initializeSelections(initialId, response);
-    hiddenField.value = initialId.toString(); // 初期値をhiddenFieldに設定
-  }
 });
 
 // 指定された値に基づいてセレクトボックスを設定する関数

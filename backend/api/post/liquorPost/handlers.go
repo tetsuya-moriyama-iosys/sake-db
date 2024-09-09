@@ -1,8 +1,8 @@
 package liquorPost
 
 import (
-	"backend/db/categoriesRepository"
-	"backend/db/liquorRepository"
+	"backend/db/repository/categoriesRepository"
+	"backend/db/repository/liquorRepository"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"go.mongodb.org/mongo-driver/mongo"
 )

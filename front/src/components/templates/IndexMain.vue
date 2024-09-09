@@ -17,7 +17,7 @@ import {
 import { onMounted, ref } from 'vue';
 import { DEFAULT_GET_LIMIT } from '@/const/indexConsts';
 import CardContainer from '@/components/parts/common/CardContainer.vue';
-import LiquorCard from '@/components/blocks/indexPage/LiquorCard.vue';
+import LiquorCard from '@/components/blocks/index/LiquorCard.vue';
 
 const { fetch } = useQuery<RecommendLiquorResponse>(RANDOM_RECOMMEND_LIST);
 

@@ -7,27 +7,49 @@ import yupLocaleJP from '@/lib/yup/yupLocaleJa';
 import { image } from '@/forms/customValidations/image';
 import { fileSize } from '@/forms/customValidations/filesize';
 import type { PostRequest } from '@/type/api/APIType/post/PostForm';
+import type { LiquorForEdit } from '@/graphQL/Liquor/liquor';
 
 yup.setLocale(yupLocaleJP);
 
 export const FormKeys = {
+  ID: 'id',
   CATEGORY: 'category', //メインカテゴリ
-  TITLE: 'title', //名前
+  NAME: 'name', //名前
   DESCRIPTION: 'description', //説明
   IMAGE: 'image',
+  VERSION_NO: 'version_no',
 } as const;
 
-export type FormValues = PostRequest;
+export interface FormValues
+  extends Omit<PostRequest, typeof FormKeys.CATEGORY> {
+  [FormKeys.CATEGORY]: number | null;
+}
 
-export const initialValues = {
-  [FormKeys.TITLE]: '',
+const initialValues: FormValues = {
+  [FormKeys.ID]: null,
+  [FormKeys.NAME]: '',
   [FormKeys.CATEGORY]: null,
   [FormKeys.DESCRIPTION]: '',
   [FormKeys.IMAGE]: null,
+  [FormKeys.VERSION_NO]: null,
 };
+
+export function generateInitialValues(
+  liquor: LiquorForEdit | null,
+): FormValues {
+  if (liquor === null) return initialValues;
+  return {
+    ...initialValues, //imageなどは編集時も空なので初期値を設定
+    [FormKeys.ID]: liquor.id,
+    [FormKeys.NAME]: liquor.name,
+    [FormKeys.CATEGORY]: liquor.categoryId,
+    [FormKeys.DESCRIPTION]: liquor.description,
+    [FormKeys.VERSION_NO]: liquor.versionNo,
+  };
+}
 
 export const validationSchema = {
   [FormKeys.CATEGORY]: number().required(),
-  [FormKeys.TITLE]: string().max(100).required(),
-  [FormKeys.IMAGE]: image().concat(fileSize(5)).nullable(),
+  [FormKeys.NAME]: string().max(100).required(),
+  [FormKeys.IMAGE]: image().concat(fileSize(2)).nullable(),
 };

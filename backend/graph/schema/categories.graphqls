@@ -2,9 +2,22 @@ type Category {
   id: Int!
   name: String!
   parent: Int
+  description: String
+  imageUrl: String        # S3に保存された画像のURL
+  imageBase64: String     # 縮小された画像のBase64エンコードデータ
+  versionNo: Int
+  createdAt: DateTime #初期セットには存在しない可能性がある
+  updatedAt: DateTime #初期セットには存在しない可能性がある
   children: [Category!]
 }
 
+type CategoryHistory{
+  now:Category!
+  histories:[Category]
+}
+
 extend type Query {
+  category(id: Int!): Category!
   categories: [Category!]!
+  histories(id: Int!):CategoryHistory
 }

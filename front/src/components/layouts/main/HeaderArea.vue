@@ -1,7 +1,9 @@
 <template>
   <header class="sticky">
     <main class="flex">
-      <p class="block">酒データベース(仮称)</p>
+      <router-link to="/"
+        ><p class="block">酒データベース(仮称)</p></router-link
+      >
       <router-link to="/post">投稿する</router-link>
     </main>
   </header>
