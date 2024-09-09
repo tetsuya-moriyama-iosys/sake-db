@@ -55,6 +55,11 @@ type Liquor struct {
 	VersionNo     int              `json:"versionNo"`
 }
 
+type LiquorHistory struct {
+	Now       *Liquor   `json:"now"`
+	Histories []*Liquor `json:"histories,omitempty"`
+}
+
 type ListFromCategory struct {
 	CategoryName        string    `json:"categoryName"`
 	CategoryDescription *string   `json:"categoryDescription,omitempty"`
