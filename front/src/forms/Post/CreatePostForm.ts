@@ -18,6 +18,7 @@ export const FormKeys = {
   DESCRIPTION: 'description', //説明
   IMAGE: 'image',
   VERSION_NO: 'version_no',
+  SELECTED_VERSION_NO: 'selected_version_no',
 } as const;
 
 export interface FormValues
@@ -31,6 +32,7 @@ const initialValues: FormValues = {
   [FormKeys.CATEGORY]: null,
   [FormKeys.DESCRIPTION]: '',
   [FormKeys.IMAGE]: null,
+  [FormKeys.SELECTED_VERSION_NO]: null,
   [FormKeys.VERSION_NO]: null,
 };
 
