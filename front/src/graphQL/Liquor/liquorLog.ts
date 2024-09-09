@@ -12,12 +12,12 @@ export interface LiquorHistoryData {
 }
 
 export const GET_LOGS_FOR_ROLLBACK: DocumentNode = gql`
-  query ($id: Int!) {
+  query ($id: String!) {
     liquorHistories(id: $id) {
       now {
         id
         name
-        parent
+        categoryId
         description
         imageBase64
         versionNo
@@ -26,7 +26,7 @@ export const GET_LOGS_FOR_ROLLBACK: DocumentNode = gql`
       histories {
         id
         name
-        parent
+        categoryId
         description
         imageBase64
         versionNo

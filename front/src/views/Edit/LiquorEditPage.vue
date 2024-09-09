@@ -27,7 +27,7 @@ onMounted(async () => {
   }
   await fetch({
     variables: {
-      id: Number(id),
+      id,
     },
     fetchPolicy: 'no-cache',
   })
