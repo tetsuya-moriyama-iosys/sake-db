@@ -1,4 +1,9 @@
 <template>
+  カテゴリで検索：
+  <router-link :to="{ name: 'CategoryEdit', params: { id: route.params.id } }">
+    {{ categoryName }}</router-link
+  >
+  {{ categoryDescription }}
   <FromCategory
     :key="route.params.id as string"
     v-if="liquors"
@@ -10,41 +15,47 @@ import { useRoute } from 'vue-router';
 import useQuery from '@/funcs/composable/useQuery';
 import {
   LIQUOR_LIST_FROM_CATEGORY,
-  type ListResponse,
+  type ListFromCategoryResponse,
 } from '@/graphQL/Liquor/liquor';
 import type { Liquor } from '@/graphQL/Index/random';
-import { onMounted, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
+import { useSelectedCategoryStore } from '@/stores/sidebar';
 import FromCategory from '@/components/templates/discovery/FromCategory.vue';
 
 const route = useRoute(); // 現在のルートを取得
-const { fetch } = useQuery<ListResponse>(LIQUOR_LIST_FROM_CATEGORY);
+const sidebarStore = useSelectedCategoryStore();
+const { fetch } = useQuery<ListFromCategoryResponse>(LIQUOR_LIST_FROM_CATEGORY);
 
 const liquors = ref<Liquor[] | null>(null);
+const categoryName = ref<string>('');
+const categoryDescription = ref<string>('');
 
-// `watch` を使ってルートパラメータの変更を監視
-watch(
-  () => route.fullPath, // ルートのパスやクエリ、パラメータなどを監視
-  (to) => {
-    // ルートが変更された際に実行される処理
-    const lastSegment = to.split('/').pop(); // 最後のセグメントを取得
-    fetchData(Number(lastSegment));
-  },
-);
-
-// 初期のデータフェッチ
+// データフェッチ
 const fetchData = async (id: number): Promise<void> => {
+  sidebarStore.updateContent(id);
   const { listFromCategory: response } = await fetch({
     variables: {
       id,
     },
   });
-  liquors.value = response;
+  liquors.value = response.liquors;
+  categoryName.value = response.categoryName;
+  categoryDescription.value = response.categoryDescription;
 };
 
-// 読み込み時に情報をAPIから取得
-onMounted(async () => {
-  void fetchData(Number(route.params.id as string));
-});
+// `watch` を使ってルートパラメータの変更を監視
+watch(
+  () => route.params.id, // ルートのパスやクエリ、パラメータなどを監視
+  (to) => {
+    // ルートが変更された際に実行される処理
+    const id = to as string; // ルートパラメータからidを取得
+    if (!id) {
+      return;
+    }
+    fetchData(Number(to));
+  },
+  { immediate: true }, // 初回レンダリング時に実行される
+);
 </script>
 
 <style scoped></style>

@@ -1,5 +1,4 @@
 scalar DateTime
-scalar Upload
 
 type CategoryTrail {
   id:Int!
@@ -20,8 +19,14 @@ type Liquor {
   versionNo: Int!
 }
 
+type ListFromCategory{
+  categoryName:String!
+  categoryDescription:String
+  liquors:[Liquor]!
+}
+
 extend type Query {
   liquor(id: String!): Liquor!
   randomRecommendList(limit: Int!): [Liquor!]! #ランダムなリスト
-  listFromCategory(categoryId: Int!): [Liquor!]! #カテゴリで絞り込んだリスト
+  listFromCategory(categoryId: Int!): ListFromCategory! #カテゴリで絞り込んだリスト
 }

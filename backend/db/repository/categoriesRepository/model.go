@@ -51,8 +51,8 @@ func (s *Model) ToGraphQL() *graphModel.Category {
 		ImageURL:    s.ImageURL,
 		ImageBase64: s.ImageBase64,
 		VersionNo:   s.VersionNo,
-		CreatedAt:   s.CreatedAt,
-		UpdatedAt:   s.UpdatedAt,
+		CreatedAt:   &s.CreatedAt,
+		UpdatedAt:   &s.UpdatedAt,
 		Children:    children, // 変換後の子カテゴリを設定
 	}
 }

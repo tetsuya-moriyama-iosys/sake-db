@@ -5,8 +5,12 @@ export interface LiquorResponse<T> {
   liquor: T;
 }
 
-export interface ListResponse {
-  listFromCategory: CardLiquor[];
+export interface ListFromCategoryResponse {
+  listFromCategory: {
+    categoryName: string;
+    categoryDescription: string;
+    liquors: CardLiquor[];
+  };
 }
 
 export interface Liquor extends CardLiquor {
@@ -61,13 +65,17 @@ export const LIQUOR_DETAIL_FOR_EDIT: DocumentNode = gql`
 export const LIQUOR_LIST_FROM_CATEGORY: DocumentNode = gql`
   query ($id: Int!) {
     listFromCategory(categoryId: $id) {
-      id
-      name
-      categoryId
       categoryName
-      description
-      imageBase64
-      updatedAt
+      categoryDescription
+      liquors {
+        id
+        name
+        categoryId
+        categoryName
+        description
+        imageBase64
+        updatedAt
+      }
     }
   }
 `;

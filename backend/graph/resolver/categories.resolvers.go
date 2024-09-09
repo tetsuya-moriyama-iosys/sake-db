@@ -37,3 +37,28 @@ func (r *queryResolver) Categories(ctx context.Context) ([]*graphModel.Category,
 	}
 	return categoryService.ConvertToModelCategories(categories), nil
 }
+
+// Histories is the resolver for the histories field.
+func (r *queryResolver) Histories(ctx context.Context, id int) (*graphModel.CategoryHistory, error) {
+	//まず対象のカテゴリ情報を取得
+	category, err := r.CategoryRepo.GetCategoryByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	logs, err := r.CategoryRepo.GetLogsById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	var graphLogs []*graphModel.Category
+	if logs != nil {
+		for _, log := range logs {
+			graphLogs = append(graphLogs, log.ToGraphQL())
+		}
+	}
+	result := &graphModel.CategoryHistory{
+		Now:       category.ToGraphQL(),
+		Histories: graphLogs,
+	}
+	return result, nil
+}

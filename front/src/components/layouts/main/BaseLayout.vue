@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import HeaderArea from '@/components/layouts/main/HeaderArea.vue';
 import FooterArea from '@/components/layouts/main/FooterArea.vue';
-import SideBar from '@/components/layouts/main/SideBar/SideBar.vue';
+import SideBar from '@/components/layouts/main/sideBar/SideBar.vue';
 </script>
 
 <style scoped>

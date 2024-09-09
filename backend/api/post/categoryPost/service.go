@@ -16,11 +16,12 @@ import (
 
 // RequestData 画像以外の、ShouldBindでバインドするデータ
 type RequestData struct {
-	Id          *int    `form:"id"`
-	Name        string  `form:"name"`
-	Parent      int     `form:"parent"`
-	Description *string `form:"description"`
-	VersionNo   *int    `form:"version_no"`
+	Id                *int    `form:"id"`
+	Name              string  `form:"name"`
+	Parent            int     `form:"parent"`
+	Description       *string `form:"description"`
+	VersionNo         *int    `form:"version_no"`
+	SelectedVersionNo *int    `form:"selected_version_no"`
 }
 
 // Base64にリサイズする際の横幅
@@ -46,18 +47,21 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 		//logsに代入する現在のドキュメントを取得する
 		var err error
 		old, err = h.CategoryRepo.GetCategoryByID(ctx, *request.Id)
+		if err != nil {
+			return nil, err
+		}
+		//nil参照エラー回避が面倒なので、nilは0扱いとする(versionNoがスキーマ上後付なので、nilの可能性がある)
 		if old.VersionNo == nil {
 			zero := 0
 			old.VersionNo = &zero
 		}
-		if err != nil {
-			return nil, err
+		if request.VersionNo == nil {
+			verZero := 0
+			request.VersionNo = &verZero
 		}
-		//IDが空でない(=編集)の場合、バージョンnoのチェックを行う
-		if !helper.IsEmpty(&request.Id) {
-			if *old.VersionNo != *request.VersionNo {
-				return nil, errors.New(errorMsg.VERSION)
-			}
+		//旧バージョンno(今あるDBのバージョンno)が空でない場合のみチェックする
+		if *old.VersionNo != *request.VersionNo {
+			return nil, errors.New(errorMsg.VERSION)
 		}
 	}
 
@@ -99,6 +103,14 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 		if err != nil {
 			return nil, err
 		}
+	} else if request.SelectedVersionNo != nil {
+		//画像が存在しないが、選択されたロールバック先がある、つまり画像のロールバックが考えうる
+		imgOld, err := h.CategoryRepo.GetLogsByVersionNo(ctx, *request.Id, *request.SelectedVersionNo)
+		if err != nil {
+			return nil, err
+		}
+		old.ImageBase64 = imgOld.ImageBase64
+		old.ImageURL = imgOld.ImageURL
 	}
 
 	//ここから新規・更新で処理を共通にする

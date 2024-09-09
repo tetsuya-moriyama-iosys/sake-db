@@ -37,8 +37,8 @@ export function useQuery<T = unknown>(query: DocumentNode) {
       );
       data.value = result.data;
     } catch (err) {
-      error.value = err;
       //共通のエラートースト処理
+      error.value = err;
       console.error('エラー：', err);
       toast.errorToast((err as string) || '不明なエラー');
       throw err;

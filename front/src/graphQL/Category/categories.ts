@@ -9,14 +9,12 @@ export interface Category {
   imageUrl: string;
   description: string;
   versionNo: number;
-  updatedAt: Date;
+  createdAt: Date | null;
+  updatedAt: Date | null;
   children: Category[] | null;
 }
 
-export type CategoryForEdit = Omit<
-  Category,
-  'updatedAt' | 'imageUrl' | 'children'
->;
+//export type CategoryForEdit = Omit<Category, 'imageUrl' | 'children'>;
 
 export interface Categories {
   categories: Category[];
@@ -27,7 +25,7 @@ export interface CategoryResponse<T> {
 }
 
 export const GET_DETAIL: DocumentNode = gql`
-  query Category($id: Int!) {
+  query ($id: Int!) {
     category(id: $id) {
       id
       name
@@ -44,7 +42,7 @@ export const GET_DETAIL: DocumentNode = gql`
 `;
 
 export const GET_DETAIL_FOR_EDIT: DocumentNode = gql`
-  query Category($id: Int!) {
+  query ($id: Int!) {
     category(id: $id) {
       id
       name

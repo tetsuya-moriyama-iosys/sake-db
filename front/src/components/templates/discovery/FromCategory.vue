@@ -9,7 +9,7 @@
 <script setup lang="ts">
 import type { Liquor } from '@/graphQL/Index/random';
 import CardContainer from '@/components/parts/common/CardContainer.vue';
-import LiquorCard from '@/components/blocks/indexPage/LiquorCard.vue';
+import LiquorCard from '@/components/blocks/index/LiquorCard.vue';
 
 interface Props {
   liquors: Liquor[];

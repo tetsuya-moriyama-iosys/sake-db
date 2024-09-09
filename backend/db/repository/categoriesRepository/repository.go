@@ -115,23 +115,6 @@ func (r *CategoryRepository) UpdateOne(ctx context.Context, liquor *Model) error
 	return nil
 }
 
-func (r *CategoryRepository) InsertOneToLog(ctx context.Context, category *Model) error {
-	data, err := db.StructToBsonM(category)
-	if err != nil {
-		return err
-	}
-
-	//data["_id"] = primitive.NewObjectID()//←必要なかったら消す
-
-	// ログコレクションに挿入
-	_, err = r.logsCollection.InsertOne(ctx, data)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // GetMaxID 最大のIDを取得する
 func (r *CategoryRepository) GetMaxID(ctx context.Context) (int, error) {
 	// MongoDBのドキュメントのIDフィールドの最大値を取得するためのオプション

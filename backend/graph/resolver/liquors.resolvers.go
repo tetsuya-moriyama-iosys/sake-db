@@ -54,7 +54,7 @@ func (r *queryResolver) RandomRecommendList(ctx context.Context, limit int) ([]*
 }
 
 // ListFromCategory is the resolver for the listFromCategory field.
-func (r *queryResolver) ListFromCategory(ctx context.Context, categoryID int) ([]*graphModel.Liquor, error) {
+func (r *queryResolver) ListFromCategory(ctx context.Context, categoryID int) (*graphModel.ListFromCategory, error) {
 	ids, err := categoryService.GetBelongCategoryIdList(ctx, categoryID, &r.CategoryRepo)
 	if err != nil {
 		return nil, err
@@ -63,10 +63,22 @@ func (r *queryResolver) ListFromCategory(ctx context.Context, categoryID int) ([
 	if err != nil {
 		return nil, err
 	}
-	var result []*graphModel.Liquor
+	var liquors []*graphModel.Liquor
 	//GraphQLスキーマに変換
 	for _, liquor := range list {
-		result = append(result, liquor.ToGraphQL())
+		liquors = append(liquors, liquor.ToGraphQL())
 	}
+	//カテゴリ名を取得する
+	category, err := r.CategoryRepo.GetCategoryByID(ctx, categoryID)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &graphModel.ListFromCategory{
+		CategoryName:        category.Name,
+		CategoryDescription: category.Description,
+		Liquors:             liquors,
+	}
+
 	return result, err
 }

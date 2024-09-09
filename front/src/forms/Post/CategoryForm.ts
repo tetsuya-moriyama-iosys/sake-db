@@ -7,7 +7,7 @@ import yupLocaleJP from '@/lib/yup/yupLocaleJa';
 import { image } from '@/forms/customValidations/image';
 import { fileSize } from '@/forms/customValidations/filesize';
 import type { CategoryRequest } from '@/type/api/APIType/post/CategoryForm';
-import type { CategoryForEdit } from '@/graphQL/Category/categories';
+import type { Category } from '@/graphQL/Category/categories';
 
 yup.setLocale(yupLocaleJP);
 
@@ -17,6 +17,7 @@ export const FormKeys = {
   NAME: 'name', //名前
   DESCRIPTION: 'description', //説明
   IMAGE: 'image',
+  SELECTED_VERSION_NO: 'selected_version_no',
   VERSION_NO: 'version_no',
 } as const;
 
@@ -25,27 +26,32 @@ export interface FormValues
   [FormKeys.PARENT]: number | null;
 }
 
-const initialValues: FormValues = {
+export const initialValues: FormValues = {
   [FormKeys.ID]: null,
   [FormKeys.NAME]: '',
   [FormKeys.PARENT]: null,
   [FormKeys.DESCRIPTION]: '',
   [FormKeys.IMAGE]: null,
+  [FormKeys.SELECTED_VERSION_NO]: null,
   [FormKeys.VERSION_NO]: null,
 };
 
-export function generateInitialValues(
-  category: CategoryForEdit | null,
-): FormValues {
-  if (category === null) return initialValues;
-  return {
+export function generateInitialValues(category: Category | null): FormValues {
+  if (category === null) {
+    return initialValues;
+  }
+
+  const value = {
     ...initialValues, //imageなどは編集時も空なので初期値を設定
     [FormKeys.ID]: category.id,
     [FormKeys.NAME]: category.name,
     [FormKeys.PARENT]: category.parent,
     [FormKeys.DESCRIPTION]: category.description,
-    [FormKeys.VERSION_NO]: category.versionNo,
+    [FormKeys.SELECTED_VERSION_NO]: category.versionNo,
   };
+
+  console.log('generateInitialValues:', value);
+  return value;
 }
 
 export const validationSchema = {

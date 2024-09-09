@@ -1,11 +1,12 @@
 <!--サイドバー-->
 <template>
   <aside>
-    カテゴリから検索
+    カテゴリから検索:
     <CategoryParent
       v-for="category in categoryList"
       :key="category.id"
       :category="category"
+      :display-ids="filteredCategoryIdList"
     />
   </aside>
 </template>
@@ -17,8 +18,12 @@ import {
   type Category,
   GET_QUERY,
 } from '@/graphQL/Category/categories';
-import { onMounted, ref } from 'vue';
-import CategoryParent from '@/components/layouts/main/SideBar/CategoryParent.vue';
+import { computed, type ComputedRef, onMounted, ref } from 'vue';
+import CategoryParent from '@/components/layouts/main/sideBar/CategoryParent.vue';
+import { useSelectedCategoryStore } from '@/stores/sidebar';
+import { getDisplayCategoryIds } from '@/funcs/component/laouts/main/sideBar/sideBarFunc';
+
+const sidebarStore = useSelectedCategoryStore();
 
 const { fetch } = useQuery<Categories>(GET_QUERY);
 
@@ -28,6 +33,13 @@ const categoryList = ref<Category[] | null>();
 onMounted(async () => {
   const { categories: response } = await fetch();
   categoryList.value = response;
+});
+
+// sidebarStore.contentに基づいてカテゴリをフィルタリングする
+const filteredCategoryIdList: ComputedRef<number[]> = computed(() => {
+  if (!categoryList.value) return []; //そもそも存在していなければ処理終了
+  if (!sidebarStore.content) return categoryList.value.map((c) => c.id); // contentがない場合は全ての大カテゴリを返す
+  return getDisplayCategoryIds(categoryList.value, sidebarStore.content);
 });
 </script>
 

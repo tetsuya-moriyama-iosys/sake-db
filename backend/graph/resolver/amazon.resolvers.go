@@ -6,11 +6,131 @@ package resolver
 
 import (
 	"backend/graph/graphModel"
+	"backend/util/helper"
 	"context"
-	"fmt"
+	"os"
+
+	"github.com/utekaravinash/gopaapi5"
+	"github.com/utekaravinash/gopaapi5/api"
 )
 
 // Data is the resolver for the data field.
-func (r *queryResolver) Data(ctx context.Context, name string) (*graphModel.AffiliateData, error) {
-	panic(fmt.Errorf("not implemented: Data - data"))
+func (r *queryResolver) Data(ctx context.Context, name string, limit *int) (*graphModel.AffiliateData, error) {
+	//ここ以外に使うことがない想定なので、一旦ベタ書きで実装
+	helper.LoadEnv()
+	key := os.Getenv("AMAZON_ACCESS_KEY")
+	secret := os.Getenv("AMAZON_ACCESS_SECRET")
+	tag := os.Getenv("AMAZON_PARTNER_TRACKING_ID")
+
+	// Initiate gopaapi5 Client
+	client, err := gopaapi5.NewClient(key, secret, tag, api.Japan)
+	if err != nil {
+		panic(err)
+	}
+
+	// Construct request parameters for SearchItems operation
+	params := api.SearchItemsParams{
+		Keywords:    name,
+		SearchIndex: "GroceryAndGourmetFood",
+		Resources: []api.Resource{
+			//api.BrowseNodeInfoBrowseNodes,
+			//api.BrowseNodeInfoBrowseNodesAncestor,
+			//api.BrowseNodeInfoBrowseNodesSalesRank,
+			//api.BrowseNodeInfoWebsiteSalesRank,
+			//api.CustomerReviewsCount,
+			//api.CustomerReviewsStarRating,
+			//api.ImagesPrimarySmall,
+			api.ImagesPrimaryMedium,
+			//api.ImagesPrimaryLarge,
+			//api.ImagesVariantsSmall,
+			//api.ImagesVariantsMedium,
+			//api.ImagesVariantsLarge,
+			//api.ItemInfoByLineInfo,
+			//api.ItemInfoContentInfo,
+			//api.ItemInfoContentRating,
+			//api.ItemInfoClassifications,
+			//api.ItemInfoExternalIds,
+			//api.ItemInfoFeatures,
+			//api.ItemInfoManufactureInfo,
+			api.ItemInfoProductInfo,
+			//api.ItemInfoTechnicalInfo,
+			api.ItemInfoTitle,
+			//api.ItemInfoTradeInInfo,
+			//api.OffersListingsAvailabilityMaxOrderQuantity,
+			//api.OffersListingsAvailabilityMessage,
+			//api.OffersListingsAvailabilityMinOrderQuantity,
+			//api.OffersListingsAvailabilityType,
+			//api.OffersListingsCondition,
+			//api.OffersListingsConditionSubCondition,
+			//api.OffersListingsDeliveryInfoIsAmazonFulfilled,
+			//api.OffersListingsDeliveryInfoIsFreeShippingEligible,
+			//api.OffersListingsDeliveryInfoIsPrimeEligible,
+			//api.OffersListingsDeliveryInfoShippingCharges,
+			//api.OffersListingsIsBuyBoxWinner,
+			//api.OffersListingsLoyaltyPointsPoints,
+			//api.OffersListingsMerchantInfo,
+			api.OffersListingsPrice,
+			//api.OffersListingsProgramEligibilityIsPrimeExclusive,
+			//api.OffersListingsProgramEligibilityIsPrimePantry,
+			//api.OffersListingsPromotions,
+			//api.OffersListingsSavingBasis,
+			//api.OffersSummariesHighestPrice,
+			api.OffersSummariesLowestPrice,
+			//api.OffersSummariesOfferCount,
+			//api.ParentASIN,
+			//api.RentalOffersListingsAvailabilityMaxOrderQuantity,
+			//api.RentalOffersListingsAvailabilityMessage,
+			//api.RentalOffersListingsAvailabilityMinOrderQuantity,
+			//api.RentalOffersListingsAvailabilityType,
+			//api.RentalOffersListingsBasePrice,
+			//api.RentalOffersListingsCondition,
+			//api.RentalOffersListingsConditionSubCondition,
+			//api.RentalOffersListingsDeliveryInfoIsAmazonFulfilled,
+			//api.RentalOffersListingsDeliveryInfoIsFreeShippingEligible,
+			//api.RentalOffersListingsDeliveryInfoIsPrimeEligible,
+			//api.RentalOffersListingsDeliveryInfoShippingCharges,
+			//api.RentalOffersListingsMerchantInfo,
+			//api.SearchRefinements,
+		},
+	}
+
+	// Call SearchItems operation
+	response, err := client.SearchItems(context.Background(), &params)
+	if err != nil {
+		panic(err)
+	}
+
+	// Loop over items in response
+	//var itemz api.Item
+	var items []*graphModel.AffiliateItem
+	for _, item := range response.SearchResult.Items {
+		price := int(item.Offers.Listings[0].Price.Amount)
+		imageUrl := item.Images.Primary.Medium.URL
+		temp := &graphModel.AffiliateItem{
+			Name:     item.ItemInfo.Title.DisplayValue,
+			URL:      item.DetailPageURL,
+			ImageURL: &imageUrl,
+			Price:    &price,
+		}
+		items = append(items, temp)
+	}
+
+	//リストの最安値を取得
+	var lowestPrice *int
+	for _, item := range items {
+		// 価格が nil の場合は次のループへ
+		if item.Price == nil {
+			continue
+		}
+
+		// 初回はそのまま設定
+		if lowestPrice == nil || *item.Price < *lowestPrice {
+			lowestPrice = item.Price
+		}
+	}
+	result := &graphModel.AffiliateData{
+		Items:       items,
+		LowestPrice: lowestPrice,
+	}
+	return result, nil
 }
