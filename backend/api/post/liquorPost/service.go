@@ -17,11 +17,12 @@ import (
 
 // RequestData 画像以外の、ShouldBindでバインドするデータ
 type RequestData struct {
-	Id          string  `form:"id"`
-	Name        string  `form:"name"`
-	CategoryID  int     `form:"category"`
-	Description *string `form:"description"`
-	VersionNo   *int    `form:"version_no"`
+	Id                *string `form:"_id"`
+	Name              string  `form:"name"`
+	CategoryID        int     `form:"category"`
+	Description       *string `form:"description"`
+	VersionNo         *int    `form:"version_no"`
+	SelectedVersionNo *int    `form:"selected_version_no"`
 }
 
 // Base64にリサイズする際の横幅
@@ -31,6 +32,7 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 	var request RequestData
 	var imageBase64 *string
 	var imageUrl *string
+	var old *liquorRepository.Model
 
 	ctx := c.Request.Context()
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
@@ -41,12 +43,25 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 		return nil, errors.New("invalid form data")
 	}
 
-	//logsに代入する現在のドキュメントを取得する
-	old, err := h.LiquorsRepo.GetLiquorById(ctx, request.Id)
-
-	//IDが空でない(=編集)の場合、バージョンnoのチェックを行う
-	if !helper.IsEmpty(&request.Id) {
-		if old.VersionNo != *request.VersionNo {
+	if request.Id != nil {
+		//更新時のみ行う処理
+		//logsに代入する現在のドキュメントを取得する
+		var err error
+		old, err = h.LiquorsRepo.GetLiquorById(ctx, *request.Id)
+		if err != nil {
+			return nil, err
+		}
+		//nil参照エラー回避が面倒なので、nilは0扱いとする(versionNoがスキーマ上後付なので、nilの可能性がある)
+		if old.VersionNo == nil {
+			zero := 0
+			old.VersionNo = &zero
+		}
+		if request.VersionNo == nil {
+			verZero := 0
+			request.VersionNo = &verZero
+		}
+		//旧バージョンno(今あるDBのバージョンno)が空でない場合のみチェックする
+		if *old.VersionNo != *request.VersionNo {
 			return nil, errors.New(errorMsg.VERSION)
 		}
 	}
@@ -89,6 +104,14 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 		if err != nil {
 			return nil, errors.New("failed to upload image")
 		}
+	} else if request.SelectedVersionNo != nil {
+		//画像が存在しないが、選択されたロールバック先がある、つまり画像のロールバックが考えうる
+		imgOld, err := h.LiquorsRepo.GetLogsByVersionNo(ctx, *request.Id, *request.SelectedVersionNo)
+		if err != nil {
+			return nil, err
+		}
+		old.ImageBase64 = imgOld.ImageBase64
+		old.ImageURL = imgOld.ImageURL
 	}
 
 	//カテゴリ名を取得する
@@ -101,10 +124,18 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 	var newVersionNo int
 	var newCreatedAt time.Time
 	var id primitive.ObjectID
-	if request.VersionNo != nil {
+	if request.Id != nil {
 		//更新の場合
-		id, _ = primitive.ObjectIDFromHex(request.Id) //エラーが出ることはここでは考慮しない
-		newVersionNo = *request.VersionNo + 1
+		id, err = primitive.ObjectIDFromHex(*request.Id)
+		if err != nil {
+			return nil, err
+		}
+		if request.VersionNo == nil {
+			//初期アセットの場合(version_noを入れていない)
+			newVersionNo = 1
+		} else {
+			newVersionNo = *request.VersionNo + 1
+		}
 		newCreatedAt = old.CreatedAt
 	} else {
 		//初回作成の場合
@@ -137,7 +168,7 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 		ImageBase64:  newBase64,
 		CreatedAt:    newCreatedAt,
 		UpdatedAt:    time.Now(),
-		VersionNo:    newVersionNo,
+		VersionNo:    &newVersionNo,
 	}
 
 	//トランザクション

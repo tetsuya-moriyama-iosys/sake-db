@@ -10,7 +10,7 @@ import (
 
 func (r *LiquorsRepository) GetLogsById(ctx context.Context, id string) ([]*Model, error) {
 	// カテゴリIDがidのコレクションを降順で取得
-	cursor, err := r.logsCollection.Find(ctx, bson.M{ID: id}, options.Find().SetSort(bson.D{{VersionNo, -1}}))
+	cursor, err := r.logsCollection.Find(ctx, bson.M{LogID: id}, options.Find().SetSort(bson.D{{VersionNo, -1}}))
 	if err != nil {
 		return nil, err
 	}
@@ -25,9 +25,9 @@ func (r *LiquorsRepository) GetLogsById(ctx context.Context, id string) ([]*Mode
 }
 
 func (r *LiquorsRepository) GetLogsByVersionNo(ctx context.Context, id string, versionNo int) (*Model, error) {
-	// カテゴリIDがidのコレクションを降順で取得
+	// バージョンnoを指定して取得
 	var model *Model
-	err := r.logsCollection.FindOne(ctx, bson.M{"id": id, VersionNo: versionNo}).Decode(&model)
+	err := r.logsCollection.FindOne(ctx, bson.M{LogID: id, VersionNo: versionNo}).Decode(&model)
 	if err != nil {
 		return nil, err
 	}

@@ -32,7 +32,7 @@ type Model struct {
 	ImageBase64  *string            `bson:"image_base64"`
 	CreatedAt    time.Time          `bson:"created_at"`
 	UpdatedAt    time.Time          `bson:"updated_at"`
-	VersionNo    int                `bson:"version_no"`
+	VersionNo    *int               `bson:"version_no"`
 }
 
 func (m *Model) ToGraphQL() *graphModel.Liquor {
@@ -46,7 +46,7 @@ func (m *Model) ToGraphQL() *graphModel.Liquor {
 		ImageBase64:  m.ImageBase64,
 		CreatedAt:    m.CreatedAt,
 		UpdatedAt:    m.UpdatedAt,
-		VersionNo:    m.VersionNo,
+		VersionNo:    *m.VersionNo,
 	}
 }
 
