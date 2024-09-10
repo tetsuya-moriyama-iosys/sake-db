@@ -82,3 +82,28 @@ func (r *queryResolver) ListFromCategory(ctx context.Context, categoryID int) (*
 
 	return result, err
 }
+
+// LiquorHistories is the resolver for the liquorHistories field.
+func (r *queryResolver) LiquorHistories(ctx context.Context, id string) (*graphModel.LiquorHistory, error) {
+	//まず対象のカテゴリ情報を取得
+	liquor, err := r.LiquorRepo.GetLiquorById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	logs, err := r.LiquorRepo.GetLogsById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	var graphLogs []*graphModel.Liquor
+	if logs != nil {
+		for _, log := range logs {
+			graphLogs = append(graphLogs, log.ToGraphQL())
+		}
+	}
+	result := &graphModel.LiquorHistory{
+		Now:       liquor.ToGraphQL(),
+		Histories: graphLogs,
+	}
+	return result, nil
+}

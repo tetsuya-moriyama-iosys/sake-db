@@ -1,20 +1,22 @@
 <template>
-  <div class="ml-2" v-if="displayIds.includes(category.id)">
-    ┗<span v-if="sidebarStore.content != category.id" class="category-name"
+  <div class="ml-2" v-if="props.displayIds.includes(props.category.id)">
+    ┗<span
+      v-if="sidebarStore.content != props.category.id"
+      class="category-name"
       ><router-link
         class="inline-block"
-        :to="{ name: 'CategoryNarrowDown', params: { id: category.id } }"
-        >{{ category.name }}</router-link
+        :to="{ name: 'CategoryNarrowDown', params: { id: props.category.id } }"
+        >{{ props.category.name }}</router-link
       ></span
     >
     <span v-else class="category-name selected font-bold">
-      {{ category.name }}
+      {{ props.category.name }}
     </span>
     <CategoryParent
-      v-for="child in category.children"
+      v-for="child in props.category.children"
       :key="child.id"
       :category="child"
-      :display-ids="displayIds"
+      :display-ids="props.displayIds"
     />
   </div>
 </template>
@@ -28,7 +30,7 @@ interface Props {
   displayIds: number[];
 }
 
-const { category, displayIds } = defineProps<Props>();
+const props = defineProps<Props>();
 
 const sidebarStore = useSelectedCategoryStore();
 </script>

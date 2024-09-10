@@ -95,6 +95,11 @@ type ComplexityRoot struct {
 		VersionNo     func(childComplexity int) int
 	}
 
+	LiquorHistory struct {
+		Histories func(childComplexity int) int
+		Now       func(childComplexity int) int
+	}
+
 	ListFromCategory struct {
 		CategoryDescription func(childComplexity int) int
 		CategoryName        func(childComplexity int) int
@@ -107,6 +112,7 @@ type ComplexityRoot struct {
 		Data                func(childComplexity int, name string, limit *int) int
 		Histories           func(childComplexity int, id int) int
 		Liquor              func(childComplexity int, id string) int
+		LiquorHistories     func(childComplexity int, id string) int
 		ListFromCategory    func(childComplexity int, categoryID int) int
 		RandomRecommendList func(childComplexity int, limit int) int
 	}
@@ -120,6 +126,7 @@ type QueryResolver interface {
 	Liquor(ctx context.Context, id string) (*graphModel.Liquor, error)
 	RandomRecommendList(ctx context.Context, limit int) ([]*graphModel.Liquor, error)
 	ListFromCategory(ctx context.Context, categoryID int) (*graphModel.ListFromCategory, error)
+	LiquorHistories(ctx context.Context, id string) (*graphModel.LiquorHistory, error)
 }
 
 type executableSchema struct {
@@ -358,6 +365,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Liquor.VersionNo(childComplexity), true
 
+	case "LiquorHistory.histories":
+		if e.complexity.LiquorHistory.Histories == nil {
+			break
+		}
+
+		return e.complexity.LiquorHistory.Histories(childComplexity), true
+
+	case "LiquorHistory.now":
+		if e.complexity.LiquorHistory.Now == nil {
+			break
+		}
+
+		return e.complexity.LiquorHistory.Now(childComplexity), true
+
 	case "ListFromCategory.categoryDescription":
 		if e.complexity.ListFromCategory.CategoryDescription == nil {
 			break
@@ -433,6 +454,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Liquor(childComplexity, args["id"].(string)), true
+
+	case "Query.liquorHistories":
+		if e.complexity.Query.LiquorHistories == nil {
+			break
+		}
+
+		args, err := ec.field_Query_liquorHistories_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.LiquorHistories(childComplexity, args["id"].(string)), true
 
 	case "Query.listFromCategory":
 		if e.complexity.Query.ListFromCategory == nil {
@@ -612,10 +645,16 @@ type ListFromCategory{
   liquors:[Liquor]!
 }
 
+type LiquorHistory{
+  now:Liquor!
+  histories:[Liquor]
+}
+
 extend type Query {
   liquor(id: String!): Liquor!
   randomRecommendList(limit: Int!): [Liquor!]! #ランダムなリスト
   listFromCategory(categoryId: Int!): ListFromCategory! #カテゴリで絞り込んだリスト
+  liquorHistories(id: String!):LiquorHistory
 }`, BuiltIn: false},
 	{Name: "../schema/schema.graphqls", Input: `# GraphQL schema example
 #
@@ -692,6 +731,21 @@ func (ec *executionContext) field_Query_histories_args(ctx context.Context, rawA
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_liquorHistories_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2178,6 +2232,139 @@ func (ec *executionContext) fieldContext_Liquor_versionNo(_ context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _LiquorHistory_now(ctx context.Context, field graphql.CollectedField, obj *graphModel.LiquorHistory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LiquorHistory_now(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Now, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*graphModel.Liquor)
+	fc.Result = res
+	return ec.marshalNLiquor2ᚖbackendᚋgraphᚋgraphModelᚐLiquor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LiquorHistory_now(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LiquorHistory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Liquor_id(ctx, field)
+			case "categoryId":
+				return ec.fieldContext_Liquor_categoryId(ctx, field)
+			case "categoryName":
+				return ec.fieldContext_Liquor_categoryName(ctx, field)
+			case "categoryTrail":
+				return ec.fieldContext_Liquor_categoryTrail(ctx, field)
+			case "name":
+				return ec.fieldContext_Liquor_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Liquor_description(ctx, field)
+			case "imageUrl":
+				return ec.fieldContext_Liquor_imageUrl(ctx, field)
+			case "imageBase64":
+				return ec.fieldContext_Liquor_imageBase64(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Liquor_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Liquor_updatedAt(ctx, field)
+			case "versionNo":
+				return ec.fieldContext_Liquor_versionNo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Liquor", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LiquorHistory_histories(ctx context.Context, field graphql.CollectedField, obj *graphModel.LiquorHistory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LiquorHistory_histories(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Histories, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*graphModel.Liquor)
+	fc.Result = res
+	return ec.marshalOLiquor2ᚕᚖbackendᚋgraphᚋgraphModelᚐLiquor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LiquorHistory_histories(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LiquorHistory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Liquor_id(ctx, field)
+			case "categoryId":
+				return ec.fieldContext_Liquor_categoryId(ctx, field)
+			case "categoryName":
+				return ec.fieldContext_Liquor_categoryName(ctx, field)
+			case "categoryTrail":
+				return ec.fieldContext_Liquor_categoryTrail(ctx, field)
+			case "name":
+				return ec.fieldContext_Liquor_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Liquor_description(ctx, field)
+			case "imageUrl":
+				return ec.fieldContext_Liquor_imageUrl(ctx, field)
+			case "imageBase64":
+				return ec.fieldContext_Liquor_imageBase64(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Liquor_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Liquor_updatedAt(ctx, field)
+			case "versionNo":
+				return ec.fieldContext_Liquor_versionNo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Liquor", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ListFromCategory_categoryName(ctx context.Context, field graphql.CollectedField, obj *graphModel.ListFromCategory) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ListFromCategory_categoryName(ctx, field)
 	if err != nil {
@@ -2808,6 +2995,64 @@ func (ec *executionContext) fieldContext_Query_listFromCategory(ctx context.Cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_listFromCategory_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_liquorHistories(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_liquorHistories(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().LiquorHistories(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*graphModel.LiquorHistory)
+	fc.Result = res
+	return ec.marshalOLiquorHistory2ᚖbackendᚋgraphᚋgraphModelᚐLiquorHistory(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_liquorHistories(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "now":
+				return ec.fieldContext_LiquorHistory_now(ctx, field)
+			case "histories":
+				return ec.fieldContext_LiquorHistory_histories(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type LiquorHistory", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_liquorHistories_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -5032,6 +5277,47 @@ func (ec *executionContext) _Liquor(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
+var liquorHistoryImplementors = []string{"LiquorHistory"}
+
+func (ec *executionContext) _LiquorHistory(ctx context.Context, sel ast.SelectionSet, obj *graphModel.LiquorHistory) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, liquorHistoryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("LiquorHistory")
+		case "now":
+			out.Values[i] = ec._LiquorHistory_now(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "histories":
+			out.Values[i] = ec._LiquorHistory_histories(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var listFromCategoryImplementors = []string{"ListFromCategory"}
 
 func (ec *executionContext) _ListFromCategory(ctx context.Context, sel ast.SelectionSet, obj *graphModel.ListFromCategory) graphql.Marshaler {
@@ -5239,6 +5525,25 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "liquorHistories":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_liquorHistories(ctx, field)
 				return res
 			}
 
@@ -6374,11 +6679,59 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return res
 }
 
+func (ec *executionContext) marshalOLiquor2ᚕᚖbackendᚋgraphᚋgraphModelᚐLiquor(ctx context.Context, sel ast.SelectionSet, v []*graphModel.Liquor) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOLiquor2ᚖbackendᚋgraphᚋgraphModelᚐLiquor(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
 func (ec *executionContext) marshalOLiquor2ᚖbackendᚋgraphᚋgraphModelᚐLiquor(ctx context.Context, sel ast.SelectionSet, v *graphModel.Liquor) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Liquor(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOLiquorHistory2ᚖbackendᚋgraphᚋgraphModelᚐLiquorHistory(ctx context.Context, sel ast.SelectionSet, v *graphModel.LiquorHistory) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._LiquorHistory(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

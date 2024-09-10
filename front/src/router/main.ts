@@ -20,11 +20,6 @@ const MainRouter = {
       component: IndexPage,
     },
     {
-      path: '/post/:id?',
-      name: 'LiquorEdit',
-      component: CreatePost,
-    },
-    {
       path: '/discovery',
       children: [
         {
@@ -36,7 +31,14 @@ const MainRouter = {
     },
     {
       path: '/liquor',
-      children: [{ path: ':id?', name: 'LiquorDetail', component: DetailPage }],
+      children: [
+        { path: ':id?', name: 'LiquorDetail', component: DetailPage },
+        {
+          path: 'edit/:id?',
+          name: 'LiquorEdit',
+          component: CreatePost,
+        },
+      ],
     },
     {
       path: '/category',

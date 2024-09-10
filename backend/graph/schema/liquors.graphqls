@@ -25,8 +25,14 @@ type ListFromCategory{
   liquors:[Liquor]!
 }
 
+type LiquorHistory{
+  now:Liquor!
+  histories:[Liquor]
+}
+
 extend type Query {
   liquor(id: String!): Liquor!
   randomRecommendList(limit: Int!): [Liquor!]! #ランダムなリスト
   listFromCategory(categoryId: Int!): ListFromCategory! #カテゴリで絞り込んだリスト
+  liquorHistories(id: String!):LiquorHistory
 }

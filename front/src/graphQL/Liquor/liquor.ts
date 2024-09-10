@@ -49,19 +49,6 @@ export const LIQUOR_DETAIL_GET: DocumentNode = gql`
   }
 `;
 
-export const LIQUOR_DETAIL_FOR_EDIT: DocumentNode = gql`
-  query ($id: String!) {
-    liquor(id: $id) {
-      id
-      name
-      categoryId
-      description
-      imageBase64
-      versionNo
-    }
-  }
-`;
-
 export const LIQUOR_LIST_FROM_CATEGORY: DocumentNode = gql`
   query ($id: Int!) {
     listFromCategory(categoryId: $id) {

@@ -1,7 +1,10 @@
 <template>
   <VForm @submit="onSubmit" ref="form" :validation-schema="validationSchema">
-    親カテゴリ
-    <CategorySelect :name="FormKeys.PARENT" :initial-id="initialParentId" />
+    <CategorySelect
+      label="カテゴリ"
+      :name="FormKeys.CATEGORY"
+      :initial-id="initialParentId"
+    />
     <FormField :name="FormKeys.ID" type="hidden" />
     <FormField :name="FormKeys.VERSION_NO" type="hidden" />
     <FormField :name="FormKeys.SELECTED_VERSION_NO" type="hidden" />
@@ -25,44 +28,39 @@
 
 <script setup lang="ts">
 import { Form as VForm, type SubmissionHandler } from 'vee-validate';
+import {
+  FormKeys,
+  type FormValues,
+  generateInitialValues,
+  validationSchema,
+} from '@/forms/Post/CreatePostForm';
 import FormField from '@/components/parts/forms/core/FormField.vue';
 import CategorySelect from '@/components/blocks/common/forms/advance/CategorySelect.vue';
 import SubmitButton from '@/components/parts/common/SubmitButton.vue';
 import { useToast } from '@/funcs/composable/useToast';
 import type { ToastCommand } from '@/plugins/toast';
 import { useApiMutation } from '@/funcs/composable/useApiMutation';
+import PostAPIType, {
+  type PostRequest,
+  type PostResponse,
+} from '@/type/api/APIType/post/PostForm';
 import { useLoading } from 'vue-loading-overlay';
+import type { LiquorForEdit } from '@/graphQL/Liquor/liquor';
 import { computed, type ComputedRef, onMounted, ref, watch } from 'vue';
-import CategoryPostAPIType, {
-  type CategoryRequest,
-  type CategoryResponse,
-} from '@/type/api/APIType/post/CategoryForm';
-import {
-  FormKeys,
-  type FormValues,
-  generateInitialValues,
-  validationSchema,
-} from '@/forms/Post/CategoryForm';
 import { useRouter } from 'vue-router';
 import type { AxiosResponse } from 'axios';
-import type { Category } from '@/graphQL/Category/categories';
-import { useSelectedCategoryStore } from '@/stores/sidebar';
 
 // propsから受け取る初期値
 const props = defineProps<{
-  initialData: Category | null;
+  initialData: LiquorForEdit | null;
   versionNo: number | null;
 }>();
 
 //必要な関数をインポート
-const { mutateAsync } = useApiMutation<CategoryRequest, CategoryResponse>(
-  CategoryPostAPIType,
-);
+const { mutateAsync } = useApiMutation<PostRequest, PostResponse>(PostAPIType);
 const router = useRouter();
 const toast: ToastCommand = useToast();
 const loading = useLoading();
-
-const sideBarStore = useSelectedCategoryStore();
 
 const form = ref<InstanceType<typeof VForm> | null>(null); //Form内部に定義されているフォームメソッドにアクセスするのに必要
 
@@ -88,7 +86,7 @@ onMounted(() => {
 });
 
 const initialParentId: ComputedRef<number | null> = computed(
-  () => props.initialData?.parent ?? null,
+  () => props.initialData?.categoryId ?? null,
 );
 
 // extends GenericObjectは型が広すぎるのでキャストして対応する
@@ -99,14 +97,13 @@ const onSubmit: SubmissionHandler = async (
 ): Promise<void> => {
   const loader = loading.show();
   //Categoryが空はバリデーションで弾かれる想定なのでキャスト
-  await mutateAsync(<CategoryRequest>values, {
-    onSuccess(value: AxiosResponse<CategoryResponse>) {
+  await mutateAsync(<PostRequest>values, {
+    onSuccess(value: AxiosResponse<PostResponse>) {
       toast.showToast({
         message: '登録が成功しました！',
       });
-      sideBarStore.reload();
       router.push({
-        name: 'CategoryDetail',
+        name: 'LiquorDetail',
         params: { id: value.data.id },
         state: { noCache: true },
       });

@@ -7,6 +7,7 @@ export interface PostRequest {
   name: string;
   description: string;
   image: File | null;
+  selected_version_no: number | null;
   version_no: number | null;
 }
 

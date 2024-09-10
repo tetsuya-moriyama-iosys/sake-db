@@ -41,20 +41,6 @@ export const GET_DETAIL: DocumentNode = gql`
   }
 `;
 
-export const GET_DETAIL_FOR_EDIT: DocumentNode = gql`
-  query ($id: Int!) {
-    category(id: $id) {
-      id
-      name
-      parent
-      description
-      imageBase64
-      description
-      versionNo
-    }
-  }
-`;
-
 //TODO:もうちょっといい方法がないか考えたいが、一旦保留
 export const GET_QUERY: DocumentNode = gql`
   query {

@@ -1,7 +1,7 @@
 <!--サイドバー-->
 <template>
   <aside>
-    カテゴリから検索:
+    カテゴリから検索:{{ filteredCategoryIdList }}
     <CategoryParent
       v-for="category in categoryList"
       :key="category.id"
@@ -18,10 +18,10 @@ import {
   type Category,
   GET_QUERY,
 } from '@/graphQL/Category/categories';
-import { computed, type ComputedRef, onMounted, ref } from 'vue';
-import CategoryParent from '@/components/layouts/main/sideBar/CategoryParent.vue';
+import { computed, type ComputedRef, onMounted, ref, watch } from 'vue';
 import { useSelectedCategoryStore } from '@/stores/sidebar';
 import { getDisplayCategoryIds } from '@/funcs/component/laouts/main/sideBar/sideBarFunc';
+import CategoryParent from '@/components/layouts/main/sideBar/CategoryParent.vue';
 
 const sidebarStore = useSelectedCategoryStore();
 
@@ -29,11 +29,26 @@ const { fetch } = useQuery<Categories>(GET_QUERY);
 
 const categoryList = ref<Category[] | null>();
 
+async function fetchData() {
+  const { categories: response } = await fetch({
+    fetchPolicy: 'no-cache',
+  });
+  categoryList.value = [...response];
+}
+
 // 読み込み時に情報をAPIから取得
 onMounted(async () => {
-  const { categories: response } = await fetch();
-  categoryList.value = response;
+  void fetchData();
+  sidebarStore.setReloadFlgFalse();
 });
+watch(
+  () => sidebarStore.isReloadFlg,
+  () => {
+    if (sidebarStore.isReloadFlg) {
+      void fetchData();
+    }
+  },
+);
 
 // sidebarStore.contentに基づいてカテゴリをフィルタリングする
 const filteredCategoryIdList: ComputedRef<number[]> = computed(() => {

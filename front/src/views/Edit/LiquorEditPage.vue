@@ -1,40 +1,45 @@
 <template>
-  投稿する
-  <LiquorEdit v-if="!isLoading" :initial-data="liquor" />
+  <LiquorEdit v-if="!isLoading" :history-data="liquor" />
 </template>
 
 <script setup lang="ts">
 import useQuery from '@/funcs/composable/useQuery';
 import { onMounted, ref } from 'vue';
-import {
-  LIQUOR_DETAIL_FOR_EDIT,
-  type LiquorForEdit,
-  type LiquorResponse,
-} from '@/graphQL/Liquor/liquor';
 import { useRoute } from 'vue-router';
 import LiquorEdit from '@/components/templates/post/LiquorEdit.vue';
+import {
+  GET_LOGS_FOR_ROLLBACK,
+  type HistoryResponse,
+  type LiquorHistoryData,
+} from '@/graphQL/Liquor/liquorLog';
+import { isEmpty } from '@/funcs/util/isEmpty';
 
 const isLoading = ref<boolean>(true);
-const liquor = ref<LiquorForEdit | null>(null);
+const liquor = ref<LiquorHistoryData | null>(null); //フィールドにあるカテゴリ情報
 
 const route = useRoute(); // 現在のルートを取得
-const { fetch } = useQuery<LiquorResponse<LiquorForEdit>>(
-  LIQUOR_DETAIL_FOR_EDIT,
-);
+const { fetch } = useQuery<HistoryResponse>(GET_LOGS_FOR_ROLLBACK);
 
 // 読み込み時に情報をAPIから取得
 onMounted(async () => {
-  const id = route.params.id as string; // ルートパラメータからidを取得
-  if (!id) {
+  const id: string = route.params.id as string; // ルートパラメータからidを取得
+  if (isEmpty(id)) {
     isLoading.value = false;
     return;
   }
-  const { liquor: response } = await fetch({
+  await fetch({
     variables: {
-      id: id,
+      id,
     },
-  });
-  liquor.value = response;
-  isLoading.value = false;
+    fetchPolicy: 'no-cache',
+  })
+    .then((response) => {
+      liquor.value = response.liquorHistories;
+    })
+    .finally(() => {
+      isLoading.value = false;
+    });
 });
 </script>
+
+<style scoped></style>

@@ -9,16 +9,16 @@
 
 <script setup lang="ts">
 // propsから受け取る初期値
-import type { Category } from '@/graphQL/Category/categories';
 import { format } from 'date-fns';
+import type { Liquor } from '@/graphQL/Liquor/liquor';
 
 const { logs } = defineProps<{
-  logs: Category[];
+  logs: Liquor[];
 }>();
 
 const emit = defineEmits(['selectLog']); // 親に送るイベントを定義
 
-const handleClick = (log: Category) => {
+const handleClick = (log: Liquor) => {
   emit('selectLog', log); // 第二引数としてデータを渡す
 };
 </script>
