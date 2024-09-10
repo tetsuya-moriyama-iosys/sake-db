@@ -2,7 +2,6 @@
   <VForm @submit="onSubmit" ref="form" :validation-schema="validationSchema">
     親カテゴリ
     <CategorySelect :name="FormKeys.PARENT" :initial-id="initialParentId" />
-    <ErrorMessage :name="FormKeys.PARENT" />
     <FormField :name="FormKeys.ID" type="hidden" />
     <FormField :name="FormKeys.VERSION_NO" type="hidden" />
     <FormField :name="FormKeys.SELECTED_VERSION_NO" type="hidden" />
@@ -25,11 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  ErrorMessage,
-  Form as VForm,
-  type SubmissionHandler,
-} from 'vee-validate';
+import { Form as VForm, type SubmissionHandler } from 'vee-validate';
 import FormField from '@/components/parts/forms/core/FormField.vue';
 import CategorySelect from '@/components/blocks/common/forms/advance/CategorySelect.vue';
 import SubmitButton from '@/components/parts/common/SubmitButton.vue';
@@ -51,6 +46,7 @@ import {
 import { useRouter } from 'vue-router';
 import type { AxiosResponse } from 'axios';
 import type { Category } from '@/graphQL/Category/categories';
+import { useSelectedCategoryStore } from '@/stores/sidebar';
 
 // propsから受け取る初期値
 const props = defineProps<{
@@ -65,6 +61,8 @@ const { mutateAsync } = useApiMutation<CategoryRequest, CategoryResponse>(
 const router = useRouter();
 const toast: ToastCommand = useToast();
 const loading = useLoading();
+
+const sideBarStore = useSelectedCategoryStore();
 
 const form = ref<InstanceType<typeof VForm> | null>(null); //Form内部に定義されているフォームメソッドにアクセスするのに必要
 
@@ -106,6 +104,7 @@ const onSubmit: SubmissionHandler = async (
       toast.showToast({
         message: '登録が成功しました！',
       });
+      sideBarStore.reload();
       router.push({
         name: 'CategoryDetail',
         params: { id: value.data.id },

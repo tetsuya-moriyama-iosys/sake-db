@@ -1,6 +1,10 @@
 <template>
   カテゴリで検索：
-  <router-link :to="{ name: 'CategoryEdit', params: { id: route.params.id } }">
+  <span v-if="Number(route.params.id) < 10"> {{ categoryName }}</span>
+  <router-link
+    v-else
+    :to="{ name: 'CategoryEdit', params: { id: route.params.id } }"
+  >
     {{ categoryName }}</router-link
   >
   {{ categoryDescription }}

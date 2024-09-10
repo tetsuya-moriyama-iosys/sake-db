@@ -61,12 +61,11 @@ const { value: hiddenField, errorMessage, validate } = useField(props.name);
 // 初期IDが変更されたら、選択肢を再初期化
 watch(
   () => props.initialId,
-  async (newVal) => {
-    if (newVal == null) return;
+  async (newVal: number | null | undefined) => {
     const { categories: response } = await fetch();
     levels.value = [response]; // 最初の階層を設定
     initializeSelections(newVal, response); // 初期値で選択肢を初期化
-    hiddenField.value = newVal.toString(); // hiddenFieldにも設定
+    hiddenField.value = newVal?.toString(); // hiddenFieldにも設定
   },
   { immediate: true }, // 初回に監視対象がある場合も実行
 );
@@ -116,7 +115,10 @@ watch(finalCategoryId, (newVal) => {
 });
 
 // 指定された値に基づいてセレクトボックスを設定する関数
-const initializeSelections = (id: number, categories: Category[]) => {
+const initializeSelections = (
+  id: number | null | undefined,
+  categories: Category[],
+) => {
   //該当するIDまでのカテゴリ配列を取得
   const path: Category[] = findCategoryPathById(categories, id);
   if (path.length > 0) {
@@ -133,7 +135,7 @@ const initializeSelections = (id: number, categories: Category[]) => {
 // カテゴリIDから親カテゴリまでのパスを見つける関数
 const findCategoryPathById = (
   categories: Category[],
-  id: number,
+  id: number | null | undefined,
   path: Category[] = [],
 ): Category[] => {
   for (const category of categories) {

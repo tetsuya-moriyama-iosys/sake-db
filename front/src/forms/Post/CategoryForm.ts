@@ -41,7 +41,7 @@ export function generateInitialValues(category: Category | null): FormValues {
     return initialValues;
   }
 
-  const value = {
+  return {
     ...initialValues, //imageなどは編集時も空なので初期値を設定
     [FormKeys.ID]: category.id,
     [FormKeys.NAME]: category.name,
@@ -49,9 +49,6 @@ export function generateInitialValues(category: Category | null): FormValues {
     [FormKeys.DESCRIPTION]: category.description,
     [FormKeys.SELECTED_VERSION_NO]: category.versionNo,
   };
-
-  console.log('generateInitialValues:', value);
-  return value;
 }
 
 export const validationSchema = {

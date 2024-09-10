@@ -12,6 +12,7 @@ import {
   GET_LOGS_FOR_ROLLBACK,
   type HistoryResponse,
 } from '@/graphQL/Category/categoryLog';
+import { isEmpty } from '@/funcs/util/isEmpty';
 
 const isLoading = ref<boolean>(true);
 const category = ref<CategoryHistoryData | null>(null); //フィールドにあるカテゴリ情報
@@ -21,9 +22,10 @@ const { fetch } = useQuery<HistoryResponse>(GET_LOGS_FOR_ROLLBACK);
 
 // 読み込み時に情報をAPIから取得
 onMounted(async () => {
-  const id: string | null = route.params.id as string; // ルートパラメータからidを取得
-  if (!id) {
+  const id: string = route.params.id as string; // ルートパラメータからidを取得
+  if (isEmpty(id)) {
     isLoading.value = false;
+    return;
   }
   await fetch({
     variables: {

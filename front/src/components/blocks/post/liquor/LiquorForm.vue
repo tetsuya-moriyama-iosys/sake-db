@@ -1,7 +1,10 @@
 <template>
   <VForm @submit="onSubmit" ref="form" :validation-schema="validationSchema">
-    <CategorySelect :name="FormKeys.CATEGORY" :initial-id="initialParentId" />
-    <ErrorMessage :name="FormKeys.CATEGORY" />
+    <CategorySelect
+      label="カテゴリ"
+      :name="FormKeys.CATEGORY"
+      :initial-id="initialParentId"
+    />
     <FormField :name="FormKeys.ID" type="hidden" />
     <FormField :name="FormKeys.VERSION_NO" type="hidden" />
     <FormField :name="FormKeys.SELECTED_VERSION_NO" type="hidden" />
@@ -24,11 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  ErrorMessage,
-  Form as VForm,
-  type SubmissionHandler,
-} from 'vee-validate';
+import { Form as VForm, type SubmissionHandler } from 'vee-validate';
 import {
   FormKeys,
   type FormValues,
