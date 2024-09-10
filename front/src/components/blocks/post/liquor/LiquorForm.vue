@@ -33,7 +33,7 @@ import {
   type FormValues,
   generateInitialValues,
   validationSchema,
-} from '@/forms/Post/CreatePostForm';
+} from '@/forms/post/CreatePostForm';
 import FormField from '@/components/parts/forms/core/FormField.vue';
 import CategorySelect from '@/components/blocks/common/forms/advance/CategorySelect.vue';
 import SubmitButton from '@/components/parts/common/SubmitButton.vue';

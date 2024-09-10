@@ -1,16 +1,25 @@
 <template>
   <header class="sticky">
     <main class="flex">
-      <router-link to="/"
-        ><p class="block">酒データベース(仮称)</p></router-link
-      >
-      <router-link :to="{ name: 'LiquorEdit' }">投稿する</router-link>
-      <router-link :to="{ name: 'CategoryEdit' }">新規カテゴリ追加</router-link>
+      <section class="flex flex-1">
+        <router-link to="/"
+          ><p class="block">酒データベース(仮称)</p></router-link
+        >
+        <router-link :to="{ name: 'LiquorEdit' }">投稿する</router-link>
+        <router-link :to="{ name: 'CategoryEdit' }"
+          >新規カテゴリ追加</router-link
+        >
+      </section>
+      <section>
+        <MainMenu />
+      </section>
     </main>
   </header>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import MainMenu from '@/components/layouts/main/header/MainMenu.vue';
+</script>
 
 <style scoped>
 header {
