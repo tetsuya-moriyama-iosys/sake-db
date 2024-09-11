@@ -8,21 +8,23 @@ import (
 	"backend/db/repository/userRepository"
 	"backend/graph/generated"
 	"backend/graph/graphModel"
+	"backend/service/userService"
 	"context"
-	"fmt"
-
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
+	"net/http"
 )
 
 // Register is the resolver for the register field.
 func (r *mutationResolver) Register(ctx context.Context, input graphModel.RegisterInput) (*graphModel.User, error) {
-	//panic(fmt.Errorf("not implemented: Register - register"))
+	//パスワードをハッシュする
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
 	}
 
+	//ユーザー構造体の定義
 	user := userRepository.Model{
 		ID:       primitive.NewObjectID(),
 		Name:     input.Name,
@@ -30,6 +32,7 @@ func (r *mutationResolver) Register(ctx context.Context, input graphModel.Regist
 		Password: string(hashedPassword),
 	}
 
+	//登録して、挿入したデータを受け取る
 	newUser, err := r.UserRepo.Register(ctx, &user)
 	if err != nil {
 		return nil, err
@@ -39,7 +42,13 @@ func (r *mutationResolver) Register(ctx context.Context, input graphModel.Regist
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input graphModel.LoginInput) (*graphModel.User, error) {
-	panic(fmt.Errorf("not implemented: Login - login"))
+	//panic(fmt.Errorf("not implemented: Login - login"))
+	user, err := userService.Login(ctx, input, &r.UserRepo)
+	if err != nil {
+		return nil, err
+	}
+
+	c.JSON(http.StatusOK, gin.H{"token": tokenString})
 }
 
 // Mutation returns generated.MutationResolver implementation.

@@ -35,6 +35,16 @@ func (r *UsersRepository) Register(ctx context.Context, user *Model) (*Model, er
 	return user, nil
 }
 
+func (r *UsersRepository) GetByEmail(ctx context.Context, email string) (*Model, error) {
+	// ドキュメントを取得
+	var user Model
+	if err := r.collection.FindOne(ctx, bson.M{EMAIL: email}).Decode(&user); err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func (r *UsersRepository) GetById(ctx context.Context, id string) (*Model, error) {
 	// idをObjectIDに変換
 	objectID, err := primitive.ObjectIDFromHex(id)
