@@ -42,7 +42,7 @@ import {
   type FormValues,
   generateInitialValues,
   validationSchema,
-} from '@/forms/Post/CategoryForm';
+} from '@/forms/post/CategoryForm';
 import { useRouter } from 'vue-router';
 import type { AxiosResponse } from 'axios';
 import type { Category } from '@/graphQL/Category/categories';

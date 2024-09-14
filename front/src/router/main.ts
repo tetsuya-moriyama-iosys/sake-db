@@ -8,17 +8,23 @@ import DetailPage from '@/views/Discovery/Details/LiquorPage.vue';
 import CategoryPage from '@/views/Discovery/Details/CategoryPage.vue';
 import CategoryEditPage from '@/views/Edit/CategoryEditPage.vue';
 import CategoryNarrowDownPage from '@/views/Discovery/NarrowDowns/CategoryNarrowDownPage.vue';
+import AuthRouter from '@/router/auth';
+import { UserRouter } from '@/router/user';
 
 const MainRouter = {
   path: '/',
   name: 'Layout',
   component: Layout,
   children: [
+    //Layoutを共用するため、この位置に移動
+    AuthRouter,
+    UserRouter,
     {
       path: '/',
       name: 'Index',
       component: IndexPage,
     },
+
     {
       path: '/discovery',
       children: [

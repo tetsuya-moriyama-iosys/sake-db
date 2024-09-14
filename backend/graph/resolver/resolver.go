@@ -3,6 +3,7 @@ package resolver
 import (
 	"backend/db/repository/categoriesRepository"
 	"backend/db/repository/liquorRepository"
+	"backend/db/repository/userRepository"
 	"context"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -11,12 +12,14 @@ import (
 type Resolver struct {
 	CategoryRepo categoriesRepository.CategoryRepository
 	LiquorRepo   liquorRepository.LiquorsRepository
+	UserRepo     userRepository.UsersRepository
 }
 
-func NewResolver(categoryRepo categoriesRepository.CategoryRepository, liquorRepo liquorRepository.LiquorsRepository) *Resolver {
+func NewResolver(categoryRepo categoriesRepository.CategoryRepository, liquorRepo liquorRepository.LiquorsRepository, userRepo userRepository.UsersRepository) *Resolver {
 	return &Resolver{
 		CategoryRepo: categoryRepo,
 		LiquorRepo:   liquorRepo,
+		UserRepo:     userRepo,
 	}
 }
 

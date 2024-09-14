@@ -1,19 +1,18 @@
-import { defineComponent, h } from 'vue';
-import AuthRegister from '@/views/Auth/AuthIndex.vue';
+import RegisterPage from '@/views/Auth/RegisterPage.vue';
+import LoginPage from '@/views/Auth/LoginPage.vue';
 
 const AuthRouter = {
-  path: '/auth',
-  name: 'Auth',
-  component: defineComponent({
-    render() {
-      return h('router-view'); //ダミーコンポーネント
-    },
-  }),
+  path: 'auth',
   children: [
     {
       path: 'register',
-      name: 'AuthRegister',
-      component: AuthRegister,
+      name: 'Register',
+      component: RegisterPage,
+    },
+    {
+      path: 'login',
+      name: 'Login',
+      component: LoginPage,
     },
   ],
 };

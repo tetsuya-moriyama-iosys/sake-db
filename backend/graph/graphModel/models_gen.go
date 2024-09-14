@@ -18,6 +18,11 @@ type AffiliateItem struct {
 	ImageURL *string `json:"imageURL,omitempty"`
 }
 
+type AuthPayload struct {
+	Token string `json:"token"`
+	User  *User  `json:"user"`
+}
+
 type Category struct {
 	ID          int         `json:"id"`
 	Name        string      `json:"name"`
@@ -66,5 +71,25 @@ type ListFromCategory struct {
 	Liquors             []*Liquor `json:"liquors"`
 }
 
+type LoginInput struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type Mutation struct {
+}
+
 type Query struct {
+}
+
+type RegisterInput struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type User struct {
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }

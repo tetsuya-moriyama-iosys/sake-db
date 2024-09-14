@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.11.1",
+    "@headlessui/vue": "^1.7.23",
     "@tanstack/vue-query": "^5.52.2",
     "@vee-validate/rules": "^4.13.2",
     "@vue/apollo-composable": "^4.0.2",

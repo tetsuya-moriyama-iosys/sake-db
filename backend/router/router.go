@@ -2,6 +2,7 @@ package router
 
 import (
 	"backend/di/handlers"
+	"context"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
@@ -11,15 +12,6 @@ import (
 
 // ルートの設定
 func configureRoutes(r *gin.Engine, srv *handler.Server, handlers *handlers.Handlers) {
-	log.Println("in router")
-
-	//r.POST("/register", func(c *gin.Context) {
-	//	register.Register(c)
-	//})
-	//r.POST("/login", func(c *gin.Context) {
-	//	login.Login(c)
-	//})
-
 	// 酒データの投稿
 	r.POST("/post", func(c *gin.Context) {
 		id, err := handlers.LiquorHandler.Post(c)
@@ -53,8 +45,11 @@ func configureRoutes(r *gin.Engine, srv *handler.Server, handlers *handlers.Hand
 				}
 			}
 		}()
+		// Ginのコンテキストからリクエストを取り出し、GraphQLの`context`にセット
+		ctx := context.WithValue(c.Request.Context(), "http.Request", c.Request)
+
 		// GraphQLサーバーにリクエストを渡す
-		srv.ServeHTTP(c.Writer, c.Request)
+		srv.ServeHTTP(c.Writer, c.Request.WithContext(ctx))
 	})
 	r.GET("/query", func(c *gin.Context) {
 		playground.Handler("GraphQL", "/query").ServeHTTP(c.Writer, c.Request)

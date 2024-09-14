@@ -10,6 +10,7 @@ import (
 	"backend/api/post/liquorPost"
 	"backend/db/repository/categoriesRepository"
 	"backend/db/repository/liquorRepository"
+	"backend/db/repository/userRepository"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 )
@@ -21,6 +22,7 @@ func InitializeHandler() (*gin.Engine, error) {
 		// リポジトリのインスタンス生成
 		categoriesRepository.NewCategoryRepository,
 		liquorRepository.NewLiquorsRepository,
+		userRepository.NewUsersRepository,
 		//REST APIのハンドラ
 		liquorPost.NewHandler,
 		categoryPost.NewHandler,

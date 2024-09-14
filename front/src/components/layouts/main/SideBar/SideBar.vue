@@ -1,7 +1,7 @@
 <!--サイドバー-->
 <template>
   <aside>
-    カテゴリから検索:{{ filteredCategoryIdList }}
+    カテゴリから検索
     <CategoryParent
       v-for="category in categoryList"
       :key="category.id"

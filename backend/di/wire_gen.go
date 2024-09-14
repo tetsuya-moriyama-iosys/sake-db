@@ -12,6 +12,7 @@ import (
 	"backend/db"
 	"backend/db/repository/categoriesRepository"
 	"backend/db/repository/liquorRepository"
+	"backend/db/repository/userRepository"
 	"backend/di/handlers"
 	"backend/graph"
 	"backend/graph/resolver"
@@ -30,7 +31,8 @@ func InitializeHandler() (*gin.Engine, error) {
 	dbDB := db.NewDB(client)
 	categoryRepository := categoriesRepository.NewCategoryRepository(dbDB)
 	liquorsRepository := liquorRepository.NewLiquorsRepository(dbDB)
-	resolverResolver := resolver.NewResolver(categoryRepository, liquorsRepository)
+	usersRepository := userRepository.NewUsersRepository(dbDB)
+	resolverResolver := resolver.NewResolver(categoryRepository, liquorsRepository, usersRepository)
 	server := graph.NewGraphQLServer(resolverResolver)
 	database := db.ProvideMongoDatabase(dbDB)
 	s3S3, err := s3.NewS3Client()
