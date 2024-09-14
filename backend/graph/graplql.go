@@ -9,7 +9,14 @@ import (
 )
 
 func NewGraphQLServer(resolver *resolver.Resolver) *handler.Server {
-	srv := handler.New(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
+	//srv := handler.New(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
+	// GraphQLサーバーをセットアップ
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{
+		Resolvers: resolver,
+		Directives: generated.DirectiveRoot{
+			Auth: authDirective, // @authディレクティブを適用
+		},
+	}))
 
 	// POSTトランスポートを追加
 	srv.AddTransport(transport.POST{})

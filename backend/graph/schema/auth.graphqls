@@ -22,5 +22,5 @@ type User {
 
 extend type Mutation {
   register(input: RegisterInput!): User!
-  login(input: LoginInput!): User!
+  login(input: LoginInput!): AuthPayload!
 }

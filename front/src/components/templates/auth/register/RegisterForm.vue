@@ -21,10 +21,12 @@ import {
   validationSchema,
 } from '@/forms/auth/RegisterForm';
 import SubmitButton from '@/components/parts/common/SubmitButton.vue';
-import { REGISTER, type User } from '@/graphQL/Auth/register';
+import { Register, type User } from '@/graphQL/Auth/auth';
 import { useMutation } from '@/funcs/composable/useQuery';
+import { useToast } from '@/funcs/composable/useToast';
 
-const { execute } = useMutation<User>(REGISTER, {
+const toast = useToast();
+const { execute } = useMutation<User>(Register, {
   isUseSpinner: true,
 });
 
@@ -40,6 +42,8 @@ const onSubmit: SubmissionHandler = async (values: FormValues) => {
         password: values[FormKeys.PASSWORD],
       },
     },
+  }).then(() => {
+    toast.showToast({ message: '登録が完了しました' });
   });
 };
 </script>

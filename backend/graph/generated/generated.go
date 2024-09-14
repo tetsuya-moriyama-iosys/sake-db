@@ -44,6 +44,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	Auth func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -121,6 +122,7 @@ type ComplexityRoot struct {
 		Categories          func(childComplexity int) int
 		Category            func(childComplexity int, id int) int
 		Data                func(childComplexity int, name string, limit *int) int
+		GetUser             func(childComplexity int) int
 		Histories           func(childComplexity int, id int) int
 		Liquor              func(childComplexity int, id string) int
 		LiquorHistories     func(childComplexity int, id string) int
@@ -137,7 +139,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	Register(ctx context.Context, input graphModel.RegisterInput) (*graphModel.User, error)
-	Login(ctx context.Context, input graphModel.LoginInput) (*graphModel.User, error)
+	Login(ctx context.Context, input graphModel.LoginInput) (*graphModel.AuthPayload, error)
 }
 type QueryResolver interface {
 	Data(ctx context.Context, name string, limit *int) (*graphModel.AffiliateData, error)
@@ -148,6 +150,7 @@ type QueryResolver interface {
 	RandomRecommendList(ctx context.Context, limit int) ([]*graphModel.Liquor, error)
 	ListFromCategory(ctx context.Context, categoryID int) (*graphModel.ListFromCategory, error)
 	LiquorHistories(ctx context.Context, id string) (*graphModel.LiquorHistory, error)
+	GetUser(ctx context.Context) (*graphModel.User, error)
 }
 
 type executableSchema struct {
@@ -490,6 +493,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Data(childComplexity, args["name"].(string), args["limit"].(*int)), true
 
+	case "Query.getUser":
+		if e.complexity.Query.GetUser == nil {
+			break
+		}
+
+		return e.complexity.Query.GetUser(childComplexity), true
+
 	case "Query.histories":
 		if e.complexity.Query.Histories == nil {
 			break
@@ -717,7 +727,7 @@ type User {
 
 extend type Mutation {
   register(input: RegisterInput!): User!
-  login(input: LoginInput!): User!
+  login(input: LoginInput!): AuthPayload!
 }
 `, BuiltIn: false},
 	{Name: "../schema/categories.graphqls", Input: `type Category {
@@ -788,6 +798,12 @@ extend type Query {
 type Query
 
 # type Mutation`, BuiltIn: false},
+	{Name: "../schema/user.graphqls", Input: `directive @auth on FIELD_DEFINITION
+
+extend type Query {
+  getUser: User! @auth
+}
+`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -2858,9 +2874,9 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*graphModel.User)
+	res := resTmp.(*graphModel.AuthPayload)
 	fc.Result = res
-	return ec.marshalNUser2ᚖbackendᚋgraphᚋgraphModelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNAuthPayload2ᚖbackendᚋgraphᚋgraphModelᚐAuthPayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2871,14 +2887,12 @@ func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, fie
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "name":
-				return ec.fieldContext_User_name(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
+			case "token":
+				return ec.fieldContext_AuthPayload_token(ctx, field)
+			case "user":
+				return ec.fieldContext_AuthPayload_user(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type AuthPayload", field.Name)
 		},
 	}
 	defer func() {
@@ -3432,6 +3446,78 @@ func (ec *executionContext) fieldContext_Query_liquorHistories(ctx context.Conte
 	if fc.Args, err = ec.field_Query_liquorHistories_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getUser(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetUser(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*graphModel.User); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *backend/graph/graphModel.User`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*graphModel.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖbackendᚋgraphᚋgraphModelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getUser(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -6237,6 +6323,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getUser":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getUser(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "__type":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___type(ctx, field)
@@ -6665,6 +6773,20 @@ func (ec *executionContext) marshalNAffiliateItem2ᚖbackendᚋgraphᚋgraphMode
 		return graphql.Null
 	}
 	return ec._AffiliateItem(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAuthPayload2backendᚋgraphᚋgraphModelᚐAuthPayload(ctx context.Context, sel ast.SelectionSet, v graphModel.AuthPayload) graphql.Marshaler {
+	return ec._AuthPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuthPayload2ᚖbackendᚋgraphᚋgraphModelᚐAuthPayload(ctx context.Context, sel ast.SelectionSet, v *graphModel.AuthPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AuthPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {

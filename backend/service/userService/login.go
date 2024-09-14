@@ -5,6 +5,7 @@ import (
 	"backend/graph/graphModel"
 	"backend/middlewares"
 	"context"
+	"errors"
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 	"time"
@@ -21,19 +22,19 @@ func Login(ctx context.Context, input graphModel.LoginInput, r *userRepository.U
 	// ユーザーインスタンスを取得
 	user, err := r.GetByEmail(ctx, input.Email)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("メールアドレスもしくはパスワードが間違っています。")
 	}
 
 	// パスワード検証
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
 	if err != nil {
-		return nil, err
+		return nil, errors.New("メールアドレスもしくはパスワードが間違っています。")
 	}
 
 	// JWTトークン生成
 	expirationTime := time.Now().Add(time.Duration(ExpireTime) * time.Minute)
 	claims := &middlewares.Claims{
-		Email: user.Email,
+		Id: user.ID.Hex(),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},

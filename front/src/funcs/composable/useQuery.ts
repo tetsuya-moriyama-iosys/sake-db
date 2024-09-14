@@ -25,6 +25,7 @@ const spinner: PluginApi = useLoading();
 
 export interface QueryOption {
   isUseSpinner?: boolean; //読み込み時のスピナーを表示する
+  isAuth?: boolean; // JWT認証が必要かどうか
 }
 
 function useCommon<T>(option?: QueryOption) {
@@ -56,10 +57,10 @@ function useCommon<T>(option?: QueryOption) {
     }
   });
 
-  const handleError = (err: unknown) => {
-    error.value = err;
-    console.error('エラー：', err);
-    toast.errorToast((err as string) || '不明なエラー');
+  const handleError = (err: Error) => {
+    error.value = err.message;
+    console.error('エラー：', error.value);
+    toast.errorToast((error.value as string) || '不明なエラー');
   };
 
   return { loading, error, data, handleError };
@@ -75,9 +76,23 @@ export function useQuery<T = unknown>(
     loading.value = true;
     error.value = null;
     try {
+      const headers = options?.context?.headers || {};
+      // isAuthフラグがtrueの場合、JWTトークンを追加
+      if (option?.isAuth) {
+        const token = localStorage.getItem(import.meta.env.VITE_JWT_TOKEN_NAME);
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+      }
+
+      console.log('header:', headers);
+
       const result: ApolloQueryResult<T> = await client.query<T>({
         ...options,
         query,
+        context: {
+          headers, // ヘッダーをセット
+        },
       });
       //型推論がうまくいってないのでキャスト
       console.log(
@@ -89,8 +104,8 @@ export function useQuery<T = unknown>(
         result.data,
       );
       data.value = result.data;
-    } catch (err) {
-      handleError(err);
+    } catch (err: unknown) {
+      handleError(err as Error);
       throw err;
     } finally {
       loading.value = false;
@@ -114,9 +129,20 @@ export function useMutation<T = unknown>(
     loading.value = true;
     error.value = null;
     try {
+      const headers = options?.context?.headers || {};
+      // isAuthフラグがtrueの場合、JWTトークンを追加
+      if (option?.isAuth) {
+        const token = localStorage.getItem(import.meta.env.VITE_JWT_TOKEN_NAME);
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+      }
       const result: FetchResult<T> = await client.mutate<T>({
         ...options,
         mutation,
+        context: {
+          headers, // ヘッダーをセット
+        },
       });
       console.log(
         (
@@ -128,7 +154,7 @@ export function useMutation<T = unknown>(
       );
       data.value = result.data as T; //ライブラリのジェネリクスがundefinedも含んでいるのでキャスト。返す場合は大元のジェネリクスの方で指定する。
     } catch (err) {
-      handleError(err);
+      handleError(err as Error);
       throw err;
     } finally {
       loading.value = false;

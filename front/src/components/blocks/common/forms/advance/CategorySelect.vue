@@ -62,7 +62,9 @@ const { value: hiddenField, errorMessage, validate } = useField(props.name);
 watch(
   () => props.initialId,
   async (newVal: number | null | undefined) => {
-    const { categories: response } = await fetch();
+    const { categories: response } = await fetch({
+      fetchPolicy: 'no-cache', //カテゴリが途中で変更されると、意図しない変更になるリスクがある
+    });
     levels.value = [response]; // 最初の階層を設定
     initializeSelections(newVal, response); // 初期値で選択肢を初期化
     hiddenField.value = newVal?.toString(); // hiddenFieldにも設定

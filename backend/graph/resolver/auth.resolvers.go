@@ -10,10 +10,10 @@ import (
 	"backend/graph/graphModel"
 	"backend/service/userService"
 	"context"
-	"github.com/gin-gonic/gin"
+	"errors"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
-	"net/http"
 )
 
 // Register is the resolver for the register field.
@@ -35,20 +35,22 @@ func (r *mutationResolver) Register(ctx context.Context, input graphModel.Regist
 	//登録して、挿入したデータを受け取る
 	newUser, err := r.UserRepo.Register(ctx, &user)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("ユーザー登録に失敗しました。")
 	}
 	return newUser.ToGraphQL(), nil
 }
 
 // Login is the resolver for the login field.
-func (r *mutationResolver) Login(ctx context.Context, input graphModel.LoginInput) (*graphModel.User, error) {
-	//panic(fmt.Errorf("not implemented: Login - login"))
+func (r *mutationResolver) Login(ctx context.Context, input graphModel.LoginInput) (*graphModel.AuthPayload, error) {
 	user, err := userService.Login(ctx, input, &r.UserRepo)
 	if err != nil {
 		return nil, err
 	}
-
-	c.JSON(http.StatusOK, gin.H{"token": tokenString})
+	result := &graphModel.AuthPayload{
+		User:  user.User.ToGraphQL(),
+		Token: user.Token,
+	}
+	return result, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

@@ -7,7 +7,15 @@ export interface User {
   email: string;
 }
 
-export const REGISTER: DocumentNode = gql`
+export interface LoginResponse {
+  login: LoginResult;
+}
+export interface LoginResult {
+  token: string;
+  user: User;
+}
+
+export const Register: DocumentNode = gql`
   mutation ($input: RegisterInput!) {
     register(input: $input) {
       id
@@ -20,9 +28,12 @@ export const REGISTER: DocumentNode = gql`
 export const LOGIN: DocumentNode = gql`
   mutation ($input: LoginInput!) {
     login(input: $input) {
-      id
-      name
-      email
+      token
+      user {
+        id
+        name
+        email
+      }
     }
   }
 `;

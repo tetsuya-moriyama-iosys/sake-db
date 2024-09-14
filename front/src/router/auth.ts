@@ -1,4 +1,5 @@
-import AuthIndex from '@/views/Auth/AuthIndex.vue';
+import RegisterPage from '@/views/Auth/RegisterPage.vue';
+import LoginPage from '@/views/Auth/LoginPage.vue';
 
 const AuthRouter = {
   path: 'auth',
@@ -6,12 +7,12 @@ const AuthRouter = {
     {
       path: 'register',
       name: 'Register',
-      component: AuthIndex,
+      component: RegisterPage,
     },
     {
       path: 'login',
       name: 'Login',
-      component: AuthIndex,
+      component: LoginPage,
     },
   ],
 };

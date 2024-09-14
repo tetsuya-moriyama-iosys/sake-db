@@ -2,6 +2,7 @@ package helper
 
 import (
 	"image"
+	_ "image/png" // PNGデコーダーのインポート
 	"mime/multipart"
 )
 
