@@ -23,6 +23,12 @@ type AuthPayload struct {
 	User  *User  `json:"user"`
 }
 
+type BoardInput struct {
+	LiquorID string `json:"liquorID"`
+	Text     string `json:"text"`
+	Rate     *int   `json:"rate,omitempty"`
+}
+
 type Category struct {
 	ID          int         `json:"id"`
 	Name        string      `json:"name"`

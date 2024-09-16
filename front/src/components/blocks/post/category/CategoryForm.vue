@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import { Form as VForm, type SubmissionHandler } from 'vee-validate';
 import FormField from '@/components/parts/forms/core/FormField.vue';
-import CategorySelect from '@/components/blocks/common/forms/advance/CategorySelect.vue';
+import CategorySelect from '@/components/parts/forms/common/CategorySelect.vue';
 import SubmitButton from '@/components/parts/common/SubmitButton.vue';
 import { useToast } from '@/funcs/composable/useToast';
 import type { ToastCommand } from '@/plugins/toast';
@@ -42,7 +42,7 @@ import {
   type FormValues,
   generateInitialValues,
   validationSchema,
-} from '@/forms/post/CategoryForm';
+} from '@/forms/define/post/CategoryForm';
 import { useRouter } from 'vue-router';
 import type { AxiosResponse } from 'axios';
 import type { Category } from '@/graphQL/Category/categories';

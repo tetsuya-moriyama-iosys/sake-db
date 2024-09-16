@@ -19,7 +19,7 @@ import {
   type FormValues,
   initialValues,
   validationSchema,
-} from '@/forms/auth/RegisterForm';
+} from '@/forms/define/auth/RegisterForm';
 import SubmitButton from '@/components/parts/common/SubmitButton.vue';
 import { Register, type User } from '@/graphQL/Auth/auth';
 import { useMutation } from '@/funcs/composable/useQuery';

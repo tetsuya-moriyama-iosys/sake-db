@@ -11,16 +11,18 @@ import (
 )
 
 type LiquorsRepository struct {
-	db             *db.DB
-	collection     *mongo.Collection //コレクションを先に取得して格納しておく
-	logsCollection *mongo.Collection //コレクションを先に取得して格納しておく
+	db              *db.DB
+	collection      *mongo.Collection //コレクションを先に取得して格納しておく
+	logsCollection  *mongo.Collection
+	boardCollection *mongo.Collection
 }
 
 func NewLiquorsRepository(db *db.DB) LiquorsRepository {
 	return LiquorsRepository{
-		db:             db,
-		collection:     db.Collection(CollectionName),
-		logsCollection: db.Collection(LogsCollectionName),
+		db:              db,
+		collection:      db.Collection(CollectionName),
+		logsCollection:  db.Collection(LogsCollectionName),
+		boardCollection: db.Collection(BoardCollectionName),
 	}
 }
 

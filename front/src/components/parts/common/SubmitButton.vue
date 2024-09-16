@@ -1,5 +1,7 @@
 <template>
-  <CommonButton v-bind="props" :is-disabled="!isValid"><slot /></CommonButton>
+  <CommonButton v-bind="props" :is-disabled="!isValid" :class="props.class"
+    ><slot
+  /></CommonButton>
 </template>
 
 <script setup lang="ts">

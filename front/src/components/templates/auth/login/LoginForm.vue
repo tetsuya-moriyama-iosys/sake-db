@@ -18,7 +18,7 @@ import {
   type FormValues,
   initialValues,
   validationSchema,
-} from '@/forms/auth/LoginForm';
+} from '@/forms/define/auth/LoginForm';
 import SubmitButton from '@/components/parts/common/SubmitButton.vue';
 import { LOGIN, type LoginResponse } from '@/graphQL/Auth/auth';
 import { useMutation } from '@/funcs/composable/useQuery';

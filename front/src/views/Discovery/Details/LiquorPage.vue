@@ -6,7 +6,7 @@
 <script setup lang="ts">
 import useQuery from '@/funcs/composable/useQuery';
 import { ref, watch } from 'vue';
-import LiquorDetail from '@/components/templates/discovery/details/LiquorDetail.vue';
+import LiquorDetail from '@/components/templates/discovery/details/liquor/LiquorDetail.vue';
 import {
   type Liquor,
   LIQUOR_DETAIL_GET,

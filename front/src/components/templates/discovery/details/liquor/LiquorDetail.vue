@@ -17,6 +17,7 @@
       <CommonButton>編集する</CommonButton></router-link
     >
     <AffiliateContainer :name="liquor.name" />
+    <LiquorBoard :liquorId="liquor.id" />
   </div>
 </template>
 <script setup lang="ts">
@@ -24,6 +25,7 @@ import type { Liquor } from '@/graphQL/Liquor/liquor';
 import CommonButton from '@/components/parts/common/CommonButton.vue';
 import CategoryTrail from '@/components/blocks/discovery/CategoryTrail.vue';
 import AffiliateContainer from '@/components/blocks/common/amazon/AffiliateContainer.vue';
+import LiquorBoard from '@/components/blocks/discovery/liquorDetail/board/LiquorBoard.vue';
 
 interface Props {
   liquor: Liquor;

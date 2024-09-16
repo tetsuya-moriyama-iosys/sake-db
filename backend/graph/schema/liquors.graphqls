@@ -1,3 +1,5 @@
+directive @optionalAuth on FIELD_DEFINITION
+
 scalar DateTime
 
 type CategoryTrail {
@@ -30,9 +32,19 @@ type LiquorHistory{
   histories:[Liquor]
 }
 
+input BoardInput{
+  liquorID: String!
+  text: String!
+  rate: Int
+}
+
 extend type Query {
   liquor(id: String!): Liquor!
   randomRecommendList(limit: Int!): [Liquor!]! #ランダムなリスト
   listFromCategory(categoryId: Int!): ListFromCategory! #カテゴリで絞り込んだリスト
   liquorHistories(id: String!):LiquorHistory
+}
+
+extend type Mutation{
+  postBoard(input: BoardInput!):Boolean! @optionalAuth
 }

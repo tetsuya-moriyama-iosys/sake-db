@@ -11,7 +11,6 @@ interface Props {
   columns?: string;
   gap?: string;
   min?: string;
-  height?: string;
   isUseAutoFit?: boolean;
 }
 
@@ -20,14 +19,12 @@ const props = withDefaults(defineProps<Props>(), {
   columns: 'repeat(auto-fill, minmax(200px, 1fr)',
   gap: '1em',
   min: '200px',
-  height: '200px',
 });
 
 // 動的なスタイルの定義
 const containerStyles = computed(() => ({
   gridTemplateColumns: `repeat(${props.isUseAutoFit ? 'auto-fit' : 'auto-fill'}, minmax(${props.min}, 1fr))`,
   gap: props.gap,
-  height: props.height,
 }));
 </script>
 

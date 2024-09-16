@@ -14,7 +14,8 @@ func NewGraphQLServer(resolver *resolver.Resolver) *handler.Server {
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{
 		Resolvers: resolver,
 		Directives: generated.DirectiveRoot{
-			Auth: authDirective, // @authディレクティブを適用
+			Auth:         authDirective,         // @authディレクティブを適用
+			OptionalAuth: optionalAuthDirective, // @OptionalAuthディレクティブを適用
 		},
 	}))
 
