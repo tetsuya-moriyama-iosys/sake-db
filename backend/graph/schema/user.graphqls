@@ -2,4 +2,5 @@ directive @auth on FIELD_DEFINITION
 
 extend type Query {
   getUser: User! @auth
+  getUserById(id:String!): User!
 }

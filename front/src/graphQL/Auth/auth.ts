@@ -1,18 +1,13 @@
 import type { DocumentNode } from 'graphql/index';
 import { gql } from '@apollo/client/core';
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+import type { AuthUser } from '@/graphQL/User/user';
 
 export interface LoginResponse {
-  login: LoginResult;
+  readonly login: LoginResult;
 }
 export interface LoginResult {
-  token: string;
-  user: User;
+  readonly token: string;
+  readonly user: AuthUser;
 }
 
 export const Register: DocumentNode = gql`

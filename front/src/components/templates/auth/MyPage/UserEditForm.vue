@@ -1,32 +1,43 @@
 <template>
   <Form
     @submit="onSubmit"
-    :initial-values="initialValues"
+    :initial-values="generateInitialValues(props.user)"
     :validation-schema="validationSchema"
   >
     <FormField :name="FormKeys.NAME" label="名前" />
     <FormField :name="FormKeys.MAIL" label="メールアドレス" type="email" />
-    <FormField :name="FormKeys.PASSWORD" label="パスワード" type="password" />
-    <SubmitButton>登録</SubmitButton>
+    <FormField
+      :name="FormKeys.PASSWORD"
+      label="パスワード(変更する場合のみ)"
+      type="password"
+    />
+    <UploadWithImage :name="FormKeys.IMAGE" :default="props.user.imageBase64" />
+    <FormField :name="FormKeys.PROFILE" label="プロフィール" as="textarea" />
   </Form>
 </template>
-
 <script setup lang="ts">
 import { Form, type SubmissionHandler } from 'vee-validate';
 import FormField from '@/components/parts/forms/core/FormField.vue';
+import { useToast } from '@/funcs/composable/useToast';
+import { useMutation } from '@/funcs/composable/useQuery';
 import {
   FormKeys,
   type FormValues,
-  initialValues,
+  generateInitialValues,
   validationSchema,
-} from '@/forms/define/auth/RegisterForm';
-import SubmitButton from '@/components/parts/common/SubmitButton.vue';
-import { Register, type User } from '@/graphQL/Auth/auth';
-import { useMutation } from '@/funcs/composable/useQuery';
-import { useToast } from '@/funcs/composable/useToast';
+} from '@/forms/define/auth/EditForm';
+import type { AuthUser, UserFullData } from '@/graphQL/User/user';
+import { Register } from '@/graphQL/Auth/auth';
+import UploadWithImage from '@/components/parts/forms/common/UploadWithImage.vue';
+
+interface Props {
+  user: UserFullData;
+}
+
+const props = defineProps<Props>();
 
 const toast = useToast();
-const { execute } = useMutation<User>(Register, {
+const { execute } = useMutation<AuthUser>(Register, {
   isUseSpinner: true,
 });
 
@@ -43,9 +54,10 @@ const onSubmit: SubmissionHandler = async (values: FormValues) => {
       },
     },
   }).then(() => {
-    //TODO:ログイン処理も同時に行う？
     toast.showToast({ message: '登録が完了しました' });
+    //ヘッダー等の更新処理
   });
 };
 </script>
+
 <style scoped></style>

@@ -16,12 +16,11 @@ import { useRoute } from 'vue-router';
 import { useSelectedCategoryStore } from '@/stores/sidebar';
 
 const isLoading = ref<boolean>(true);
+const liquor = ref<Liquor | null>(null);
 
 const route = useRoute(); // 現在のルートを取得
 const sidebarStore = useSelectedCategoryStore();
 const { fetch } = useQuery<LiquorResponse<Liquor>>(LIQUOR_DETAIL_GET);
-
-const liquor = ref<Liquor | null>(null);
 
 const isNoCache: boolean = window.history.state?.noCache ?? false; //TODO:何故か常にtrueになってる...？
 

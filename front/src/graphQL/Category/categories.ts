@@ -2,26 +2,24 @@ import { gql } from '@apollo/client/core';
 import type { DocumentNode } from 'graphql';
 
 export interface Category {
-  id: number;
-  name: string;
-  parent: number;
-  imageBase64: string;
-  imageUrl: string;
-  description: string;
-  versionNo: number;
-  createdAt: Date | null;
-  updatedAt: Date | null;
-  children: Category[] | null;
+  readonly id: number;
+  readonly name: string;
+  readonly parent: number;
+  readonly imageBase64: string;
+  readonly imageUrl: string;
+  readonly description: string;
+  readonly versionNo: number;
+  readonly createdAt: Date | null;
+  readonly updatedAt: Date | null;
+  readonly children: Category[] | null;
 }
 
-//export type CategoryForEdit = Omit<Category, 'imageUrl' | 'children'>;
-
 export interface Categories {
-  categories: Category[];
+  readonly categories: Category[];
 }
 
 export interface CategoryResponse<T> {
-  category: T;
+  readonly category: T;
 }
 
 export const GET_DETAIL: DocumentNode = gql`

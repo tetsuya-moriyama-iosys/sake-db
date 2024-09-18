@@ -2,18 +2,18 @@ import { gql } from '@apollo/client/core';
 import type { DocumentNode } from 'graphql';
 
 export interface AffiliateData {
-  items: AffiliateItem[];
-  lowestPrice?: number;
+  readonly items: AffiliateItem[];
+  readonly lowestPrice?: number;
 }
 
 export interface AffiliateItem {
-  name: string;
-  URL: string;
-  imageURL?: string;
-  price?: number;
+  readonly name: string;
+  readonly URL: string;
+  readonly imageURL?: string;
+  readonly price?: number;
 }
 export interface AffiliateResponse {
-  data: AffiliateData;
+  readonly data: AffiliateData;
 }
 
 export const GET_AFFILIATE_LIST: DocumentNode = gql`

@@ -3,12 +3,12 @@ import { gql } from '@apollo/client/core';
 import type { Category } from '@/graphQL/Category/categories';
 
 export interface HistoryResponse {
-  histories: CategoryHistoryData;
+  readonly histories: CategoryHistoryData;
 }
 
 export interface CategoryHistoryData {
-  now: Category;
-  histories: Category[] | null;
+  readonly now: Category;
+  readonly histories: Category[] | null;
 }
 
 export const GET_LOGS_FOR_ROLLBACK: DocumentNode = gql`

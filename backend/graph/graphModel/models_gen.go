@@ -29,6 +29,16 @@ type BoardInput struct {
 	Rate     *int   `json:"rate,omitempty"`
 }
 
+type BoardPost struct {
+	ID        string    `json:"id"`
+	Name      *string   `json:"name,omitempty"`
+	UserID    *string   `json:"userId,omitempty"`
+	Text      string    `json:"text"`
+	Rate      *int      `json:"rate,omitempty"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
 type Category struct {
 	ID          int         `json:"id"`
 	Name        string      `json:"name"`
@@ -95,7 +105,10 @@ type RegisterInput struct {
 }
 
 type User struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Email       string  `json:"email"`
+	Profile     *string `json:"profile,omitempty"`
+	ImageURL    *string `json:"imageUrl,omitempty"`
+	ImageBase64 *string `json:"imageBase64,omitempty"`
 }

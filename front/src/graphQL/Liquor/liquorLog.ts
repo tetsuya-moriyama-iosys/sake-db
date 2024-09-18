@@ -3,12 +3,12 @@ import { gql } from '@apollo/client/core';
 import type { Liquor } from '@/graphQL/Liquor/liquor';
 
 export interface HistoryResponse {
-  liquorHistories: LiquorHistoryData;
+  readonly liquorHistories: LiquorHistoryData;
 }
 
 export interface LiquorHistoryData {
-  now: Liquor;
-  histories: Liquor[] | null;
+  readonly now: Liquor;
+  readonly histories: Liquor[] | null;
 }
 
 export const GET_LOGS_FOR_ROLLBACK: DocumentNode = gql`

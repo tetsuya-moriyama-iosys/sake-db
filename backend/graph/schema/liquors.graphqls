@@ -32,6 +32,16 @@ type LiquorHistory{
   histories:[Liquor]
 }
 
+type BoardPost{
+ id:ID!
+ name: String
+ userId: String
+ text: String!
+ rate: Int
+ createdAt: DateTime!
+ updatedAt: DateTime!
+}
+
 input BoardInput{
   liquorID: String!
   text: String!
@@ -43,6 +53,7 @@ extend type Query {
   randomRecommendList(limit: Int!): [Liquor!]! #ランダムなリスト
   listFromCategory(categoryId: Int!): ListFromCategory! #カテゴリで絞り込んだリスト
   liquorHistories(id: String!):LiquorHistory
+  board(liquorId: String!):[BoardPost!]
 }
 
 extend type Mutation{

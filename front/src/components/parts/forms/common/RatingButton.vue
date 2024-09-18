@@ -20,8 +20,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import FormField from '@/components/parts/forms/core/FormField.vue';
+import { useField } from 'vee-validate';
 
 interface Props {
   name: string;
@@ -31,15 +32,30 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   maxRating: 5,
 });
+// vee-validate用のフィールド定義
+const { value: hiddenField } = useField(props.name);
 
 // 現在の評価（未評価は0）
 const currentRating = ref<number>(0);
+const resetRating = () => {
+  currentRating.value = 0;
+};
+
+// このメソッドを外部から呼び出せるように公開
+defineExpose({
+  resetRating,
+});
 
 // 評価の切り替え処理
 const toggleRating = (star: number) => {
   // 同じ星をクリックした場合は未評価にリセット
   currentRating.value = currentRating.value === star ? 0 : star;
 };
+
+// finalCategoryIdの変更を検知してcategoryIdをセットする
+watch(currentRating, (newVal) => {
+  hiddenField.value = newVal;
+});
 </script>
 
 <style scoped>

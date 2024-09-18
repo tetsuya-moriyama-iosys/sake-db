@@ -14,7 +14,7 @@ import (
 // GetUser is the resolver for the getUser field.
 func (r *queryResolver) GetUser(ctx context.Context) (*graphModel.User, error) {
 	userID, err := userService.GetUserId(ctx)
-	if err == nil {
+	if err != nil {
 		return nil, errors.New("unauthorized")
 	}
 
@@ -24,5 +24,14 @@ func (r *queryResolver) GetUser(ctx context.Context) (*graphModel.User, error) {
 		return nil, err
 	}
 
+	return user.ToGraphQL(), nil
+}
+
+// GetUserByID is the resolver for the getUserById field.
+func (r *queryResolver) GetUserByID(ctx context.Context, id string) (*graphModel.User, error) {
+	user, err := r.UserRepo.GetById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
 	return user.ToGraphQL(), nil
 }

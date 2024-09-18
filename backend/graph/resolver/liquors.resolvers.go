@@ -10,8 +10,9 @@ import (
 	"backend/service/categoryService"
 	"backend/service/userService"
 	"context"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // PostBoard is the resolver for the postBoard field.
@@ -29,10 +30,13 @@ func (r *mutationResolver) PostBoard(ctx context.Context, input graphModel.Board
 		userName = &user.Name
 	}
 
+	//挿入するデータを準備
 	model := &liquorRepository.BoardModel{
 		ID:        primitive.NewObjectID(),
 		UserId:    userID,
 		UserName:  userName, //joinする想定だから使わない想定だが、一応非正規化して取っておく
+		Text:      input.Text,
+		Rate:      input.Rate,
 		LiquorID:  input.LiquorID,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -139,6 +143,19 @@ func (r *queryResolver) LiquorHistories(ctx context.Context, id string) (*graphM
 	result := &graphModel.LiquorHistory{
 		Now:       liquor.ToGraphQL(),
 		Histories: graphLogs,
+	}
+	return result, nil
+}
+
+// Board is the resolver for the board field.
+func (r *queryResolver) Board(ctx context.Context, liquorID string) ([]*graphModel.BoardPost, error) {
+	posts, err := r.LiquorRepo.BoardList(ctx, liquorID)
+	if err != nil {
+		return nil, err
+	}
+	var result []*graphModel.BoardPost
+	for _, post := range posts {
+		result = append(result, post.ToGraphQL())
 	}
 	return result, nil
 }

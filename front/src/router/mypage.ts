@@ -1,7 +1,8 @@
 /**
  * ユーザー情報関連のルーター
  */
-import UserIndex from '@/views/User/UserIndex.vue';
+import UserIndex from '@/views/MyPage/MyPageIndex.vue';
+import UserEdit from '@/views/MyPage/UserEdit.vue';
 
 export const MyPageRouter = {
   path: 'my-page',
@@ -9,8 +10,13 @@ export const MyPageRouter = {
   children: [
     {
       path: 'index',
-      name: 'UserIndex',
+      name: 'MyPageIndex',
       component: UserIndex,
+    },
+    {
+      path: 'edit',
+      name: 'MyPageEdit',
+      component: UserEdit,
     },
   ],
 };
