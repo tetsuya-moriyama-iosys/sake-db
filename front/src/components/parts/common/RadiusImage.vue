@@ -7,7 +7,11 @@
       borderRadius: radius,
     }"
   >
-    <img v-if="imageSrc" :src="imageSrc" alt="画像" />
+    <img
+      v-if="imageSrc"
+      :src="`data:image/jpg;base64,${imageSrc}`"
+      alt="画像"
+    />
   </div>
 </template>
 

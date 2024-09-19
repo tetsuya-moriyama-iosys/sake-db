@@ -32,7 +32,7 @@ import {
   validationSchema,
 } from '@/forms/define/auth/EditForm';
 import type { AuthUser, UserFullData } from '@/graphQL/User/user';
-import { Register } from '@/graphQL/Auth/auth';
+import { Update } from '@/graphQL/Auth/auth';
 import UploadWithImage from '@/components/parts/forms/common/UploadWithImage.vue';
 import SubmitButton from '@/components/parts/common/SubmitButton.vue';
 
@@ -43,7 +43,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const toast = useToast();
-const { execute } = useMutation<AuthUser>(Register, {
+const { execute } = useMutation<AuthUser>(Update, {
   isUseSpinner: true,
   isAuth: true,
 });
@@ -65,7 +65,7 @@ const onSubmit: SubmissionHandler = async (values: FormValues) => {
         email: values[FormKeys.MAIL],
         password: values[FormKeys.PASSWORD],
         profile: values[FormKeys.PROFILE],
-        base64ImageData: base64ImageData ?? null,
+        imageBase64: base64ImageData ?? null,
       },
     },
   }).then(() => {

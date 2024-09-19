@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import {
   GET_USER,
-  type LoginResponse,
+  type GetUserResponse,
   type LoginResult,
 } from '@/graphQL/Auth/auth';
 import type { AuthUser } from '@/graphQL/User/user';
@@ -17,9 +17,6 @@ export const useUserStore = defineStore({
   }),
   actions: {
     setUserData(response: LoginResult) {
-      console.log('トークンをセット：', response);
-      console.log('token：', response.token);
-      console.log('user：', response.user);
       localStorage.setItem(import.meta.env.VITE_JWT_TOKEN_NAME, response.token); //ローカルストレージにtokenをセット
       this.isLogin = true; //ログイン状態をtrueにする
       this.user = response.user;
@@ -31,7 +28,7 @@ export const useUserStore = defineStore({
     },
     //画面リロード時などにユーザーデータを取得するために使用
     async restoreUserData() {
-      const { fetch } = useQuery<LoginResponse>(GET_USER, {
+      const { fetch } = useQuery<GetUserResponse>(GET_USER, {
         isAuth: true,
       });
       const token: string | null = localStorage.getItem(
@@ -40,8 +37,11 @@ export const useUserStore = defineStore({
       // トークンがあり、かつユーザー情報がセットされていない場合は終了
       if (token == null || this.user != null) return;
       try {
-        const response: LoginResponse = await fetch(); // APIからユーザー情報を取得
-        this.setUserData(response.login); // ユーザー情報をセット
+        const response: GetUserResponse = await fetch(); // APIからユーザー情報を取得
+        this.setUserData({
+          token: token, //ログイン時とインターフェースを合わせるために追加。//TODO: リフレッシュトークンの実装
+          user: response.getUser,
+        }); // ユーザー情報をセット
       } catch (error) {
         console.error('ユーザー情報の取得に失敗しました', error);
         this.logout(); // エラー時はログアウト処理

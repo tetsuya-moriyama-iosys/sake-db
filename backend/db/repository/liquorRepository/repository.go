@@ -130,3 +130,47 @@ func (r *LiquorsRepository) UpdateOne(ctx context.Context, liquor *Model) (primi
 
 	return liquor.ID, nil
 }
+
+// UpdateRate 掲示板のratesを更新する
+func (r *LiquorsRepository) UpdateRate(ctx context.Context, liquorId string, userId primitive.ObjectID, rate *int) error {
+	// フィルタ：IDを用いてドキュメントを特定
+	objId, err := primitive.ObjectIDFromHex(liquorId)
+	if err != nil {
+		return err
+	}
+	filter := bson.M{"_id": objId}
+	// 以前の評価を全てのrate配列から削除（このユーザーの評価は一つだけ存在する想定）
+	pullUpdate := bson.M{
+		"$pull": bson.M{
+			Rate5Users: userId,
+			Rate4Users: userId,
+			Rate3Users: userId,
+			Rate2Users: userId,
+			Rate1Users: userId,
+		},
+	}
+	// pull操作で、過去の評価を削除
+	_, err = r.collection.UpdateOne(ctx, filter, pullUpdate)
+	if err != nil {
+		return err
+	}
+
+	//未評価の場合は単純に評価を消して終わり
+	if rate == nil {
+		return nil
+	}
+
+	// 新しい評価をaddToSetで追加（重複しないようにする）
+	rateField := fmt.Sprintf("rate%d_users", *rate)
+	addToSetUpdate := bson.M{
+		"$addToSet": bson.M{
+			rateField: userId, // 新しい評価を追加
+		},
+	}
+	// addToSet操作で評価を更新
+	_, err = r.collection.UpdateOne(ctx, filter, addToSetUpdate)
+	if err != nil {
+		return err
+	}
+	return nil
+}

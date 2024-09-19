@@ -29,12 +29,12 @@ func InitializeHandler() (*gin.Engine, error) {
 		return nil, err
 	}
 	dbDB := db.NewDB(client)
+	database := db.ProvideMongoDatabase(dbDB)
 	categoryRepository := categoriesRepository.NewCategoryRepository(dbDB)
 	liquorsRepository := liquorRepository.NewLiquorsRepository(dbDB)
 	usersRepository := userRepository.NewUsersRepository(dbDB)
-	resolverResolver := resolver.NewResolver(categoryRepository, liquorsRepository, usersRepository)
+	resolverResolver := resolver.NewResolver(database, categoryRepository, liquorsRepository, usersRepository)
 	server := graph.NewGraphQLServer(resolverResolver)
-	database := db.ProvideMongoDatabase(dbDB)
 	s3S3, err := s3.NewS3Client()
 	if err != nil {
 		return nil, err

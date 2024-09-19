@@ -1,10 +1,10 @@
 <template>
   <router-link :to="{ name: 'MyPageEdit' }">
-    <div v-if="userStore.user" class="flex">
+    <div v-if="userStore.user" class="flex container">
       <RadiusImage
         v-if="userStore.user?.imageBase64"
         :imageSrc="userStore.user.imageBase64"
-        radius="30px"
+        radius="10px"
       />
       <div>
         {{ userStore.user.name }}

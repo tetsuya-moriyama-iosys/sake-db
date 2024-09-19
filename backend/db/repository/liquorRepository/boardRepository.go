@@ -5,21 +5,22 @@ import (
 	"context"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
 )
 
 const (
 	BoardCollectionName = "liquors_boards"
 	LiquorID            = "liquor_id"
-	UserId              = "user_id"
+	UserID              = "user_id"
 	UserName            = "user_name"
 )
 
 type BoardModel struct {
-	ID        primitive.ObjectID  `bson:"_id"`
+	ID        primitive.ObjectID  `bson:"_id,omitempty"`
 	LiquorID  string              `bson:"liquor_id"`
 	UserId    *primitive.ObjectID `bson:"user_id"`
-	UserName  *string             `bson:"UserName"`
+	UserName  *string             `bson:"user_name"`
 	Text      string              `bson:"text"`
 	Rate      *int                `bson:"rate"`
 	CreatedAt time.Time           `bson:"created_at"`
@@ -64,7 +65,23 @@ func (r *LiquorsRepository) BoardList(ctx context.Context, id string) ([]*BoardM
 }
 
 func (r *LiquorsRepository) BoardInsert(ctx context.Context, board *BoardModel) error {
-	_, err := r.boardCollection.InsertOne(ctx, board)
+	// フィルタ：liquorID,userIDが既に存在するか確認
+	filter := bson.M{
+		UserID:   board.UserId,
+		LiquorID: board.LiquorID,
+	}
+
+	// 更新データ：board内のフィールドをそのまま更新
+	update := bson.M{
+		"$set": board,
+	}
+
+	// upsertオプション：ドキュメントが存在しない場合は新規挿入
+	opts := options.Update().SetUpsert(true)
+
+	// MongoDBにデータを更新または挿入（upsert）
+	_, err := r.boardCollection.UpdateOne(ctx, filter, update, opts)
+	//_, err := r.boardCollection.InsertOne(ctx, board)
 	if err != nil {
 		return err
 	}

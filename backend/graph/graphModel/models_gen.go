@@ -73,6 +73,11 @@ type Liquor struct {
 	ImageBase64   *string          `json:"imageBase64,omitempty"`
 	CreatedAt     time.Time        `json:"createdAt"`
 	UpdatedAt     time.Time        `json:"updatedAt"`
+	Rate5Users    []string         `json:"rate5Users"`
+	Rate4Users    []string         `json:"rate4Users"`
+	Rate3Users    []string         `json:"rate3Users"`
+	Rate2Users    []string         `json:"rate2Users"`
+	Rate1Users    []string         `json:"rate1Users"`
 	VersionNo     int              `json:"versionNo"`
 }
 

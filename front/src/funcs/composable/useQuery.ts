@@ -88,6 +88,7 @@ export function useQuery<T = unknown>(
         }
       }
 
+      console.log('送信データ：', options);
       const result: ApolloQueryResult<T> = await client.query<T>({
         ...options,
         query,
@@ -139,10 +140,12 @@ export function useMutation<T = unknown>(
       // isAuthフラグがtrueの場合、JWTトークンを追加
       if (option?.isAuth) {
         const token = localStorage.getItem(import.meta.env.VITE_JWT_TOKEN_NAME);
+        console.log('トークン：', token);
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
         }
       }
+      console.log('送信データ：', options);
       const result: FetchResult<T> = await client.mutate<T>({
         ...options,
         mutation,

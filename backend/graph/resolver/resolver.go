@@ -7,16 +7,19 @@ import (
 	"context"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/vektah/gqlparser/v2/ast"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Resolver struct {
+	DB           *mongo.Database
 	CategoryRepo categoriesRepository.CategoryRepository
 	LiquorRepo   liquorRepository.LiquorsRepository
 	UserRepo     userRepository.UsersRepository
 }
 
-func NewResolver(categoryRepo categoriesRepository.CategoryRepository, liquorRepo liquorRepository.LiquorsRepository, userRepo userRepository.UsersRepository) *Resolver {
+func NewResolver(db *mongo.Database, categoryRepo categoriesRepository.CategoryRepository, liquorRepo liquorRepository.LiquorsRepository, userRepo userRepository.UsersRepository) *Resolver {
 	return &Resolver{
+		DB:           db,
 		CategoryRepo: categoryRepo,
 		LiquorRepo:   liquorRepo,
 		UserRepo:     userRepo,

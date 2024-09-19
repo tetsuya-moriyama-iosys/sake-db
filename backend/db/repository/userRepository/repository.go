@@ -40,7 +40,10 @@ func (r *UsersRepository) Update(ctx context.Context, user *Model) error {
 	filter := bson.M{"_id": user.ID}
 
 	// MongoDBにデータを挿入
-	_, err := r.collection.UpdateOne(ctx, filter, user)
+	re, err := r.collection.UpdateOne(ctx, filter, bson.M{
+		"$set": user, // userオブジェクト内のフィールドをセット
+	})
+	log.Println(re)
 	if err != nil {
 		return err
 	}

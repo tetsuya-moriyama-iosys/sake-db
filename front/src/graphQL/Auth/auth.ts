@@ -10,6 +10,11 @@ export interface LoginResult {
   readonly user: AuthUser;
 }
 
+export interface GetUserResponse {
+  readonly getUser: AuthUser;
+}
+
+//TODO:トークンを取得してログインまで終わらせる
 export const Register: DocumentNode = gql`
   mutation ($input: RegisterInput!) {
     registerUser(input: $input) {
@@ -23,11 +28,7 @@ export const Register: DocumentNode = gql`
 //memo:idはトークンから取るので、inputはRegisterと同値でかまわないが、ログイン判定を必要とするため呼び出すリゾルバが異なる
 export const Update: DocumentNode = gql`
   mutation ($input: RegisterInput!) {
-    updateUser(input: $input) {
-      id
-      name
-      email
-    }
+    updateUser(input: $input)
   }
 `;
 
@@ -35,12 +36,9 @@ export const Update: DocumentNode = gql`
 export const GET_USER: DocumentNode = gql`
   query {
     getUser {
-      token
-      user {
-        id
-        name
-        imageBase64
-      }
+      id
+      name
+      imageBase64
     }
   }
 `;
