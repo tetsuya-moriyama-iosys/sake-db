@@ -16,6 +16,11 @@ type Liquor {
   imageBase64: String     # 縮小された画像のBase64エンコードデータ
   createdAt: DateTime!
   updatedAt: DateTime!
+  rate5Users: [ID!]!
+  rate4Users: [ID!]!
+  rate3Users: [ID!]!
+  rate2Users: [ID!]!
+  rate1Users: [ID!]!
   versionNo: Int!
 }
 
@@ -30,9 +35,30 @@ type LiquorHistory{
   histories:[Liquor]
 }
 
+type BoardPost{
+ id:ID!
+ name: String
+ userId: String
+ text: String!
+ rate: Int
+ createdAt: DateTime!
+ updatedAt: DateTime!
+}
+
+input BoardInput{
+  liquorID: String!
+  text: String!
+  rate: Int
+}
+
 extend type Query {
   liquor(id: String!): Liquor!
   randomRecommendList(limit: Int!): [Liquor!]! #ランダムなリスト
   listFromCategory(categoryId: Int!): ListFromCategory! #カテゴリで絞り込んだリスト
   liquorHistories(id: String!):LiquorHistory
+  board(liquorId: String!):[BoardPost!]
+}
+
+extend type Mutation{
+  postBoard(input: BoardInput!):Boolean! @optionalAuth
 }

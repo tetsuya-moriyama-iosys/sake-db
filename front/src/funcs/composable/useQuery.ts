@@ -20,6 +20,7 @@ import {
   type PluginApi,
   useLoading,
 } from 'vue-loading-overlay';
+import { type Router, useRouter } from 'vue-router';
 
 const spinner: PluginApi = useLoading();
 
@@ -71,6 +72,7 @@ export function useQuery<T = unknown>(
   option?: QueryOption,
 ) {
   const { loading, error, data, handleError } = useCommon<T>(option);
+  const router: Router = useRouter();
 
   const fetch = async (options?: Omit<QueryOptions, 'query'>): Promise<T> => {
     loading.value = true;
@@ -80,13 +82,13 @@ export function useQuery<T = unknown>(
       // isAuthフラグがtrueの場合、JWTトークンを追加
       if (option?.isAuth) {
         const token = localStorage.getItem(import.meta.env.VITE_JWT_TOKEN_NAME);
+        console.log('トークン：', token);
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
         }
       }
 
-      console.log('header:', headers);
-
+      console.log('送信データ：', options);
       const result: ApolloQueryResult<T> = await client.query<T>({
         ...options,
         query,
@@ -105,7 +107,12 @@ export function useQuery<T = unknown>(
       );
       data.value = result.data;
     } catch (err: unknown) {
-      handleError(err as Error);
+      if ((err as Error).message == 'unauthorized') {
+        //認証エラーの場合はログインページにリダイレクト
+        void router.push({ name: 'Login' });
+      } else {
+        handleError(err as Error);
+      }
       throw err;
     } finally {
       loading.value = false;
@@ -133,10 +140,12 @@ export function useMutation<T = unknown>(
       // isAuthフラグがtrueの場合、JWTトークンを追加
       if (option?.isAuth) {
         const token = localStorage.getItem(import.meta.env.VITE_JWT_TOKEN_NAME);
+        console.log('トークン：', token);
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
         }
       }
+      console.log('送信データ：', options);
       const result: FetchResult<T> = await client.mutate<T>({
         ...options,
         mutation,

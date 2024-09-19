@@ -9,6 +9,7 @@ import CategoryPage from '@/views/Discovery/Details/CategoryPage.vue';
 import CategoryEditPage from '@/views/Edit/CategoryEditPage.vue';
 import CategoryNarrowDownPage from '@/views/Discovery/NarrowDowns/CategoryNarrowDownPage.vue';
 import AuthRouter from '@/router/auth';
+import { MyPageRouter } from '@/router/mypage';
 import { UserRouter } from '@/router/user';
 
 const MainRouter = {
@@ -18,6 +19,7 @@ const MainRouter = {
   children: [
     //Layoutを共用するため、この位置に移動
     AuthRouter,
+    MyPageRouter,
     UserRouter,
     {
       path: '/',

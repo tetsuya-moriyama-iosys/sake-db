@@ -30,7 +30,7 @@
       </MenuItem>
       <div v-else>
         <MenuItem class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
-          <router-link :to="{ name: 'UserIndex' }">マイページ</router-link>
+          <router-link :to="{ name: 'MyPageIndex' }">マイページ</router-link>
         </MenuItem>
         <MenuItem class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
           <span @click="handleLogout">ログアウト</span>

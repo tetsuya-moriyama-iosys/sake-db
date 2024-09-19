@@ -1,7 +1,9 @@
 input RegisterInput {
   name: String!
   email: String!
-  password: String!
+  password: String #新規と登録の差分はロジックで吸収する
+  profile: String
+  imageBase64: String
 }
 
 input LoginInput {
@@ -9,6 +11,7 @@ input LoginInput {
   password: String!
 }
 
+# ログイン時に返ってくるデータ
 type AuthPayload {
   token: String!
   user: User!
@@ -18,9 +21,17 @@ type User {
   id: ID!
   name: String!
   email: String!
+  profile: String
+  imageBase64: String     # 縮小された画像のBase64エンコードデータ
 }
 
+extend type Query {
+  getUser: User! @auth
+}
+
+
 extend type Mutation {
-  register(input: RegisterInput!): User!
+  registerUser(input: RegisterInput!): User!
+  updateUser(input: RegisterInput!): Boolean! @auth
   login(input: LoginInput!): AuthPayload!
 }

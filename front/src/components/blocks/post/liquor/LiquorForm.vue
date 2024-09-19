@@ -33,9 +33,9 @@ import {
   type FormValues,
   generateInitialValues,
   validationSchema,
-} from '@/forms/post/CreatePostForm';
+} from '@/forms/define/post/CreatePostForm';
 import FormField from '@/components/parts/forms/core/FormField.vue';
-import CategorySelect from '@/components/blocks/common/forms/advance/CategorySelect.vue';
+import CategorySelect from '@/components/parts/forms/common/CategorySelect.vue';
 import SubmitButton from '@/components/parts/common/SubmitButton.vue';
 import { useToast } from '@/funcs/composable/useToast';
 import type { ToastCommand } from '@/plugins/toast';

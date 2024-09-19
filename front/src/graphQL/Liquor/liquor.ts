@@ -2,24 +2,24 @@ import { gql, type DocumentNode } from '@apollo/client/core';
 import { type Liquor as CardLiquor } from '../Index/random';
 
 export interface LiquorResponse<T> {
-  liquor: T;
+  readonly liquor: T;
 }
 
 export interface ListFromCategoryResponse {
-  listFromCategory: {
-    categoryName: string;
-    categoryDescription: string;
-    liquors: CardLiquor[];
+  readonly listFromCategory: {
+    readonly categoryName: string;
+    readonly categoryDescription: string;
+    readonly liquors: CardLiquor[];
   };
 }
 
 export interface Liquor extends CardLiquor {
-  imageUrl: string;
-  updatedAt: Date;
-  versionNo: number;
-  categoryTrail: {
-    id: number;
-    name: string;
+  readonly imageUrl: string;
+  readonly updatedAt: Date;
+  readonly versionNo: number;
+  readonly categoryTrail: {
+    readonly id: number;
+    readonly name: string;
   }[];
 }
 

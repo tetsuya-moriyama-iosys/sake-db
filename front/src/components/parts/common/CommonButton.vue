@@ -20,13 +20,14 @@ import type { ButtonProps } from '@/type/component/parts/ButtonProps';
 const props = defineProps<ButtonProps>();
 
 const BaseButtonClass: string =
-  'group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-md px-6 font-medium';
+  'group relative inline-flex items-center justify-center overflow-hidden rounded-md px-6 font-medium';
 const EnabledClass: string = `${BaseButtonClass} transition hover:scale-110 text-neutral-200`;
 const DisabledClass: string = `${BaseButtonClass} text-neutral-400 cursor-not-allowed`;
+const defaultClass: string = 'h-12';
 
 // ボタンのクラスを動的に決定するコンピューテッドプロパティ
 const buttonClass = computed(() => {
-  const baseClass = props.isDisabled ? DisabledClass : EnabledClass;
+  const baseClass = `${props.isDisabled ? DisabledClass : EnabledClass} ${props.class ?? defaultClass}`;
 
   if (props.isDisabled) {
     switch (props.color) {

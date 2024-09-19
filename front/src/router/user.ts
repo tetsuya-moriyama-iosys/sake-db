@@ -1,16 +1,15 @@
 /**
  * ユーザー情報関連のルーター
  */
-import UserIndex from '@/views/User/UserIndex.vue';
+import UserPage from '@/views/User/UserPage.vue';
 
 export const UserRouter = {
   path: 'user/:id',
-  meta: { requiresAuth: true },
   children: [
     {
       path: 'index',
-      name: 'UserIndex',
-      component: UserIndex,
+      name: 'UserPage',
+      component: UserPage,
     },
   ],
 };

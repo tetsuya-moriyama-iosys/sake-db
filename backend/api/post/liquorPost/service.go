@@ -17,7 +17,7 @@ import (
 
 // RequestData 画像以外の、ShouldBindでバインドするデータ
 type RequestData struct {
-	Id                *string `form:"_id"`
+	Id                *string `form:"id"`
 	Name              string  `form:"name"`
 	CategoryID        int     `form:"category"`
 	Description       *string `form:"description"`

@@ -6,34 +6,14 @@ package resolver
 
 import (
 	"backend/graph/graphModel"
-	"backend/middlewares"
 	"context"
-	"errors"
-	"github.com/99designs/gqlgen/graphql"
 )
 
-// ディレクティブで認証チェック
-func authDirective(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
-	userID := ctx.Value(middlewares.UserContextKey)
-	if userID == nil {
-		return nil, errors.New("unauthorized")
-	}
-	return next(ctx)
-}
-
-// GetUser is the resolver for the getUser field.
-func (r *queryResolver) GetUser(ctx context.Context) (*graphModel.User, error) {
-	//panic(fmt.Errorf("not implemented: GetUser - getUser"))
-	userID := ctx.Value(middlewares.UserContextKey)
-	if userID == nil {
-		return nil, errors.New("unauthorized")
-	}
-
-	// ユーザー情報をデータベースから取得する処理
-	user, err := r.UserRepo.GetById(ctx, userID.(string)) //ユーザーIDはnilでなければstringにキャスト可能
+// GetUserByID is the resolver for the getUserById field.
+func (r *queryResolver) GetUserByID(ctx context.Context, id string) (*graphModel.User, error) {
+	user, err := r.UserRepo.GetById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-
 	return user.ToGraphQL(), nil
 }

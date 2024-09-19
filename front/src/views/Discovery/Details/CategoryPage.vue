@@ -10,7 +10,7 @@ import {
   GET_DETAIL,
 } from '@/graphQL/Category/categories';
 import { ref, watch } from 'vue';
-import CategoryDetail from '@/components/templates/discovery/details/CategoryDetail.vue';
+import CategoryDetail from '@/components/templates/discovery/details/category/CategoryDetail.vue';
 import { useSelectedCategoryStore } from '@/stores/sidebar';
 
 const route = useRoute(); // 現在のルートを取得

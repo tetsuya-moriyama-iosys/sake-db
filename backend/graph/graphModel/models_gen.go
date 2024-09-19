@@ -23,6 +23,22 @@ type AuthPayload struct {
 	User  *User  `json:"user"`
 }
 
+type BoardInput struct {
+	LiquorID string `json:"liquorID"`
+	Text     string `json:"text"`
+	Rate     *int   `json:"rate,omitempty"`
+}
+
+type BoardPost struct {
+	ID        string    `json:"id"`
+	Name      *string   `json:"name,omitempty"`
+	UserID    *string   `json:"userId,omitempty"`
+	Text      string    `json:"text"`
+	Rate      *int      `json:"rate,omitempty"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
 type Category struct {
 	ID          int         `json:"id"`
 	Name        string      `json:"name"`
@@ -57,6 +73,11 @@ type Liquor struct {
 	ImageBase64   *string          `json:"imageBase64,omitempty"`
 	CreatedAt     time.Time        `json:"createdAt"`
 	UpdatedAt     time.Time        `json:"updatedAt"`
+	Rate5Users    []string         `json:"rate5Users"`
+	Rate4Users    []string         `json:"rate4Users"`
+	Rate3Users    []string         `json:"rate3Users"`
+	Rate2Users    []string         `json:"rate2Users"`
+	Rate1Users    []string         `json:"rate1Users"`
 	VersionNo     int              `json:"versionNo"`
 }
 
@@ -83,13 +104,17 @@ type Query struct {
 }
 
 type RegisterInput struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Name        string  `json:"name"`
+	Email       string  `json:"email"`
+	Password    *string `json:"password,omitempty"`
+	Profile     *string `json:"profile,omitempty"`
+	ImageBase64 *string `json:"imageBase64,omitempty"`
 }
 
 type User struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Email       string  `json:"email"`
+	Profile     *string `json:"profile,omitempty"`
+	ImageBase64 *string `json:"imageBase64,omitempty"`
 }

@@ -19,14 +19,15 @@ import {
   type FormValues,
   initialValues,
   validationSchema,
-} from '@/forms/auth/RegisterForm';
+} from '@/forms/define/auth/RegisterForm';
 import SubmitButton from '@/components/parts/common/SubmitButton.vue';
-import { Register, type User } from '@/graphQL/Auth/auth';
+import { Register } from '@/graphQL/Auth/auth';
 import { useMutation } from '@/funcs/composable/useQuery';
 import { useToast } from '@/funcs/composable/useToast';
 
 const toast = useToast();
-const { execute } = useMutation<User>(Register, {
+//TODO:自動ログインまで実装する際にジェネリクスも指定
+const { execute } = useMutation(Register, {
   isUseSpinner: true,
 });
 
@@ -43,6 +44,7 @@ const onSubmit: SubmissionHandler = async (values: FormValues) => {
       },
     },
   }).then(() => {
+    //TODO:ログイン処理も同時に行う？
     toast.showToast({ message: '登録が完了しました' });
   });
 };

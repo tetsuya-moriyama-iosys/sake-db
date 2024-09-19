@@ -19,6 +19,11 @@ const (
 	ImageBase64        = "image_base64"
 	CreatedAt          = "created_at"
 	UpdatedAt          = "updated_at"
+	Rate5Users         = "rate5_users"
+	Rate4Users         = "rate4_users"
+	Rate3Users         = "rate3_users"
+	Rate2Users         = "rate2_users"
+	Rate1Users         = "rate1_users"
 	VersionNo          = "version_no"
 )
 
@@ -32,6 +37,11 @@ type Model struct {
 	ImageBase64  *string            `bson:"image_base64"`
 	CreatedAt    time.Time          `bson:"created_at"`
 	UpdatedAt    time.Time          `bson:"updated_at"`
+	Rate5Users   []string           `bson:"rate5_users"`
+	Rate4Users   []string           `bson:"rate4_users"`
+	Rate3Users   []string           `bson:"rate3_users"`
+	Rate2Users   []string           `bson:"rate2_users"`
+	Rate1Users   []string           `bson:"rate1_users"`
 	VersionNo    *int               `bson:"version_no"`
 }
 
@@ -46,6 +56,11 @@ func (m *Model) ToGraphQL() *graphModel.Liquor {
 		ImageBase64:  m.ImageBase64,
 		CreatedAt:    m.CreatedAt,
 		UpdatedAt:    m.UpdatedAt,
+		Rate5Users:   m.Rate5Users,
+		Rate4Users:   m.Rate4Users,
+		Rate3Users:   m.Rate3Users,
+		Rate2Users:   m.Rate2Users,
+		Rate1Users:   m.Rate1Users,
 		VersionNo:    *m.VersionNo,
 	}
 }

@@ -16,7 +16,7 @@ type UserWithToken struct {
 	Token string
 }
 
-var ExpireTime = 5
+var ExpireTime = 3660
 
 func Login(ctx context.Context, input graphModel.LoginInput, r *userRepository.UsersRepository) (*UserWithToken, error) {
 	// ユーザーインスタンスを取得

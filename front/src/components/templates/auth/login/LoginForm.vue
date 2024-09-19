@@ -18,13 +18,15 @@ import {
   type FormValues,
   initialValues,
   validationSchema,
-} from '@/forms/auth/LoginForm';
+} from '@/forms/define/auth/LoginForm';
 import SubmitButton from '@/components/parts/common/SubmitButton.vue';
 import { LOGIN, type LoginResponse } from '@/graphQL/Auth/auth';
 import { useMutation } from '@/funcs/composable/useQuery';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/userStore';
 
 const router = useRouter();
+const userStore = useUserStore();
 const { execute } = useMutation<LoginResponse>(LOGIN);
 
 // extends GenericObjectは型が広すぎるのでキャストして対応する
@@ -39,9 +41,9 @@ const onSubmit: SubmissionHandler = async (values: FormValues) => {
       },
     },
   }).then((res: LoginResponse) => {
-    //トークンをセットし、ユーザーページのトップへリンク
-    localStorage.setItem(import.meta.env.VITE_JWT_TOKEN_NAME, res.login.token);
-    router.push({ name: 'UserIndex', params: { id: res.login.user.id } });
+    //トークンをセットし、トップへリンク
+    userStore.setUserData(res.login); //ストアの情報を更新する
+    router.push({ name: 'Index' });
   });
 };
 </script>
