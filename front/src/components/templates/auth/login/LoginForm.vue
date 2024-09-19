@@ -42,7 +42,7 @@ const onSubmit: SubmissionHandler = async (values: FormValues) => {
     },
   }).then((res: LoginResponse) => {
     //トークンをセットし、トップへリンク
-    userStore.setToken(res.login.token); //ストアの情報を更新する
+    userStore.setUserData(res.login); //ストアの情報を更新する
     router.push({ name: 'Index' });
   });
 };

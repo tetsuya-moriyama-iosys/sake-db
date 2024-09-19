@@ -11,8 +11,13 @@
       label="パスワード(変更する場合のみ)"
       type="password"
     />
-    <UploadWithImage :name="FormKeys.IMAGE" :default="props.user.imageBase64" />
+    <UploadWithImage
+      :name="FormKeys.IMAGE"
+      :default="props.user.imageBase64"
+      @onCompressed="onCompressed"
+    />
     <FormField :name="FormKeys.PROFILE" label="プロフィール" as="textarea" />
+    <SubmitButton>更新</SubmitButton>
   </Form>
 </template>
 <script setup lang="ts">
@@ -29,6 +34,7 @@ import {
 import type { AuthUser, UserFullData } from '@/graphQL/User/user';
 import { Register } from '@/graphQL/Auth/auth';
 import UploadWithImage from '@/components/parts/forms/common/UploadWithImage.vue';
+import SubmitButton from '@/components/parts/common/SubmitButton.vue';
 
 interface Props {
   user: UserFullData;
@@ -39,7 +45,14 @@ const props = defineProps<Props>();
 const toast = useToast();
 const { execute } = useMutation<AuthUser>(Register, {
   isUseSpinner: true,
+  isAuth: true,
 });
+
+let base64ImageData: string | undefined = props.user.imageBase64;
+
+function onCompressed(encodedStr: string | null): void {
+  base64ImageData = encodedStr ?? undefined;
+}
 
 // extends GenericObjectは型が広すぎるのでキャストして対応する
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -51,6 +64,8 @@ const onSubmit: SubmissionHandler = async (values: FormValues) => {
         name: values[FormKeys.NAME],
         email: values[FormKeys.MAIL],
         password: values[FormKeys.PASSWORD],
+        profile: values[FormKeys.PROFILE],
+        base64ImageData: base64ImageData ?? null,
       },
     },
   }).then(() => {

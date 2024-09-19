@@ -1,5 +1,3 @@
-directive @optionalAuth on FIELD_DEFINITION
-
 scalar DateTime
 
 type CategoryTrail {

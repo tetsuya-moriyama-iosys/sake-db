@@ -3,10 +3,10 @@
   <UserEditForm v-if="user" :user="user" />
 </template>
 <script setup lang="ts">
-import { useUserFullData } from '@/funcs/composable/useUser';
 import UserEditForm from '@/components/templates/auth/myPage/UserEditForm.vue';
+import { useUser } from '@/funcs/composable/useUser';
 
-const { user } = useUserFullData();
+const { user } = useUser();
 </script>
 
 <style scoped></style>

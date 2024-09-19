@@ -35,6 +35,19 @@ func (r *UsersRepository) Register(ctx context.Context, user *Model) (*Model, er
 	return user, nil
 }
 
+func (r *UsersRepository) Update(ctx context.Context, user *Model) error {
+	// 更新のためのフィルタを定義（IDで検索）
+	filter := bson.M{"_id": user.ID}
+
+	// MongoDBにデータを挿入
+	_, err := r.collection.UpdateOne(ctx, filter, user)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *UsersRepository) GetByEmail(ctx context.Context, email string) (*Model, error) {
 	// ドキュメントを取得
 	var user Model

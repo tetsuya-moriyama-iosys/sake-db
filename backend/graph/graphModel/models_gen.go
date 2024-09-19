@@ -99,9 +99,11 @@ type Query struct {
 }
 
 type RegisterInput struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Name        string  `json:"name"`
+	Email       string  `json:"email"`
+	Password    *string `json:"password,omitempty"`
+	Profile     *string `json:"profile,omitempty"`
+	ImageBase64 *string `json:"imageBase64,omitempty"`
 }
 
 type User struct {
@@ -109,6 +111,5 @@ type User struct {
 	Name        string  `json:"name"`
 	Email       string  `json:"email"`
 	Profile     *string `json:"profile,omitempty"`
-	ImageURL    *string `json:"imageUrl,omitempty"`
 	ImageBase64 *string `json:"imageBase64,omitempty"`
 }

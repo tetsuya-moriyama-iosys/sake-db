@@ -38,6 +38,5 @@ export const validationSchema = {
   [FormKeys.PASSWORD]: string()
     .transform((value) => (value === '' ? null : value))
     .nullable()
-    .min(7)
-    .required(),
+    .min(7),
 };

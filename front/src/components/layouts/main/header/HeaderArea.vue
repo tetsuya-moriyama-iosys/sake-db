@@ -11,6 +11,9 @@
         >
       </section>
       <section>
+        <AccountInfo />
+      </section>
+      <section>
         <MainMenu />
       </section>
     </main>
@@ -19,6 +22,7 @@
 
 <script setup lang="ts">
 import MainMenu from '@/components/layouts/main/header/MainMenu.vue';
+import AccountInfo from '@/components/layouts/main/header/AccountInfo.vue';
 </script>
 
 <style scoped>

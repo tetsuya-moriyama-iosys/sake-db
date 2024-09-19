@@ -6,26 +6,8 @@ package resolver
 
 import (
 	"backend/graph/graphModel"
-	"backend/service/userService"
 	"context"
-	"errors"
 )
-
-// GetUser is the resolver for the getUser field.
-func (r *queryResolver) GetUser(ctx context.Context) (*graphModel.User, error) {
-	userID, err := userService.GetUserId(ctx)
-	if err != nil {
-		return nil, errors.New("unauthorized")
-	}
-
-	// ユーザー情報をデータベースから取得する処理
-	user, err := r.UserRepo.GetById(ctx, *userID)
-	if err != nil {
-		return nil, err
-	}
-
-	return user.ToGraphQL(), nil
-}
 
 // GetUserByID is the resolver for the getUserById field.
 func (r *queryResolver) GetUserByID(ctx context.Context, id string) (*graphModel.User, error) {

@@ -12,10 +12,48 @@ export interface LoginResult {
 
 export const Register: DocumentNode = gql`
   mutation ($input: RegisterInput!) {
-    register(input: $input) {
+    registerUser(input: $input) {
       id
       name
       email
+    }
+  }
+`;
+
+//memo:idはトークンから取るので、inputはRegisterと同値でかまわないが、ログイン判定を必要とするため呼び出すリゾルバが異なる
+export const Update: DocumentNode = gql`
+  mutation ($input: RegisterInput!) {
+    updateUser(input: $input) {
+      id
+      name
+      email
+    }
+  }
+`;
+
+//最低限のデータ(再ログイン)
+export const GET_USER: DocumentNode = gql`
+  query {
+    getUser {
+      token
+      user {
+        id
+        name
+        imageBase64
+      }
+    }
+  }
+`;
+
+//自身のフルデータ
+export const GET_MY_USERDATA_FULL: DocumentNode = gql`
+  query {
+    getUser {
+      id
+      name
+      email
+      profile
+      imageBase64
     }
   }
 `;
@@ -27,7 +65,7 @@ export const LOGIN: DocumentNode = gql`
       user {
         id
         name
-        email
+        imageBase64
       }
     }
   }

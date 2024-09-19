@@ -82,6 +82,7 @@ export function useQuery<T = unknown>(
       // isAuthフラグがtrueの場合、JWTトークンを追加
       if (option?.isAuth) {
         const token = localStorage.getItem(import.meta.env.VITE_JWT_TOKEN_NAME);
+        console.log('トークン：', token);
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
         }
