@@ -23,12 +23,14 @@ const isNoCache: boolean = window.history.state?.noCache ?? false; //TODO:何故
 
 // データフェッチ
 const fetchData = async (id: number): Promise<void> => {
-  const { category: response } = await fetch({
-    variables: {
+  const { category: response } = await fetch(
+    {
       id,
     },
-    fetchPolicy: isNoCache ? 'no-cache' : undefined, //更新直後だとキャッシュが残っているため、キャッシュを無効化
-  });
+    {
+      fetchPolicy: isNoCache ? 'no-cache' : undefined, //更新直後だとキャッシュが残っているため、キャッシュを無効化
+    },
+  );
   category.value = response;
   sidebarStore.updateContent(response.id);
 };

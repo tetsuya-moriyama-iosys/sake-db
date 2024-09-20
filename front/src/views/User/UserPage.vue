@@ -21,9 +21,7 @@ const { fetch } = useQuery<GetUserByIdResponse>(GET_USERDATA);
 // データフェッチ
 const fetchData = async (id: string): Promise<void> => {
   const { getUserById: response } = await fetch({
-    variables: {
-      id: id,
-    },
+    id: id,
   });
   user.value = response;
 };

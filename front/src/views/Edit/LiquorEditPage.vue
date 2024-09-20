@@ -27,12 +27,14 @@ onMounted(async () => {
     isLoading.value = false;
     return;
   }
-  await fetch({
-    variables: {
+  await fetch(
+    {
       id,
     },
-    fetchPolicy: 'no-cache',
-  })
+    {
+      fetchPolicy: 'no-cache',
+    },
+  )
     .then((response) => {
       liquor.value = response.liquorHistories;
     })

@@ -38,9 +38,7 @@ const categoryDescription = ref<string>('');
 const fetchData = async (id: number): Promise<void> => {
   sidebarStore.updateContent(id);
   const { listFromCategory: response } = await fetch({
-    variables: {
-      id,
-    },
+    id,
   });
   liquors.value = response.liquors;
   categoryName.value = response.categoryName;

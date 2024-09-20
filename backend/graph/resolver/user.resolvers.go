@@ -7,11 +7,16 @@ package resolver
 import (
 	"backend/graph/graphModel"
 	"context"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // GetUserByID is the resolver for the getUserById field.
 func (r *queryResolver) GetUserByID(ctx context.Context, id string) (*graphModel.User, error) {
-	user, err := r.UserRepo.GetById(ctx, id)
+	uObjID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+	user, err := r.UserRepo.GetById(ctx, uObjID)
 	if err != nil {
 		return nil, err
 	}

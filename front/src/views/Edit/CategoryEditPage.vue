@@ -27,12 +27,14 @@ onMounted(async () => {
     isLoading.value = false;
     return;
   }
-  await fetch({
-    variables: {
+  await fetch(
+    {
       id: Number(id),
     },
-    fetchPolicy: 'no-cache',
-  })
+    {
+      fetchPolicy: 'no-cache',
+    },
+  )
     .then((response) => {
       category.value = response.histories;
     })
