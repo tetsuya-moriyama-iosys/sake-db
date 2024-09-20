@@ -37,8 +37,8 @@ const { value: hiddenField } = useField(props.name);
 
 // 現在の評価（未評価は0）
 const currentRating = ref<number>(0);
-const resetRating = () => {
-  currentRating.value = 0;
+const resetRating = (value?: number) => {
+  currentRating.value = value ?? 0;
 };
 
 // このメソッドを外部から呼び出せるように公開

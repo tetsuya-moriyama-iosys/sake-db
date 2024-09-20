@@ -18,7 +18,7 @@ const (
 
 type BoardModel struct {
 	ID        primitive.ObjectID  `bson:"_id,omitempty"`
-	LiquorID  string              `bson:"liquor_id"`
+	LiquorID  primitive.ObjectID  `bson:"liquor_id"`
 	UserId    *primitive.ObjectID `bson:"user_id"`
 	UserName  *string             `bson:"user_name"`
 	Text      string              `bson:"text"`
@@ -45,7 +45,7 @@ func (m *BoardModel) ToGraphQL() *graphModel.BoardPost {
 	}
 }
 
-func (r *LiquorsRepository) BoardList(ctx context.Context, id string) ([]*BoardModel, error) {
+func (r *LiquorsRepository) BoardList(ctx context.Context, id primitive.ObjectID) ([]*BoardModel, error) {
 	// コレクションからフィルタに一致するドキュメントを取得
 	cursor, err := r.boardCollection.Find(ctx, bson.M{"liquor_id": id})
 	if err != nil {
@@ -62,6 +62,16 @@ func (r *LiquorsRepository) BoardList(ctx context.Context, id string) ([]*BoardM
 	}
 
 	return liquors, nil
+}
+
+func (r *LiquorsRepository) BoardGetByUserAndLiquor(ctx context.Context, liquorId primitive.ObjectID, userId primitive.ObjectID) (*BoardModel, error) {
+	// コレクションからフィルタに一致するドキュメントを取得
+	var board *BoardModel
+	if err := r.boardCollection.FindOne(ctx, bson.M{LiquorID: liquorId, UserID: userId}).Decode(&board); err != nil {
+		return nil, err
+	}
+
+	return board, nil
 }
 
 func (r *LiquorsRepository) BoardInsert(ctx context.Context, board *BoardModel) error {

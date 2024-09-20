@@ -137,10 +137,11 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Board               func(childComplexity int, liquorID string) int
+		Board               func(childComplexity int, liquorID string, page *int) int
 		Categories          func(childComplexity int) int
 		Category            func(childComplexity int, id int) int
 		Data                func(childComplexity int, name string, limit *int) int
+		GetMyBoard          func(childComplexity int, liquorID string) int
 		GetUser             func(childComplexity int) int
 		GetUserByID         func(childComplexity int, id string) int
 		Histories           func(childComplexity int, id int) int
@@ -175,7 +176,8 @@ type QueryResolver interface {
 	RandomRecommendList(ctx context.Context, limit int) ([]*graphModel.Liquor, error)
 	ListFromCategory(ctx context.Context, categoryID int) (*graphModel.ListFromCategory, error)
 	LiquorHistories(ctx context.Context, id string) (*graphModel.LiquorHistory, error)
-	Board(ctx context.Context, liquorID string) ([]*graphModel.BoardPost, error)
+	Board(ctx context.Context, liquorID string, page *int) ([]*graphModel.BoardPost, error)
+	GetMyBoard(ctx context.Context, liquorID string) (*graphModel.BoardPost, error)
 	GetUserByID(ctx context.Context, id string) (*graphModel.User, error)
 }
 
@@ -606,7 +608,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Board(childComplexity, args["liquorId"].(string)), true
+		return e.complexity.Query.Board(childComplexity, args["liquorId"].(string), args["page"].(*int)), true
 
 	case "Query.categories":
 		if e.complexity.Query.Categories == nil {
@@ -638,6 +640,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Data(childComplexity, args["name"].(string), args["limit"].(*int)), true
+
+	case "Query.getMyBoard":
+		if e.complexity.Query.GetMyBoard == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getMyBoard_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetMyBoard(childComplexity, args["liquorId"].(string)), true
 
 	case "Query.getUser":
 		if e.complexity.Query.GetUser == nil {
@@ -999,7 +1013,8 @@ extend type Query {
   randomRecommendList(limit: Int!): [Liquor!]! #ランダムなリスト
   listFromCategory(categoryId: Int!): ListFromCategory! #カテゴリで絞り込んだリスト
   liquorHistories(id: String!):LiquorHistory
-  board(liquorId: String!):[BoardPost!]
+  board(liquorId: String!,page:Int):[BoardPost!]
+  getMyBoard(liquorId: String!):BoardPost @optionalAuth #未ログイン時にも呼ばれるのでoptionalに
 }
 
 extend type Mutation{
@@ -1110,6 +1125,15 @@ func (ec *executionContext) field_Query_board_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["liquorId"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["page"] = arg1
 	return args, nil
 }
 
@@ -1149,6 +1173,21 @@ func (ec *executionContext) field_Query_data_args(ctx context.Context, rawArgs m
 		}
 	}
 	args["limit"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getMyBoard_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["liquorId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("liquorId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["liquorId"] = arg0
 	return args, nil
 }
 
@@ -4539,7 +4578,7 @@ func (ec *executionContext) _Query_board(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Board(rctx, fc.Args["liquorId"].(string))
+		return ec.resolvers.Query().Board(rctx, fc.Args["liquorId"].(string), fc.Args["page"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4587,6 +4626,94 @@ func (ec *executionContext) fieldContext_Query_board(ctx context.Context, field 
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_board_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getMyBoard(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getMyBoard(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetMyBoard(rctx, fc.Args["liquorId"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.OptionalAuth == nil {
+				return nil, errors.New("directive optionalAuth is not implemented")
+			}
+			return ec.directives.OptionalAuth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*graphModel.BoardPost); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *backend/graph/graphModel.BoardPost`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*graphModel.BoardPost)
+	fc.Result = res
+	return ec.marshalOBoardPost2ᚖbackendᚋgraphᚋgraphModelᚐBoardPost(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getMyBoard(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_BoardPost_id(ctx, field)
+			case "name":
+				return ec.fieldContext_BoardPost_name(ctx, field)
+			case "userId":
+				return ec.fieldContext_BoardPost_userId(ctx, field)
+			case "text":
+				return ec.fieldContext_BoardPost_text(ctx, field)
+			case "rate":
+				return ec.fieldContext_BoardPost_rate(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_BoardPost_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_BoardPost_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BoardPost", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getMyBoard_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -7738,6 +7865,25 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getMyBoard":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getMyBoard(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "getUserById":
 			field := field
 
@@ -8877,6 +9023,13 @@ func (ec *executionContext) marshalOBoardPost2ᚕᚖbackendᚋgraphᚋgraphModel
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalOBoardPost2ᚖbackendᚋgraphᚋgraphModelᚐBoardPost(ctx context.Context, sel ast.SelectionSet, v *graphModel.BoardPost) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._BoardPost(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {

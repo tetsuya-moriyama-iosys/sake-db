@@ -6,9 +6,6 @@
           ><p class="block">酒データベース(仮称)</p></router-link
         >
         <router-link :to="{ name: 'LiquorEdit' }">投稿する</router-link>
-        <router-link :to="{ name: 'CategoryEdit' }"
-          >新規カテゴリ追加</router-link
-        >
       </section>
       <section>
         <AccountInfo />

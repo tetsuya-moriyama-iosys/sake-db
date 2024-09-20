@@ -56,7 +56,8 @@ extend type Query {
   randomRecommendList(limit: Int!): [Liquor!]! #ランダムなリスト
   listFromCategory(categoryId: Int!): ListFromCategory! #カテゴリで絞り込んだリスト
   liquorHistories(id: String!):LiquorHistory
-  board(liquorId: String!):[BoardPost!]
+  board(liquorId: String!,page:Int):[BoardPost!]
+  getMyBoard(liquorId: String!):BoardPost @optionalAuth #未ログイン時にも呼ばれるのでoptionalに
 }
 
 extend type Mutation{

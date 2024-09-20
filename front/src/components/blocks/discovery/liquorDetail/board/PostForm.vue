@@ -1,6 +1,6 @@
 <template>
   感想を投稿
-  <VForm @submit="onSubmit" :validation-schema="validationSchema" ref="form">
+  <form @submit="onSubmit">
     <div class="flex board-container">
       <div class="flex-1 text-area">
         <FormField :name="FormKeys.TEXT" label="本文" classes="w-full" />
@@ -10,11 +10,11 @@
         <SubmitButton class="h-10">送信</SubmitButton>
       </div>
     </div>
-  </VForm>
+  </form>
 </template>
 
 <script setup lang="ts">
-import { Form as VForm, type SubmissionHandler } from 'vee-validate';
+import { useForm } from 'vee-validate';
 import FormField from '@/components/parts/forms/core/FormField.vue';
 import RatingButton from '@/components/parts/forms/common/RatingButton.vue';
 import {
@@ -23,27 +23,49 @@ import {
   validationSchema,
 } from '@/forms/define/details/LiquorBoard';
 import SubmitButton from '@/components/parts/common/SubmitButton.vue';
-import { useMutation } from '@/funcs/composable/useQuery';
-import { Post } from '@/graphQL/Liquor/board';
-import { ref } from 'vue';
+import { useMutation, useQuery } from '@/funcs/composable/useQuery';
+import {
+  GetMyPostByLiquorId,
+  myBoardRequest,
+  type MyBoardResponse,
+  Post,
+} from '@/graphQL/Liquor/board';
+import { onMounted, ref } from 'vue';
+import { useToast } from '@/funcs/composable/useToast';
 
 interface Props {
   liquorId: string;
 }
 
 const { liquorId } = defineProps<Props>();
-const form = ref<InstanceType<typeof VForm> | null>(null); //Form内部に定義されているフォームメソッドにアクセスするのに必要
 const ratingButton = ref<InstanceType<typeof RatingButton> | null>(null);
 
+const { fetch } = useQuery<MyBoardResponse>(GetMyPostByLiquorId, {
+  isAuth: true,
+}); //現在投稿されているものを初期値として取得する用
 const { execute } = useMutation<boolean>(Post, { isAuth: true });
+const toast = useToast();
+
+const { handleSubmit, resetForm } = useForm<FormValues>({
+  validationSchema, // yupのバリデーションスキーマを適用
+});
 
 const emit = defineEmits(['onSubmit']);
 
-// extends GenericObjectは型が広すぎるのでキャストして対応する
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-expect-error
-async function onSubmit(values: FormValues): SubmissionHandler {
-  console.log('values:', values);
+onMounted(async (): Promise<void> => {
+  const response: MyBoardResponse = await fetch(myBoardRequest(liquorId));
+  if (response.getMyBoard == null) return;
+  resetForm({
+    values: {
+      [FormKeys.TEXT]: response.getMyBoard.text,
+      [FormKeys.RATE]: response.getMyBoard.rate ?? undefined,
+    },
+  });
+  ratingButton.value?.resetRating(response.getMyBoard.rate ?? undefined); //評価コンポーネント内部状態のリセット
+});
+
+// フォームの送信処理
+const onSubmit = handleSubmit(async (values: FormValues) => {
   await execute({
     variables: {
       input: {
@@ -53,11 +75,10 @@ async function onSubmit(values: FormValues): SubmissionHandler {
       },
     },
   }).then(() => {
-    form.value?.resetForm();
-    ratingButton.value?.resetRating(); //評価コンポーネント内部状態のリセット
+    toast.showToast({ message: '投稿しました' });
     emit('onSubmit'); //リロードのコールバック
   });
-}
+});
 </script>
 
 <style scoped>
