@@ -37,7 +37,7 @@ const { fetch } = useQuery<Categories>(GET_QUERY);
 const categoryList = ref<Category[] | null>();
 
 async function fetchData() {
-  const { categories: response } = await fetch({
+  const { categories: response } = await fetch(null, {
     fetchPolicy: 'no-cache',
   });
   categoryList.value = [...response];

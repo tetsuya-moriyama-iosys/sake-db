@@ -26,7 +26,6 @@ import SubmitButton from '@/components/parts/common/SubmitButton.vue';
 import { useMutation, useQuery } from '@/funcs/composable/useQuery';
 import {
   GetMyPostByLiquorId,
-  myBoardRequest,
   type MyBoardResponse,
   Post,
 } from '@/graphQL/Liquor/board';
@@ -53,7 +52,9 @@ const { handleSubmit, resetForm } = useForm<FormValues>({
 const emit = defineEmits(['onSubmit']);
 
 onMounted(async (): Promise<void> => {
-  const response: MyBoardResponse = await fetch(myBoardRequest(liquorId));
+  const response: MyBoardResponse = await fetch({
+    id: liquorId,
+  });
   if (response.getMyBoard == null) return;
   resetForm({
     values: {
@@ -67,12 +68,10 @@ onMounted(async (): Promise<void> => {
 // フォームの送信処理
 const onSubmit = handleSubmit(async (values: FormValues) => {
   await execute({
-    variables: {
-      input: {
-        liquorID: liquorId,
-        text: values[FormKeys.TEXT],
-        rate: values[FormKeys.RATE],
-      },
+    input: {
+      liquorID: liquorId,
+      text: values[FormKeys.TEXT],
+      rate: values[FormKeys.RATE],
     },
   }).then(() => {
     toast.showToast({ message: '投稿しました' });

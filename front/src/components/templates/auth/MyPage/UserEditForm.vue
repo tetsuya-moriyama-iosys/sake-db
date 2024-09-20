@@ -59,14 +59,12 @@ function onCompressed(encodedStr: string | null): void {
 //@ts-expect-error
 const onSubmit: SubmissionHandler = async (values: FormValues) => {
   await execute({
-    variables: {
-      input: {
-        name: values[FormKeys.NAME],
-        email: values[FormKeys.MAIL],
-        password: values[FormKeys.PASSWORD],
-        profile: values[FormKeys.PROFILE],
-        imageBase64: base64ImageData ?? null,
-      },
+    input: {
+      name: values[FormKeys.NAME],
+      email: values[FormKeys.MAIL],
+      password: values[FormKeys.PASSWORD],
+      profile: values[FormKeys.PROFILE],
+      imageBase64: base64ImageData ?? null,
     },
   }).then(() => {
     toast.showToast({ message: '登録が完了しました' });

@@ -25,12 +25,14 @@ const posts = ref<Post[] | null>(null);
 const { fetch } = useQuery<BoardResponse>(GET_BOARD);
 
 async function fetchData(isForceReload: boolean) {
-  const response = await fetch({
-    variables: {
+  const response = await fetch(
+    {
       liquorId: props.liquorId,
     },
-    fetchPolicy: isForceReload ? 'no-cache' : undefined,
-  });
+    {
+      fetchPolicy: isForceReload ? 'no-cache' : undefined,
+    },
+  );
   posts.value = response.board;
 }
 function forceReload() {

@@ -67,14 +67,21 @@ function useCommon<T>(option?: QueryOption) {
   return { loading, error, data, handleError };
 }
 
-export function useQuery<T = unknown>(
+export function useQuery<T = unknown, V = unknown>(
   query: DocumentNode,
   option?: QueryOption,
 ) {
   const { loading, error, data, handleError } = useCommon<T>(option);
   const router: Router = useRouter();
 
-  const fetch = async (options?: Omit<QueryOptions, 'query'>): Promise<T> => {
+  const fetch = async (
+    request?: V,
+    options?: Omit<QueryOptions, 'query' | 'variables'>,
+  ): Promise<T> => {
+    const queryName: string = (
+      (query.definitions[0] as OperationDefinitionNode).selectionSet
+        .selections[0] as FieldNode
+    ).name.value;
     loading.value = true;
     error.value = null;
     try {
@@ -88,8 +95,12 @@ export function useQuery<T = unknown>(
         }
       }
 
-      console.log('送信データ：', options);
+      //リクエストをvariablesでラップ
+      const variables = request ? { variables: request } : {};
+
+      console.log(queryName, '送信データ：', options);
       const result: ApolloQueryResult<T> = await client.query<T>({
+        ...variables,
         ...options,
         query,
         context: {
@@ -97,16 +108,10 @@ export function useQuery<T = unknown>(
         },
       });
       //型推論がうまくいってないのでキャスト
-      console.log(
-        (
-          (query.definitions[0] as OperationDefinitionNode).selectionSet
-            .selections[0] as FieldNode
-        ).name.value,
-        'レスポンス：',
-        result.data,
-      );
+      console.log(queryName, 'レスポンス：', result.data);
       data.value = result.data;
     } catch (err: unknown) {
+      console.error('error at ', queryName);
       if ((err as Error).message == 'unauthorized') {
         //認証エラーの場合はログインページにリダイレクト
         void router.push({ name: 'Login' });
@@ -124,13 +129,18 @@ export function useQuery<T = unknown>(
   return { fetch, loading, error, data };
 }
 
-export function useMutation<T = unknown>(
+export function useMutation<T = unknown, V = unknown>(
   mutation: DocumentNode,
   option?: QueryOption,
 ) {
   const { loading, error, data, handleError } = useCommon<T>(option);
+  const mutationName: string = (
+    (mutation.definitions[0] as OperationDefinitionNode).selectionSet
+      .selections[0] as FieldNode
+  ).name.value;
 
   const execute = async (
+    request: V,
     options?: Omit<MutationOptions<T>, 'mutation'>,
   ): Promise<T> => {
     loading.value = true;
@@ -145,24 +155,23 @@ export function useMutation<T = unknown>(
           headers['Authorization'] = `Bearer ${token}`;
         }
       }
-      console.log('送信データ：', options);
+
+      //リクエストをvariablesでラップ
+      const variables = request ? { variables: request } : {};
+
+      console.log(mutationName, '送信データ：', options);
       const result: FetchResult<T> = await client.mutate<T>({
+        ...variables,
         ...options,
         mutation,
         context: {
           headers, // ヘッダーをセット
         },
       });
-      console.log(
-        (
-          (mutation.definitions[0] as OperationDefinitionNode).selectionSet
-            .selections[0] as FieldNode
-        ).name.value,
-        'レスポンス：',
-        result.data,
-      );
+      console.log(mutationName, 'レスポンス：', result.data);
       data.value = result.data as T; //ライブラリのジェネリクスがundefinedも含んでいるのでキャスト。返す場合は大元のジェネリクスの方で指定する。
     } catch (err) {
+      console.error('error at ', mutationName);
       handleError(err as Error);
       throw err;
     } finally {

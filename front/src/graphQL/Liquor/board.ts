@@ -1,6 +1,5 @@
 import type { DocumentNode } from 'graphql/index';
 import { gql } from '@apollo/client/core';
-import { wrapVariables } from '@/graphQL/core';
 
 export interface BoardResponse {
   readonly board: Post[] | null;
@@ -20,13 +19,6 @@ export interface Post extends PostCore {
   readonly userId: string | null;
   readonly updatedAt: Date;
 }
-
-export function myBoardRequest(liquorId: string) {
-  return wrapVariables({
-    id: liquorId,
-  });
-}
-
 export const Post: DocumentNode = gql`
   mutation ($input: BoardInput!) {
     postBoard(input: $input)

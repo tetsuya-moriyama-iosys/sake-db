@@ -11,8 +11,6 @@ import (
 	"backend/service/userService"
 	"context"
 	"errors"
-	"log"
-
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -53,15 +51,14 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input graphModel.Regi
 		return false, err
 	}
 	id := loginUser.ID
-	oldUser, err := r.UserRepo.GetById(ctx, id.Hex())
+	oldUser, err := r.UserRepo.GetById(ctx, id)
 	if err != nil {
 		return false, err
 	}
 
 	//新しいパスワードを生成する(入力が空であれば前の値を代入する)
 	var newPassword []byte
-	leng := len(*input.Password)
-	log.Println(leng)
+
 	if input.Password != nil && len(*input.Password) != 0 { //空文字もnilと同等に扱う
 		if len(*input.Password) < 8 {
 			return false, errors.New("パスワードが短いです")

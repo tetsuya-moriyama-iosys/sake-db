@@ -32,9 +32,7 @@ const affiliateData = ref<AffiliateData | null>(null);
 
 onMounted(async () => {
   const { data: response } = await fetch({
-    variables: {
-      keyword: name,
-    },
+    keyword: name,
   });
   affiliateData.value = response;
 });

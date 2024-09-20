@@ -36,12 +36,10 @@ const { execute } = useMutation(Register, {
 //@ts-expect-error
 const onSubmit: SubmissionHandler = async (values: FormValues) => {
   await execute({
-    variables: {
-      input: {
-        name: values[FormKeys.NAME],
-        email: values[FormKeys.MAIL],
-        password: values[FormKeys.PASSWORD],
-      },
+    input: {
+      name: values[FormKeys.NAME],
+      email: values[FormKeys.MAIL],
+      password: values[FormKeys.PASSWORD],
     },
   }).then(() => {
     //TODO:ログイン処理も同時に行う？

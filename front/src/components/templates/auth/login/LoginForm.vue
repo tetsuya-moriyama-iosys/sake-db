@@ -34,11 +34,9 @@ const { execute } = useMutation<LoginResponse>(LOGIN);
 //@ts-expect-error
 const onSubmit: SubmissionHandler = async (values: FormValues) => {
   await execute({
-    variables: {
-      input: {
-        email: values[FormKeys.MAIL],
-        password: values[FormKeys.PASSWORD],
-      },
+    input: {
+      email: values[FormKeys.MAIL],
+      password: values[FormKeys.PASSWORD],
     },
   }).then((res: LoginResponse) => {
     //トークンをセットし、トップへリンク

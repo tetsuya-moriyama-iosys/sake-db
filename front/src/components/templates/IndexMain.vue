@@ -26,9 +26,7 @@ const liquors = ref<Liquor[]>([]);
 // 読み込み時に情報をAPIから取得
 onMounted(async () => {
   const { randomRecommendList: response } = await fetch({
-    variables: {
-      limit: DEFAULT_GET_LIMIT,
-    },
+    limit: DEFAULT_GET_LIMIT,
   });
   liquors.value = response;
 });
