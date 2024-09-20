@@ -2,8 +2,11 @@ import type { DocumentNode } from 'graphql/index';
 import { gql } from '@apollo/client/core';
 import { wrapVariables } from '@/graphQL/core';
 
-export interface BoardResponse<T extends PostCore = Post> {
-  readonly board: T[];
+export interface BoardResponse {
+  readonly board: Post[] | null;
+}
+export interface MyBoardResponse {
+  readonly getMyBoard: PostCore | null;
 }
 
 export interface PostCore {
