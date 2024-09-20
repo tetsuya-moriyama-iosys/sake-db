@@ -23,9 +23,15 @@ import {
   validationSchema,
 } from '@/forms/define/details/LiquorBoard';
 import SubmitButton from '@/components/parts/common/SubmitButton.vue';
-import { useMutation } from '@/funcs/composable/useQuery';
-import { Post } from '@/graphQL/Liquor/board';
-import { ref } from 'vue';
+import { useMutation, useQuery } from '@/funcs/composable/useQuery';
+import {
+  type BoardResponse,
+  GetMyPostByLiquorId,
+  myBoardRequest,
+  Post,
+  type PostCore,
+} from '@/graphQL/Liquor/board';
+import { onMounted, ref } from 'vue';
 
 interface Props {
   liquorId: string;
@@ -35,9 +41,19 @@ const { liquorId } = defineProps<Props>();
 const form = ref<InstanceType<typeof VForm> | null>(null); //Form内部に定義されているフォームメソッドにアクセスするのに必要
 const ratingButton = ref<InstanceType<typeof RatingButton> | null>(null);
 
+const { fetch } = useQuery<BoardResponse<PostCore>>(GetMyPostByLiquorId, {
+  isAuth: true,
+}); //現在投稿されているものを初期値として取得する用
 const { execute } = useMutation<boolean>(Post, { isAuth: true });
 
 const emit = defineEmits(['onSubmit']);
+
+onMounted(async (): Promise<void> => {
+  const response: BoardResponse<PostCore> | undefined = await fetch(
+    myBoardRequest(liquorId),
+  );
+  console.log('response:', response);
+});
 
 // extends GenericObjectは型が広すぎるのでキャストして対応する
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

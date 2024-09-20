@@ -40,6 +40,7 @@ p.title {
 }
 
 img.image {
+  max-height: 300px;
   max-width: 500px;
 }
 </style>

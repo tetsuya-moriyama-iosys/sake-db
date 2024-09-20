@@ -3,7 +3,6 @@ package userRepository
 import (
 	"backend/db"
 	"context"
-	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -61,16 +60,14 @@ func (r *UsersRepository) GetByEmail(ctx context.Context, email string) (*Model,
 	return &user, nil
 }
 
-func (r *UsersRepository) GetById(ctx context.Context, id string) (*Model, error) {
-	// idをObjectIDに変換
-	objectID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, fmt.Errorf("無効なID形式: %s", id)
-	}
-
+func (r *UsersRepository) GetById(ctx context.Context, id primitive.ObjectID) (*Model, error) {
 	// コレクションを取得
 	var liquor Model
-	if err := r.collection.FindOne(ctx, bson.M{ID: objectID}).Decode(&liquor); err != nil {
+	if err := r.collection.FindOne(ctx, bson.M{ID: id}).Decode(&liquor); err != nil {
+		if err == mongo.ErrNoDocuments {
+			// ドキュメントが見つからない場合、nilを返す（エラーにはしない）
+			return nil, nil
+		}
 		log.Println("デコードエラー:", err)
 		return nil, err
 	}

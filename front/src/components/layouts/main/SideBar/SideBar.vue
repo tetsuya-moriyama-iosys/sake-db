@@ -1,14 +1,21 @@
 <!--サイドバー-->
 <template>
-  <aside>
-    カテゴリから検索
-    <CategoryParent
-      v-for="category in categoryList"
-      :key="category.id"
-      :category="category"
-      :display-ids="filteredCategoryIdList"
-    />
-  </aside>
+  <div class="container flex flex-col">
+    <aside class="flex-1">
+      カテゴリから検索
+      <CategoryParent
+        v-for="category in categoryList"
+        :key="category.id"
+        :category="category"
+        :display-ids="filteredCategoryIdList"
+      />
+    </aside>
+    <aside class="new-post">
+      <router-link :to="{ name: 'CategoryEdit' }"
+        >+新規カテゴリ追加</router-link
+      >
+    </aside>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -59,9 +66,8 @@ const filteredCategoryIdList: ComputedRef<number[]> = computed(() => {
 </script>
 
 <style scoped>
-aside {
+div.container {
   width: 180px;
-  height: 100%;
   background-color: aquamarine;
 }
 </style>

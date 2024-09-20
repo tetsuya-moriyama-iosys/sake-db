@@ -32,6 +32,11 @@ func (r *mutationResolver) PostBoard(ctx context.Context, input graphModel.Board
 		userName = &user.Name
 	}
 
+	liquorId, err := primitive.ObjectIDFromHex(input.LiquorID)
+	if err != nil {
+		return false, err
+	}
+
 	//挿入するデータを準備
 	model := &liquorRepository.BoardModel{
 		//ID:        primitive.NewObjectID(),
@@ -39,7 +44,7 @@ func (r *mutationResolver) PostBoard(ctx context.Context, input graphModel.Board
 		UserName:  userName, //joinする想定だから使わない想定だが、一応非正規化して取っておく
 		Text:      input.Text,
 		Rate:      input.Rate,
-		LiquorID:  input.LiquorID,
+		LiquorID:  liquorId,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -160,9 +165,13 @@ func (r *queryResolver) LiquorHistories(ctx context.Context, id string) (*graphM
 	return result, nil
 }
 
-// Board is the resolver for the board field.
-func (r *queryResolver) Board(ctx context.Context, liquorID string) ([]*graphModel.BoardPost, error) {
-	posts, err := r.LiquorRepo.BoardList(ctx, liquorID)
+// Board TODO:ページネーション
+func (r *queryResolver) Board(ctx context.Context, liquorID string, page *int) ([]*graphModel.BoardPost, error) {
+	liquorIdObj, err := primitive.ObjectIDFromHex(liquorID)
+	if err != nil {
+		return nil, err
+	}
+	posts, err := r.LiquorRepo.BoardList(ctx, liquorIdObj)
 	if err != nil {
 		return nil, err
 	}
@@ -171,4 +180,30 @@ func (r *queryResolver) Board(ctx context.Context, liquorID string) ([]*graphMod
 		result = append(result, post.ToGraphQL())
 	}
 	return result, nil
+}
+
+// GetMyBoard 自身の投稿を取得する(初期値設定用)
+func (r *queryResolver) GetMyBoard(ctx context.Context, liquorID string) (*graphModel.BoardPost, error) {
+	//未ログイン時にも呼ばれる関数であり、未ログインはエラーなしで空値を返すという処理をする必要がある
+	isLogin := userService.IsLogin(ctx)
+	if isLogin == false {
+		return nil, nil
+	}
+
+	//ここからはユーザーが存在している前提の処理
+	id, err := primitive.ObjectIDFromHex(liquorID)
+	if err != nil {
+		return nil, err
+	}
+	uid, err := userService.GetUserId(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	board, err := r.LiquorRepo.BoardGetByUserAndLiquor(ctx, id, *uid)
+	if err != nil {
+		return nil, err
+	}
+
+	return board.ToGraphQL(), nil
 }

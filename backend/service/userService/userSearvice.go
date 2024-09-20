@@ -5,17 +5,21 @@ import (
 	"backend/middlewares"
 	"context"
 	"errors"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // GetUserId コンテキストからユーザーIDを取得する
-func GetUserId(ctx context.Context) (*string, error) {
+func GetUserId(ctx context.Context) (*primitive.ObjectID, error) {
 	userID := ctx.Value(middlewares.UserContextKey)
 	if userID == nil {
 		return nil, errors.New("unauthorized")
 	}
-	userIdStr := userID.(string)
+	userIdObj, err := primitive.ObjectIDFromHex(userID.(string))
+	if err != nil {
+		return nil, err
+	}
 
-	return &userIdStr, nil
+	return &userIdObj, nil
 }
 
 func GetUserData(ctx context.Context, repo userRepository.UsersRepository) (*userRepository.Model, error) {
@@ -28,4 +32,17 @@ func GetUserData(ctx context.Context, repo userRepository.UsersRepository) (*use
 		return nil, err
 	}
 	return user, nil
+}
+
+// 単にログイン済かどうかみたい時
+func IsLogin(ctx context.Context) bool {
+	userId, _ := GetUserId(ctx)
+	if userId == nil {
+		return false
+	}
+	//memo:不正なIDも一旦通す実装にする(未ログイン時とは明確に分ける必要がある)
+	//if len(*userId) == 0 {
+	//	return false
+	//}
+	return true
 }
