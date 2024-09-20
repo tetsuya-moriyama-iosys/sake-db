@@ -6,7 +6,9 @@ package resolver
 
 import (
 	"backend/graph/graphModel"
+	"backend/service/userService"
 	"context"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -21,4 +23,28 @@ func (r *queryResolver) GetUserByID(ctx context.Context, id string) (*graphModel
 		return nil, err
 	}
 	return user.ToGraphQL(), nil
+}
+
+// GetUserByIDDetail is the resolver for the getUserByIdDetail field.
+func (r *queryResolver) GetUserByIDDetail(ctx context.Context, id string) (*graphModel.UserPageData, error) {
+	uObjID, err := primitive.ObjectIDFromHex(id) //BoardListByUserに必要なので･･････
+	if err != nil {
+		return nil, err
+	}
+	user, err := r.GetUserByID(ctx, id) //ユーザーデータ自体は通常のユーザーデータ取得メソッドを流用
+	if err != nil {
+		return nil, err
+	}
+
+	//ここからはユーザーページに特異なデータ
+	uDetail, err := userService.GenerateUserDetail(ctx, uObjID, r.LiquorRepo)
+	if err != nil {
+		return nil, err
+	}
+	result := &graphModel.UserPageData{
+		User:   user,
+		Detail: uDetail,
+	}
+
+	return result, nil
 }

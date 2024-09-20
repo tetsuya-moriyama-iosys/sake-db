@@ -69,6 +69,7 @@ type ComplexityRoot struct {
 	BoardPost struct {
 		CreatedAt func(childComplexity int) int
 		ID        func(childComplexity int) int
+		LiquorID  func(childComplexity int) int
 		Name      func(childComplexity int) int
 		Rate      func(childComplexity int) int
 		Text      func(childComplexity int) int
@@ -123,6 +124,14 @@ type ComplexityRoot struct {
 		Now       func(childComplexity int) int
 	}
 
+	LiquorSimple struct {
+		CategoryID   func(childComplexity int) int
+		CategoryName func(childComplexity int) int
+		ID           func(childComplexity int) int
+		ImageBase64  func(childComplexity int) int
+		Name         func(childComplexity int) int
+	}
+
 	ListFromCategory struct {
 		CategoryDescription func(childComplexity int) int
 		CategoryName        func(childComplexity int) int
@@ -144,6 +153,7 @@ type ComplexityRoot struct {
 		GetMyBoard          func(childComplexity int, liquorID string) int
 		GetUser             func(childComplexity int) int
 		GetUserByID         func(childComplexity int, id string) int
+		GetUserByIDDetail   func(childComplexity int, id string) int
 		Histories           func(childComplexity int, id int) int
 		Liquor              func(childComplexity int, id string) int
 		LiquorHistories     func(childComplexity int, id string) int
@@ -157,6 +167,20 @@ type ComplexityRoot struct {
 		ImageBase64 func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Profile     func(childComplexity int) int
+	}
+
+	UserDetail struct {
+		Comments     func(childComplexity int) int
+		Rate1Liquors func(childComplexity int) int
+		Rate2Liquors func(childComplexity int) int
+		Rate3Liquors func(childComplexity int) int
+		Rate4Liquors func(childComplexity int) int
+		Rate5Liquors func(childComplexity int) int
+	}
+
+	UserPageData struct {
+		Detail func(childComplexity int) int
+		User   func(childComplexity int) int
 	}
 }
 
@@ -179,6 +203,7 @@ type QueryResolver interface {
 	Board(ctx context.Context, liquorID string, page *int) ([]*graphModel.BoardPost, error)
 	GetMyBoard(ctx context.Context, liquorID string) (*graphModel.BoardPost, error)
 	GetUserByID(ctx context.Context, id string) (*graphModel.User, error)
+	GetUserByIDDetail(ctx context.Context, id string) (*graphModel.UserPageData, error)
 }
 
 type executableSchema struct {
@@ -269,6 +294,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BoardPost.ID(childComplexity), true
+
+	case "BoardPost.liquorId":
+		if e.complexity.BoardPost.LiquorID == nil {
+			break
+		}
+
+		return e.complexity.BoardPost.LiquorID(childComplexity), true
 
 	case "BoardPost.name":
 		if e.complexity.BoardPost.Name == nil {
@@ -529,6 +561,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.LiquorHistory.Now(childComplexity), true
 
+	case "LiquorSimple.categoryId":
+		if e.complexity.LiquorSimple.CategoryID == nil {
+			break
+		}
+
+		return e.complexity.LiquorSimple.CategoryID(childComplexity), true
+
+	case "LiquorSimple.categoryName":
+		if e.complexity.LiquorSimple.CategoryName == nil {
+			break
+		}
+
+		return e.complexity.LiquorSimple.CategoryName(childComplexity), true
+
+	case "LiquorSimple.id":
+		if e.complexity.LiquorSimple.ID == nil {
+			break
+		}
+
+		return e.complexity.LiquorSimple.ID(childComplexity), true
+
+	case "LiquorSimple.imageBase64":
+		if e.complexity.LiquorSimple.ImageBase64 == nil {
+			break
+		}
+
+		return e.complexity.LiquorSimple.ImageBase64(childComplexity), true
+
+	case "LiquorSimple.name":
+		if e.complexity.LiquorSimple.Name == nil {
+			break
+		}
+
+		return e.complexity.LiquorSimple.Name(childComplexity), true
+
 	case "ListFromCategory.categoryDescription":
 		if e.complexity.ListFromCategory.CategoryDescription == nil {
 			break
@@ -672,6 +739,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetUserByID(childComplexity, args["id"].(string)), true
 
+	case "Query.getUserByIdDetail":
+		if e.complexity.Query.GetUserByIDDetail == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getUserByIdDetail_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetUserByIDDetail(childComplexity, args["id"].(string)), true
+
 	case "Query.histories":
 		if e.complexity.Query.Histories == nil {
 			break
@@ -766,6 +845,62 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.Profile(childComplexity), true
+
+	case "UserDetail.comments":
+		if e.complexity.UserDetail.Comments == nil {
+			break
+		}
+
+		return e.complexity.UserDetail.Comments(childComplexity), true
+
+	case "UserDetail.rate1Liquors":
+		if e.complexity.UserDetail.Rate1Liquors == nil {
+			break
+		}
+
+		return e.complexity.UserDetail.Rate1Liquors(childComplexity), true
+
+	case "UserDetail.rate2Liquors":
+		if e.complexity.UserDetail.Rate2Liquors == nil {
+			break
+		}
+
+		return e.complexity.UserDetail.Rate2Liquors(childComplexity), true
+
+	case "UserDetail.rate3Liquors":
+		if e.complexity.UserDetail.Rate3Liquors == nil {
+			break
+		}
+
+		return e.complexity.UserDetail.Rate3Liquors(childComplexity), true
+
+	case "UserDetail.rate4Liquors":
+		if e.complexity.UserDetail.Rate4Liquors == nil {
+			break
+		}
+
+		return e.complexity.UserDetail.Rate4Liquors(childComplexity), true
+
+	case "UserDetail.rate5Liquors":
+		if e.complexity.UserDetail.Rate5Liquors == nil {
+			break
+		}
+
+		return e.complexity.UserDetail.Rate5Liquors(childComplexity), true
+
+	case "UserPageData.detail":
+		if e.complexity.UserPageData.Detail == nil {
+			break
+		}
+
+		return e.complexity.UserPageData.Detail(childComplexity), true
+
+	case "UserPageData.user":
+		if e.complexity.UserPageData.User == nil {
+			break
+		}
+
+		return e.complexity.UserPageData.User(childComplexity), true
 
 	}
 	return 0, false
@@ -994,6 +1129,7 @@ type LiquorHistory{
 
 type BoardPost{
  id:ID!
+ liquorId:ID! #ユーザーページ内のデータ取得時に必要
  name: String
  userId: String
  text: String!
@@ -1027,8 +1163,31 @@ extend type Mutation{
 type Query
 
 # type Mutation`, BuiltIn: false},
-	{Name: "../schema/user.graphqls", Input: `extend type Query {
-  getUserById(id:String!): User!
+	{Name: "../schema/user.graphqls", Input: `type UserPageData{
+  detail:UserDetail!
+  user:User!
+}
+
+type LiquorSimple {
+  id: String!
+  categoryId: Int!
+  categoryName: String!
+  name: String!
+  imageBase64: String     # 縮小された画像のBase64エンコードデータ
+}
+
+type UserDetail{
+comments:[BoardPost!]!
+rate5Liquors:[LiquorSimple!]!
+rate4Liquors:[LiquorSimple!]!
+rate3Liquors:[LiquorSimple!]!
+rate2Liquors:[LiquorSimple!]!
+rate1Liquors:[LiquorSimple!]!
+}
+
+extend type Query {
+  getUserById(id:String!): User! #単純に外部公開可能なユーザー基本情報を取得する(使わない...？)
+  getUserByIdDetail(id:String!): UserPageData! #ユーザーページに表示するフルデータ
 }
 `, BuiltIn: false},
 }
@@ -1188,6 +1347,21 @@ func (ec *executionContext) field_Query_getMyBoard_args(ctx context.Context, raw
 		}
 	}
 	args["liquorId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getUserByIdDetail_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -1713,6 +1887,50 @@ func (ec *executionContext) _BoardPost_id(ctx context.Context, field graphql.Col
 }
 
 func (ec *executionContext) fieldContext_BoardPost_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BoardPost",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BoardPost_liquorId(ctx context.Context, field graphql.CollectedField, obj *graphModel.BoardPost) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BoardPost_liquorId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LiquorID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BoardPost_liquorId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BoardPost",
 		Field:      field,
@@ -3486,6 +3704,223 @@ func (ec *executionContext) fieldContext_LiquorHistory_histories(_ context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _LiquorSimple_id(ctx context.Context, field graphql.CollectedField, obj *graphModel.LiquorSimple) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LiquorSimple_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LiquorSimple_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LiquorSimple",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LiquorSimple_categoryId(ctx context.Context, field graphql.CollectedField, obj *graphModel.LiquorSimple) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LiquorSimple_categoryId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CategoryID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LiquorSimple_categoryId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LiquorSimple",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LiquorSimple_categoryName(ctx context.Context, field graphql.CollectedField, obj *graphModel.LiquorSimple) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LiquorSimple_categoryName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CategoryName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LiquorSimple_categoryName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LiquorSimple",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LiquorSimple_name(ctx context.Context, field graphql.CollectedField, obj *graphModel.LiquorSimple) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LiquorSimple_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LiquorSimple_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LiquorSimple",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LiquorSimple_imageBase64(ctx context.Context, field graphql.CollectedField, obj *graphModel.LiquorSimple) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LiquorSimple_imageBase64(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ImageBase64, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LiquorSimple_imageBase64(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LiquorSimple",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ListFromCategory_categoryName(ctx context.Context, field graphql.CollectedField, obj *graphModel.ListFromCategory) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ListFromCategory_categoryName(ctx, field)
 	if err != nil {
@@ -4602,6 +5037,8 @@ func (ec *executionContext) fieldContext_Query_board(ctx context.Context, field 
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_BoardPost_id(ctx, field)
+			case "liquorId":
+				return ec.fieldContext_BoardPost_liquorId(ctx, field)
 			case "name":
 				return ec.fieldContext_BoardPost_name(ctx, field)
 			case "userId":
@@ -4690,6 +5127,8 @@ func (ec *executionContext) fieldContext_Query_getMyBoard(ctx context.Context, f
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_BoardPost_id(ctx, field)
+			case "liquorId":
+				return ec.fieldContext_BoardPost_liquorId(ctx, field)
 			case "name":
 				return ec.fieldContext_BoardPost_name(ctx, field)
 			case "userId":
@@ -4781,6 +5220,67 @@ func (ec *executionContext) fieldContext_Query_getUserById(ctx context.Context, 
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_getUserById_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getUserByIdDetail(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getUserByIdDetail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetUserByIDDetail(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*graphModel.UserPageData)
+	fc.Result = res
+	return ec.marshalNUserPageData2ᚖbackendᚋgraphᚋgraphModelᚐUserPageData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getUserByIdDetail(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "detail":
+				return ec.fieldContext_UserPageData_detail(ctx, field)
+			case "user":
+				return ec.fieldContext_UserPageData_user(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UserPageData", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getUserByIdDetail_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -5125,6 +5625,462 @@ func (ec *executionContext) fieldContext_User_imageBase64(_ context.Context, fie
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserDetail_comments(ctx context.Context, field graphql.CollectedField, obj *graphModel.UserDetail) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserDetail_comments(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Comments, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*graphModel.BoardPost)
+	fc.Result = res
+	return ec.marshalNBoardPost2ᚕᚖbackendᚋgraphᚋgraphModelᚐBoardPostᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserDetail_comments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserDetail",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_BoardPost_id(ctx, field)
+			case "liquorId":
+				return ec.fieldContext_BoardPost_liquorId(ctx, field)
+			case "name":
+				return ec.fieldContext_BoardPost_name(ctx, field)
+			case "userId":
+				return ec.fieldContext_BoardPost_userId(ctx, field)
+			case "text":
+				return ec.fieldContext_BoardPost_text(ctx, field)
+			case "rate":
+				return ec.fieldContext_BoardPost_rate(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_BoardPost_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_BoardPost_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BoardPost", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserDetail_rate5Liquors(ctx context.Context, field graphql.CollectedField, obj *graphModel.UserDetail) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserDetail_rate5Liquors(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Rate5Liquors, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*graphModel.LiquorSimple)
+	fc.Result = res
+	return ec.marshalNLiquorSimple2ᚕᚖbackendᚋgraphᚋgraphModelᚐLiquorSimpleᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserDetail_rate5Liquors(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserDetail",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_LiquorSimple_id(ctx, field)
+			case "categoryId":
+				return ec.fieldContext_LiquorSimple_categoryId(ctx, field)
+			case "categoryName":
+				return ec.fieldContext_LiquorSimple_categoryName(ctx, field)
+			case "name":
+				return ec.fieldContext_LiquorSimple_name(ctx, field)
+			case "imageBase64":
+				return ec.fieldContext_LiquorSimple_imageBase64(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type LiquorSimple", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserDetail_rate4Liquors(ctx context.Context, field graphql.CollectedField, obj *graphModel.UserDetail) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserDetail_rate4Liquors(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Rate4Liquors, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*graphModel.LiquorSimple)
+	fc.Result = res
+	return ec.marshalNLiquorSimple2ᚕᚖbackendᚋgraphᚋgraphModelᚐLiquorSimpleᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserDetail_rate4Liquors(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserDetail",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_LiquorSimple_id(ctx, field)
+			case "categoryId":
+				return ec.fieldContext_LiquorSimple_categoryId(ctx, field)
+			case "categoryName":
+				return ec.fieldContext_LiquorSimple_categoryName(ctx, field)
+			case "name":
+				return ec.fieldContext_LiquorSimple_name(ctx, field)
+			case "imageBase64":
+				return ec.fieldContext_LiquorSimple_imageBase64(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type LiquorSimple", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserDetail_rate3Liquors(ctx context.Context, field graphql.CollectedField, obj *graphModel.UserDetail) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserDetail_rate3Liquors(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Rate3Liquors, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*graphModel.LiquorSimple)
+	fc.Result = res
+	return ec.marshalNLiquorSimple2ᚕᚖbackendᚋgraphᚋgraphModelᚐLiquorSimpleᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserDetail_rate3Liquors(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserDetail",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_LiquorSimple_id(ctx, field)
+			case "categoryId":
+				return ec.fieldContext_LiquorSimple_categoryId(ctx, field)
+			case "categoryName":
+				return ec.fieldContext_LiquorSimple_categoryName(ctx, field)
+			case "name":
+				return ec.fieldContext_LiquorSimple_name(ctx, field)
+			case "imageBase64":
+				return ec.fieldContext_LiquorSimple_imageBase64(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type LiquorSimple", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserDetail_rate2Liquors(ctx context.Context, field graphql.CollectedField, obj *graphModel.UserDetail) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserDetail_rate2Liquors(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Rate2Liquors, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*graphModel.LiquorSimple)
+	fc.Result = res
+	return ec.marshalNLiquorSimple2ᚕᚖbackendᚋgraphᚋgraphModelᚐLiquorSimpleᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserDetail_rate2Liquors(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserDetail",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_LiquorSimple_id(ctx, field)
+			case "categoryId":
+				return ec.fieldContext_LiquorSimple_categoryId(ctx, field)
+			case "categoryName":
+				return ec.fieldContext_LiquorSimple_categoryName(ctx, field)
+			case "name":
+				return ec.fieldContext_LiquorSimple_name(ctx, field)
+			case "imageBase64":
+				return ec.fieldContext_LiquorSimple_imageBase64(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type LiquorSimple", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserDetail_rate1Liquors(ctx context.Context, field graphql.CollectedField, obj *graphModel.UserDetail) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserDetail_rate1Liquors(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Rate1Liquors, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*graphModel.LiquorSimple)
+	fc.Result = res
+	return ec.marshalNLiquorSimple2ᚕᚖbackendᚋgraphᚋgraphModelᚐLiquorSimpleᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserDetail_rate1Liquors(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserDetail",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_LiquorSimple_id(ctx, field)
+			case "categoryId":
+				return ec.fieldContext_LiquorSimple_categoryId(ctx, field)
+			case "categoryName":
+				return ec.fieldContext_LiquorSimple_categoryName(ctx, field)
+			case "name":
+				return ec.fieldContext_LiquorSimple_name(ctx, field)
+			case "imageBase64":
+				return ec.fieldContext_LiquorSimple_imageBase64(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type LiquorSimple", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserPageData_detail(ctx context.Context, field graphql.CollectedField, obj *graphModel.UserPageData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserPageData_detail(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Detail, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*graphModel.UserDetail)
+	fc.Result = res
+	return ec.marshalNUserDetail2ᚖbackendᚋgraphᚋgraphModelᚐUserDetail(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserPageData_detail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserPageData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "comments":
+				return ec.fieldContext_UserDetail_comments(ctx, field)
+			case "rate5Liquors":
+				return ec.fieldContext_UserDetail_rate5Liquors(ctx, field)
+			case "rate4Liquors":
+				return ec.fieldContext_UserDetail_rate4Liquors(ctx, field)
+			case "rate3Liquors":
+				return ec.fieldContext_UserDetail_rate3Liquors(ctx, field)
+			case "rate2Liquors":
+				return ec.fieldContext_UserDetail_rate2Liquors(ctx, field)
+			case "rate1Liquors":
+				return ec.fieldContext_UserDetail_rate1Liquors(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UserDetail", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserPageData_user(ctx context.Context, field graphql.CollectedField, obj *graphModel.UserPageData) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserPageData_user(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.User, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*graphModel.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖbackendᚋgraphᚋgraphModelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserPageData_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserPageData",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "profile":
+				return ec.fieldContext_User_profile(ctx, field)
+			case "imageBase64":
+				return ec.fieldContext_User_imageBase64(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
 	}
 	return fc, nil
@@ -7187,6 +8143,11 @@ func (ec *executionContext) _BoardPost(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "liquorId":
+			out.Values[i] = ec._BoardPost_liquorId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "name":
 			out.Values[i] = ec._BoardPost_name(ctx, field, obj)
 		case "userId":
@@ -7496,6 +8457,62 @@ func (ec *executionContext) _LiquorHistory(ctx context.Context, sel ast.Selectio
 			}
 		case "histories":
 			out.Values[i] = ec._LiquorHistory_histories(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var liquorSimpleImplementors = []string{"LiquorSimple"}
+
+func (ec *executionContext) _LiquorSimple(ctx context.Context, sel ast.SelectionSet, obj *graphModel.LiquorSimple) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, liquorSimpleImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("LiquorSimple")
+		case "id":
+			out.Values[i] = ec._LiquorSimple_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "categoryId":
+			out.Values[i] = ec._LiquorSimple_categoryId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "categoryName":
+			out.Values[i] = ec._LiquorSimple_categoryName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._LiquorSimple_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "imageBase64":
+			out.Values[i] = ec._LiquorSimple_imageBase64(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7906,6 +8923,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getUserByIdDetail":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getUserByIdDetail(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "__type":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___type(ctx, field)
@@ -7967,6 +9006,114 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._User_profile(ctx, field, obj)
 		case "imageBase64":
 			out.Values[i] = ec._User_imageBase64(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var userDetailImplementors = []string{"UserDetail"}
+
+func (ec *executionContext) _UserDetail(ctx context.Context, sel ast.SelectionSet, obj *graphModel.UserDetail) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userDetailImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UserDetail")
+		case "comments":
+			out.Values[i] = ec._UserDetail_comments(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "rate5Liquors":
+			out.Values[i] = ec._UserDetail_rate5Liquors(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "rate4Liquors":
+			out.Values[i] = ec._UserDetail_rate4Liquors(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "rate3Liquors":
+			out.Values[i] = ec._UserDetail_rate3Liquors(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "rate2Liquors":
+			out.Values[i] = ec._UserDetail_rate2Liquors(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "rate1Liquors":
+			out.Values[i] = ec._UserDetail_rate1Liquors(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var userPageDataImplementors = []string{"UserPageData"}
+
+func (ec *executionContext) _UserPageData(ctx context.Context, sel ast.SelectionSet, obj *graphModel.UserPageData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userPageDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UserPageData")
+		case "detail":
+			out.Values[i] = ec._UserPageData_detail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "user":
+			out.Values[i] = ec._UserPageData_user(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -8359,6 +9506,50 @@ func (ec *executionContext) unmarshalNBoardInput2backendᚋgraphᚋgraphModelᚐ
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNBoardPost2ᚕᚖbackendᚋgraphᚋgraphModelᚐBoardPostᚄ(ctx context.Context, sel ast.SelectionSet, v []*graphModel.BoardPost) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBoardPost2ᚖbackendᚋgraphᚋgraphModelᚐBoardPost(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNBoardPost2ᚖbackendᚋgraphᚋgraphModelᚐBoardPost(ctx context.Context, sel ast.SelectionSet, v *graphModel.BoardPost) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -8625,6 +9816,60 @@ func (ec *executionContext) marshalNLiquor2ᚖbackendᚋgraphᚋgraphModelᚐLiq
 	return ec._Liquor(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNLiquorSimple2ᚕᚖbackendᚋgraphᚋgraphModelᚐLiquorSimpleᚄ(ctx context.Context, sel ast.SelectionSet, v []*graphModel.LiquorSimple) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNLiquorSimple2ᚖbackendᚋgraphᚋgraphModelᚐLiquorSimple(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNLiquorSimple2ᚖbackendᚋgraphᚋgraphModelᚐLiquorSimple(ctx context.Context, sel ast.SelectionSet, v *graphModel.LiquorSimple) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._LiquorSimple(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNListFromCategory2backendᚋgraphᚋgraphModelᚐListFromCategory(ctx context.Context, sel ast.SelectionSet, v graphModel.ListFromCategory) graphql.Marshaler {
 	return ec._ListFromCategory(ctx, sel, &v)
 }
@@ -8676,6 +9921,30 @@ func (ec *executionContext) marshalNUser2ᚖbackendᚋgraphᚋgraphModelᚐUser(
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNUserDetail2ᚖbackendᚋgraphᚋgraphModelᚐUserDetail(ctx context.Context, sel ast.SelectionSet, v *graphModel.UserDetail) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UserDetail(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNUserPageData2backendᚋgraphᚋgraphModelᚐUserPageData(ctx context.Context, sel ast.SelectionSet, v graphModel.UserPageData) graphql.Marshaler {
+	return ec._UserPageData(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUserPageData2ᚖbackendᚋgraphᚋgraphModelᚐUserPageData(ctx context.Context, sel ast.SelectionSet, v *graphModel.UserPageData) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UserPageData(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

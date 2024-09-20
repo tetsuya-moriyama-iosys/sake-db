@@ -31,6 +31,7 @@ type BoardInput struct {
 
 type BoardPost struct {
 	ID        string    `json:"id"`
+	LiquorID  string    `json:"liquorId"`
 	Name      *string   `json:"name,omitempty"`
 	UserID    *string   `json:"userId,omitempty"`
 	Text      string    `json:"text"`
@@ -86,6 +87,14 @@ type LiquorHistory struct {
 	Histories []*Liquor `json:"histories,omitempty"`
 }
 
+type LiquorSimple struct {
+	ID           string  `json:"id"`
+	CategoryID   int     `json:"categoryId"`
+	CategoryName string  `json:"categoryName"`
+	Name         string  `json:"name"`
+	ImageBase64  *string `json:"imageBase64,omitempty"`
+}
+
 type ListFromCategory struct {
 	CategoryName        string    `json:"categoryName"`
 	CategoryDescription *string   `json:"categoryDescription,omitempty"`
@@ -117,4 +126,18 @@ type User struct {
 	Email       string  `json:"email"`
 	Profile     *string `json:"profile,omitempty"`
 	ImageBase64 *string `json:"imageBase64,omitempty"`
+}
+
+type UserDetail struct {
+	Comments     []*BoardPost    `json:"comments"`
+	Rate5Liquors []*LiquorSimple `json:"rate5Liquors"`
+	Rate4Liquors []*LiquorSimple `json:"rate4Liquors"`
+	Rate3Liquors []*LiquorSimple `json:"rate3Liquors"`
+	Rate2Liquors []*LiquorSimple `json:"rate2Liquors"`
+	Rate1Liquors []*LiquorSimple `json:"rate1Liquors"`
+}
+
+type UserPageData struct {
+	Detail *UserDetail `json:"detail"`
+	User   *User       `json:"user"`
 }

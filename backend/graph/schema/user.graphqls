@@ -1,3 +1,26 @@
+type UserPageData{
+  detail:UserDetail!
+  user:User!
+}
+
+type LiquorSimple {
+  id: String!
+  categoryId: Int!
+  categoryName: String!
+  name: String!
+  imageBase64: String     # 縮小された画像のBase64エンコードデータ
+}
+
+type UserDetail{
+comments:[BoardPost!]!
+rate5Liquors:[LiquorSimple!]!
+rate4Liquors:[LiquorSimple!]!
+rate3Liquors:[LiquorSimple!]!
+rate2Liquors:[LiquorSimple!]!
+rate1Liquors:[LiquorSimple!]!
+}
+
 extend type Query {
-  getUserById(id:String!): User!
+  getUserById(id:String!): User! #単純に外部公開可能なユーザー基本情報を取得する(使わない...？)
+  getUserByIdDetail(id:String!): UserPageData! #ユーザーページに表示するフルデータ
 }

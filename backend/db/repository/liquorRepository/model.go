@@ -65,21 +65,12 @@ func (m *Model) ToGraphQL() *graphModel.Liquor {
 	}
 }
 
-//func FromGraphQL(l *graphModel.Liquor) *Model {
-//	objectID, err := primitive.ObjectIDFromHex(l.ID)
-//	if err != nil {
-//		fmt.Println("Invalid ObjectID string")
-//	}
-//
-//	return &Model{
-//		ID:          objectID,
-//		CategoryID:  l.CategoryID,
-//		Name:        l.Name,
-//		Description: l.Description,
-//		ImageURL:    l.ImageURL,
-//		ImageBase64: l.ImageBase64,
-//		CreatedAt:   l.CreatedAt,
-//		UpdatedAt:   l.UpdatedAt,
-//		VersionNo:   l.VersionNo,
-//	}
-//}
+func (m *Model) ToGraphQLSimple() *graphModel.LiquorSimple {
+	return &graphModel.LiquorSimple{
+		ID:           m.ID.Hex(),
+		CategoryID:   m.CategoryID,
+		CategoryName: m.CategoryName,
+		Name:         m.Name,
+		ImageBase64:  m.ImageBase64,
+	}
+}
