@@ -4,6 +4,21 @@ import { gql } from '@apollo/client/core';
 export interface GetUserdataResponse<T extends AuthUser> {
   readonly getUser: T;
 }
+export interface GetUserDataFullResponse {
+  readonly getUserByIdDetail: UserFullData;
+}
+
+// export interface DetailType{
+//   readonly getUserByIdDetail:
+// }
+
+// export interface Detail{
+//   readonly rate5Liquors: Liquor[];
+//   readonly rate4Liquors: Liquor[];
+//   readonly rate3Liquors: Liquor[];
+//   readonly rate2Liquors: Liquor[];
+//   readonly rate1Liquors: Liquor[];
+// }
 
 //ログイン時に返ってくるデータ
 export interface AuthUser {
@@ -21,7 +36,7 @@ export interface User extends AuthUser {
 export type UserFullData = AuthUser & User;
 
 export interface GetUserByIdResponse {
-  readonly getUserById: User;
+  readonly getUserByIdDetail: User;
 }
 
 //指定したIDのユーザーデータ
@@ -32,6 +47,56 @@ export const GET_USERDATA: DocumentNode = gql`
       name
       profile
       imageBase64
+    }
+  }
+`;
+
+export const GET_USERDATA_FULL: DocumentNode = gql`
+  query ($id: String!) {
+    getUserByIdDetail(id: $id) {
+      detail {
+        rate5Liquors {
+          id
+          name
+          categoryId
+          categoryName
+          imageBase64
+        }
+        rate4Liquors {
+          id
+          name
+          categoryId
+          categoryName
+          imageBase64
+        }
+        rate3Liquors {
+          id
+          name
+          categoryId
+          categoryName
+          imageBase64
+        }
+        rate2Liquors {
+          id
+          name
+          categoryId
+          categoryName
+          imageBase64
+        }
+        rate1Liquors {
+          id
+          name
+          categoryId
+          categoryName
+          imageBase64
+        }
+      }
+      user {
+        id
+        name
+        profile
+        imageBase64
+      }
     }
   }
 `;

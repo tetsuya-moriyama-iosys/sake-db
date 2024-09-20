@@ -6,7 +6,7 @@ import { useRoute } from 'vue-router';
 import { ref, watch } from 'vue';
 import useQuery from '@/funcs/composable/useQuery';
 import {
-  GET_USERDATA,
+  GET_USERDATA_FULL,
   type GetUserByIdResponse,
   type User,
 } from '@/graphQL/User/user';
@@ -16,11 +16,11 @@ const user = ref<User>();
 
 const route = useRoute();
 
-const { fetch } = useQuery<GetUserByIdResponse>(GET_USERDATA);
+const { fetch } = useQuery<GetUserByIdResponse>(GET_USERDATA_FULL);
 
 // データフェッチ
 const fetchData = async (id: string): Promise<void> => {
-  const { getUserById: response } = await fetch({
+  const { getUserByIdDetail: response } = await fetch({
     id: id,
   });
   user.value = response;
