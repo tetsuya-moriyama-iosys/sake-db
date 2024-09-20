@@ -30,13 +30,15 @@ type BoardInput struct {
 }
 
 type BoardPost struct {
-	ID        string    `json:"id"`
-	Name      *string   `json:"name,omitempty"`
-	UserID    *string   `json:"userId,omitempty"`
-	Text      string    `json:"text"`
-	Rate      *int      `json:"rate,omitempty"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	ID         string    `json:"id"`
+	Name       *string   `json:"name,omitempty"`
+	UserID     *string   `json:"userId,omitempty"`
+	CategoryID int       `json:"categoryId"`
+	LiquorID   string    `json:"LiquorId"`
+	LiquorName string    `json:"LiquorName"`
+	Text       string    `json:"text"`
+	Rate       *int      `json:"rate,omitempty"`
+	UpdatedAt  time.Time `json:"updatedAt"`
 }
 
 type Category struct {

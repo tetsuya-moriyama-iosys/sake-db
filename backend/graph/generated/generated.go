@@ -67,13 +67,15 @@ type ComplexityRoot struct {
 	}
 
 	BoardPost struct {
-		CreatedAt func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Name      func(childComplexity int) int
-		Rate      func(childComplexity int) int
-		Text      func(childComplexity int) int
-		UpdatedAt func(childComplexity int) int
-		UserID    func(childComplexity int) int
+		CategoryID func(childComplexity int) int
+		ID         func(childComplexity int) int
+		LiquorID   func(childComplexity int) int
+		LiquorName func(childComplexity int) int
+		Name       func(childComplexity int) int
+		Rate       func(childComplexity int) int
+		Text       func(childComplexity int) int
+		UpdatedAt  func(childComplexity int) int
+		UserID     func(childComplexity int) int
 	}
 
 	Category struct {
@@ -256,12 +258,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AuthPayload.User(childComplexity), true
 
-	case "BoardPost.createdAt":
-		if e.complexity.BoardPost.CreatedAt == nil {
+	case "BoardPost.categoryId":
+		if e.complexity.BoardPost.CategoryID == nil {
 			break
 		}
 
-		return e.complexity.BoardPost.CreatedAt(childComplexity), true
+		return e.complexity.BoardPost.CategoryID(childComplexity), true
 
 	case "BoardPost.id":
 		if e.complexity.BoardPost.ID == nil {
@@ -269,6 +271,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BoardPost.ID(childComplexity), true
+
+	case "BoardPost.LiquorId":
+		if e.complexity.BoardPost.LiquorID == nil {
+			break
+		}
+
+		return e.complexity.BoardPost.LiquorID(childComplexity), true
+
+	case "BoardPost.LiquorName":
+		if e.complexity.BoardPost.LiquorName == nil {
+			break
+		}
+
+		return e.complexity.BoardPost.LiquorName(childComplexity), true
 
 	case "BoardPost.name":
 		if e.complexity.BoardPost.Name == nil {
@@ -996,9 +1012,11 @@ type BoardPost{
  id:ID!
  name: String
  userId: String
+ categoryId: Int!
+ LiquorId:String!
+ LiquorName:String!
  text: String!
  rate: Int
- createdAt: DateTime!
  updatedAt: DateTime!
 }
 
@@ -1807,6 +1825,138 @@ func (ec *executionContext) fieldContext_BoardPost_userId(_ context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _BoardPost_categoryId(ctx context.Context, field graphql.CollectedField, obj *graphModel.BoardPost) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BoardPost_categoryId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CategoryID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BoardPost_categoryId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BoardPost",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BoardPost_LiquorId(ctx context.Context, field graphql.CollectedField, obj *graphModel.BoardPost) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BoardPost_LiquorId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LiquorID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BoardPost_LiquorId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BoardPost",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BoardPost_LiquorName(ctx context.Context, field graphql.CollectedField, obj *graphModel.BoardPost) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BoardPost_LiquorName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LiquorName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BoardPost_LiquorName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BoardPost",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _BoardPost_text(ctx context.Context, field graphql.CollectedField, obj *graphModel.BoardPost) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_BoardPost_text(ctx, field)
 	if err != nil {
@@ -1887,50 +2037,6 @@ func (ec *executionContext) fieldContext_BoardPost_rate(_ context.Context, field
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _BoardPost_createdAt(ctx context.Context, field graphql.CollectedField, obj *graphModel.BoardPost) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BoardPost_createdAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNDateTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_BoardPost_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BoardPost",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type DateTime does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4606,12 +4712,16 @@ func (ec *executionContext) fieldContext_Query_board(ctx context.Context, field 
 				return ec.fieldContext_BoardPost_name(ctx, field)
 			case "userId":
 				return ec.fieldContext_BoardPost_userId(ctx, field)
+			case "categoryId":
+				return ec.fieldContext_BoardPost_categoryId(ctx, field)
+			case "LiquorId":
+				return ec.fieldContext_BoardPost_LiquorId(ctx, field)
+			case "LiquorName":
+				return ec.fieldContext_BoardPost_LiquorName(ctx, field)
 			case "text":
 				return ec.fieldContext_BoardPost_text(ctx, field)
 			case "rate":
 				return ec.fieldContext_BoardPost_rate(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_BoardPost_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_BoardPost_updatedAt(ctx, field)
 			}
@@ -4694,12 +4804,16 @@ func (ec *executionContext) fieldContext_Query_getMyBoard(ctx context.Context, f
 				return ec.fieldContext_BoardPost_name(ctx, field)
 			case "userId":
 				return ec.fieldContext_BoardPost_userId(ctx, field)
+			case "categoryId":
+				return ec.fieldContext_BoardPost_categoryId(ctx, field)
+			case "LiquorId":
+				return ec.fieldContext_BoardPost_LiquorId(ctx, field)
+			case "LiquorName":
+				return ec.fieldContext_BoardPost_LiquorName(ctx, field)
 			case "text":
 				return ec.fieldContext_BoardPost_text(ctx, field)
 			case "rate":
 				return ec.fieldContext_BoardPost_rate(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_BoardPost_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_BoardPost_updatedAt(ctx, field)
 			}
@@ -7191,6 +7305,21 @@ func (ec *executionContext) _BoardPost(ctx context.Context, sel ast.SelectionSet
 			out.Values[i] = ec._BoardPost_name(ctx, field, obj)
 		case "userId":
 			out.Values[i] = ec._BoardPost_userId(ctx, field, obj)
+		case "categoryId":
+			out.Values[i] = ec._BoardPost_categoryId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "LiquorId":
+			out.Values[i] = ec._BoardPost_LiquorId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "LiquorName":
+			out.Values[i] = ec._BoardPost_LiquorName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "text":
 			out.Values[i] = ec._BoardPost_text(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -7198,11 +7327,6 @@ func (ec *executionContext) _BoardPost(ctx context.Context, sel ast.SelectionSet
 			}
 		case "rate":
 			out.Values[i] = ec._BoardPost_rate(ctx, field, obj)
-		case "createdAt":
-			out.Values[i] = ec._BoardPost_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "updatedAt":
 			out.Values[i] = ec._BoardPost_updatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

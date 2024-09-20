@@ -36,17 +36,21 @@ func (r *mutationResolver) PostBoard(ctx context.Context, input graphModel.Board
 	if err != nil {
 		return false, err
 	}
+	liquor, err := r.LiquorRepo.GetLiquorById(ctx, liquorId)
+	if err != nil {
+		return false, err
+	}
 
 	//挿入するデータを準備
 	model := &liquorRepository.BoardModel{
-		//ID:        primitive.NewObjectID(),
-		UserId:    userID,
-		UserName:  userName, //joinする想定だから使わない想定だが、一応非正規化して取っておく
-		Text:      input.Text,
-		Rate:      input.Rate,
-		LiquorID:  liquorId,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		UserId:     userID,
+		UserName:   userName, //joinする想定だから使わない想定だが、一応非正規化して取っておく
+		CategoryID: liquor.CategoryID,
+		LiquorID:   liquorId,
+		LiquorName: liquor.Name,
+		Text:       input.Text,
+		Rate:       input.Rate,
+		UpdatedAt:  time.Now(),
 	}
 
 	//トランザクション(返り値を返さないといけない構造になっていたので、boolを返すことにした)
@@ -69,7 +73,11 @@ func (r *mutationResolver) PostBoard(ctx context.Context, input graphModel.Board
 
 // Liquor is the resolver for the liquor field.
 func (r *queryResolver) Liquor(ctx context.Context, id string) (*graphModel.Liquor, error) {
-	liquor, err := r.LiquorRepo.GetLiquorById(ctx, id)
+	lid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+	liquor, err := r.LiquorRepo.GetLiquorById(ctx, lid)
 	if err != nil {
 		return nil, err
 	}
@@ -142,8 +150,12 @@ func (r *queryResolver) ListFromCategory(ctx context.Context, categoryID int) (*
 
 // LiquorHistories is the resolver for the liquorHistories field.
 func (r *queryResolver) LiquorHistories(ctx context.Context, id string) (*graphModel.LiquorHistory, error) {
+	lid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
 	//まず対象のカテゴリ情報を取得
-	liquor, err := r.LiquorRepo.GetLiquorById(ctx, id)
+	liquor, err := r.LiquorRepo.GetLiquorById(ctx, lid)
 	if err != nil {
 		return nil, err
 	}
