@@ -39,9 +39,11 @@ type BoardPost{
  id:ID!
  name: String
  userId: String
+ categoryId: Int!
+ LiquorId:String!
+ LiquorName:String!
  text: String!
  rate: Int
- createdAt: DateTime!
  updatedAt: DateTime!
 }
 
