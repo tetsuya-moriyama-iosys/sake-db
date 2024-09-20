@@ -32,11 +32,11 @@ func (r *mutationResolver) PostBoard(ctx context.Context, input graphModel.Board
 		userName = &user.Name
 	}
 
-	liquorId, err := primitive.ObjectIDFromHex(input.LiquorID)
+	lId, err := primitive.ObjectIDFromHex(input.LiquorID)
 	if err != nil {
 		return false, err
 	}
-	liquor, err := r.LiquorRepo.GetLiquorById(ctx, liquorId)
+	liquor, err := r.LiquorRepo.GetLiquorById(ctx, lId)
 	if err != nil {
 		return false, err
 	}
@@ -46,7 +46,7 @@ func (r *mutationResolver) PostBoard(ctx context.Context, input graphModel.Board
 		UserId:     userID,
 		UserName:   userName, //joinする想定だから使わない想定だが、一応非正規化して取っておく
 		CategoryID: liquor.CategoryID,
-		LiquorID:   liquorId,
+		LiquorID:   lId,
 		LiquorName: liquor.Name,
 		Text:       input.Text,
 		Rate:       input.Rate,
