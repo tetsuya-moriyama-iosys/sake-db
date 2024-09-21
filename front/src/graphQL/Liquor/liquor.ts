@@ -42,7 +42,6 @@ export const LIQUOR_DETAIL_GET: DocumentNode = gql`
       description
       imageBase64
       imageUrl
-      createdAt
       updatedAt
       versionNo
     }

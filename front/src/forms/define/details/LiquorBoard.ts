@@ -22,5 +22,5 @@ export const initialValues: FormValues = {
 };
 
 export const validationSchema = {
-  [FormKeys.TEXT]: string().min(1).required(),
+  [FormKeys.TEXT]: string().min(1).max(500).required(), //とりあえず500文字制限にしておく
 };

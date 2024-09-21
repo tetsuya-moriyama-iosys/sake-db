@@ -35,15 +35,16 @@ type LiquorHistory{
 }
 
 type BoardPost{
- id:ID!
- name: String
- userId: ID
- categoryId: Int!
- liquorId:ID! #ユーザーページ内のデータ取得時に必要
- liquorName:String!
- text: String!
- rate: Int
- updatedAt: DateTime!
+  id:ID!
+  userId: ID #名無しの場合もあるの
+  userName: String
+  categoryId: Int!
+  categoryName: String!
+  liquorId:ID!
+  liquorName:String!
+  text: String!
+  rate: Int #評価なしの場合もある
+  updatedAt: DateTime!
 }
 
 input BoardInput{
