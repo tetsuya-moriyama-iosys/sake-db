@@ -49,7 +49,6 @@ type Category struct {
 	ImageURL    *string     `json:"imageUrl,omitempty"`
 	ImageBase64 *string     `json:"imageBase64,omitempty"`
 	VersionNo   *int        `json:"versionNo,omitempty"`
-	CreatedAt   *time.Time  `json:"createdAt,omitempty"`
 	UpdatedAt   *time.Time  `json:"updatedAt,omitempty"`
 	Children    []*Category `json:"children,omitempty"`
 }
@@ -73,7 +72,6 @@ type Liquor struct {
 	Description   *string          `json:"description,omitempty"`
 	ImageURL      *string          `json:"imageUrl,omitempty"`
 	ImageBase64   *string          `json:"imageBase64,omitempty"`
-	CreatedAt     time.Time        `json:"createdAt"`
 	UpdatedAt     time.Time        `json:"updatedAt"`
 	Rate5Users    []string         `json:"rate5Users"`
 	Rate4Users    []string         `json:"rate4Users"`

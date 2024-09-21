@@ -80,7 +80,6 @@ type ComplexityRoot struct {
 
 	Category struct {
 		Children    func(childComplexity int) int
-		CreatedAt   func(childComplexity int) int
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
 		ImageBase64 func(childComplexity int) int
@@ -105,7 +104,6 @@ type ComplexityRoot struct {
 		CategoryID    func(childComplexity int) int
 		CategoryName  func(childComplexity int) int
 		CategoryTrail func(childComplexity int) int
-		CreatedAt     func(childComplexity int) int
 		Description   func(childComplexity int) int
 		ID            func(childComplexity int) int
 		ImageBase64   func(childComplexity int) int
@@ -328,13 +326,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Category.Children(childComplexity), true
 
-	case "Category.createdAt":
-		if e.complexity.Category.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.Category.CreatedAt(childComplexity), true
-
 	case "Category.description":
 		if e.complexity.Category.Description == nil {
 			break
@@ -439,13 +430,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Liquor.CategoryTrail(childComplexity), true
-
-	case "Liquor.createdAt":
-		if e.complexity.Liquor.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.Liquor.CreatedAt(childComplexity), true
 
 	case "Liquor.description":
 		if e.complexity.Liquor.Description == nil {
@@ -952,7 +936,6 @@ extend type Mutation {
   imageUrl: String        # S3に保存された画像のURL
   imageBase64: String     # 縮小された画像のBase64エンコードデータ
   versionNo: Int
-  createdAt: DateTime #初期セットには存在しない可能性がある
   updatedAt: DateTime #初期セットには存在しない可能性がある
   children: [Category!]
 }
@@ -987,7 +970,6 @@ type Liquor {
   description: String
   imageUrl: String        # S3に保存された画像のURL
   imageBase64: String     # 縮小された画像のBase64エンコードデータ
-  createdAt: DateTime!
   updatedAt: DateTime!
   rate5Users: [ID!]!
   rate4Users: [ID!]!
@@ -2379,47 +2361,6 @@ func (ec *executionContext) fieldContext_Category_versionNo(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Category_createdAt(ctx context.Context, field graphql.CollectedField, obj *graphModel.Category) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Category_createdAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*time.Time)
-	fc.Result = res
-	return ec.marshalODateTime2ᚖtimeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Category_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Category",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type DateTime does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Category_updatedAt(ctx context.Context, field graphql.CollectedField, obj *graphModel.Category) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Category_updatedAt(ctx, field)
 	if err != nil {
@@ -2511,8 +2452,6 @@ func (ec *executionContext) fieldContext_Category_children(_ context.Context, fi
 				return ec.fieldContext_Category_imageBase64(ctx, field)
 			case "versionNo":
 				return ec.fieldContext_Category_versionNo(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Category_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Category_updatedAt(ctx, field)
 			case "children":
@@ -2577,8 +2516,6 @@ func (ec *executionContext) fieldContext_CategoryHistory_now(_ context.Context, 
 				return ec.fieldContext_Category_imageBase64(ctx, field)
 			case "versionNo":
 				return ec.fieldContext_Category_versionNo(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Category_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Category_updatedAt(ctx, field)
 			case "children":
@@ -2640,8 +2577,6 @@ func (ec *executionContext) fieldContext_CategoryHistory_histories(_ context.Con
 				return ec.fieldContext_Category_imageBase64(ctx, field)
 			case "versionNo":
 				return ec.fieldContext_Category_versionNo(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Category_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Category_updatedAt(ctx, field)
 			case "children":
@@ -3087,50 +3022,6 @@ func (ec *executionContext) fieldContext_Liquor_imageBase64(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Liquor_createdAt(ctx context.Context, field graphql.CollectedField, obj *graphModel.Liquor) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Liquor_createdAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNDateTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Liquor_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Liquor",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type DateTime does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Liquor_updatedAt(ctx context.Context, field graphql.CollectedField, obj *graphModel.Liquor) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Liquor_updatedAt(ctx, field)
 	if err != nil {
@@ -3494,8 +3385,6 @@ func (ec *executionContext) fieldContext_LiquorHistory_now(_ context.Context, fi
 				return ec.fieldContext_Liquor_imageUrl(ctx, field)
 			case "imageBase64":
 				return ec.fieldContext_Liquor_imageBase64(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Liquor_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Liquor_updatedAt(ctx, field)
 			case "rate5Users":
@@ -3569,8 +3458,6 @@ func (ec *executionContext) fieldContext_LiquorHistory_histories(_ context.Conte
 				return ec.fieldContext_Liquor_imageUrl(ctx, field)
 			case "imageBase64":
 				return ec.fieldContext_Liquor_imageBase64(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Liquor_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Liquor_updatedAt(ctx, field)
 			case "rate5Users":
@@ -3732,8 +3619,6 @@ func (ec *executionContext) fieldContext_ListFromCategory_liquors(_ context.Cont
 				return ec.fieldContext_Liquor_imageUrl(ctx, field)
 			case "imageBase64":
 				return ec.fieldContext_Liquor_imageBase64(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Liquor_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Liquor_updatedAt(ctx, field)
 			case "rate5Users":
@@ -4223,8 +4108,6 @@ func (ec *executionContext) fieldContext_Query_category(ctx context.Context, fie
 				return ec.fieldContext_Category_imageBase64(ctx, field)
 			case "versionNo":
 				return ec.fieldContext_Category_versionNo(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Category_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Category_updatedAt(ctx, field)
 			case "children":
@@ -4300,8 +4183,6 @@ func (ec *executionContext) fieldContext_Query_categories(_ context.Context, fie
 				return ec.fieldContext_Category_imageBase64(ctx, field)
 			case "versionNo":
 				return ec.fieldContext_Category_versionNo(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Category_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Category_updatedAt(ctx, field)
 			case "children":
@@ -4426,8 +4307,6 @@ func (ec *executionContext) fieldContext_Query_liquor(ctx context.Context, field
 				return ec.fieldContext_Liquor_imageUrl(ctx, field)
 			case "imageBase64":
 				return ec.fieldContext_Liquor_imageBase64(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Liquor_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Liquor_updatedAt(ctx, field)
 			case "rate5Users":
@@ -4515,8 +4394,6 @@ func (ec *executionContext) fieldContext_Query_randomRecommendList(ctx context.C
 				return ec.fieldContext_Liquor_imageUrl(ctx, field)
 			case "imageBase64":
 				return ec.fieldContext_Liquor_imageBase64(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Liquor_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Liquor_updatedAt(ctx, field)
 			case "rate5Users":
@@ -7386,8 +7263,6 @@ func (ec *executionContext) _Category(ctx context.Context, sel ast.SelectionSet,
 			out.Values[i] = ec._Category_imageBase64(ctx, field, obj)
 		case "versionNo":
 			out.Values[i] = ec._Category_versionNo(ctx, field, obj)
-		case "createdAt":
-			out.Values[i] = ec._Category_createdAt(ctx, field, obj)
 		case "updatedAt":
 			out.Values[i] = ec._Category_updatedAt(ctx, field, obj)
 		case "children":
@@ -7539,11 +7414,6 @@ func (ec *executionContext) _Liquor(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec._Liquor_imageUrl(ctx, field, obj)
 		case "imageBase64":
 			out.Values[i] = ec._Liquor_imageBase64(ctx, field, obj)
-		case "createdAt":
-			out.Values[i] = ec._Liquor_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "updatedAt":
 			out.Values[i] = ec._Liquor_updatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

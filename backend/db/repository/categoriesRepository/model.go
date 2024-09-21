@@ -15,7 +15,6 @@ const (
 	Description        = "description"
 	Parent             = "parent"
 	VersionNo          = "version_no"
-	CreatedAt          = "created_at"
 	UpdatedAt          = "updated_at"
 )
 
@@ -29,7 +28,6 @@ type Model struct {
 	ImageBase64 *string   `bson:"image_base64"`
 	VersionNo   *int      `json:"versionNo" bson:"version_no"` //手動で追加したカテゴリはversionNoが存在しない可能性がある
 	Children    []*Model  `json:"children,omitempty" bson:"-"` // 子カテゴリはDBに保存されないため、bsonタグは不要
-	CreatedAt   time.Time `bson:"created_at"`
 	UpdatedAt   time.Time `bson:"updated_at"`
 }
 
@@ -51,7 +49,6 @@ func (s *Model) ToGraphQL() *graphModel.Category {
 		ImageURL:    s.ImageURL,
 		ImageBase64: s.ImageBase64,
 		VersionNo:   s.VersionNo,
-		CreatedAt:   &s.CreatedAt,
 		UpdatedAt:   &s.UpdatedAt,
 		Children:    children, // 変換後の子カテゴリを設定
 	}
