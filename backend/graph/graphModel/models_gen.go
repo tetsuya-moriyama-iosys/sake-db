@@ -34,8 +34,8 @@ type BoardPost struct {
 	Name       *string   `json:"name,omitempty"`
 	UserID     *string   `json:"userId,omitempty"`
 	CategoryID int       `json:"categoryId"`
-	LiquorID   string    `json:"LiquorId"`
-	LiquorName string    `json:"LiquorName"`
+	LiquorID   string    `json:"liquorId"`
+	LiquorName string    `json:"liquorName"`
 	Text       string    `json:"text"`
 	Rate       *int      `json:"rate,omitempty"`
 	UpdatedAt  time.Time `json:"updatedAt"`
@@ -86,14 +86,6 @@ type LiquorHistory struct {
 	Histories []*Liquor `json:"histories,omitempty"`
 }
 
-type LiquorSimple struct {
-	ID           string  `json:"id"`
-	CategoryID   int     `json:"categoryId"`
-	CategoryName string  `json:"categoryName"`
-	Name         string  `json:"name"`
-	ImageBase64  *string `json:"imageBase64,omitempty"`
-}
-
 type ListFromCategory struct {
 	CategoryName        string    `json:"categoryName"`
 	CategoryDescription *string   `json:"categoryDescription,omitempty"`
@@ -128,12 +120,22 @@ type User struct {
 }
 
 type UserDetail struct {
-	Comments     []*BoardPost    `json:"comments"`
-	Rate5Liquors []*LiquorSimple `json:"rate5Liquors"`
-	Rate4Liquors []*LiquorSimple `json:"rate4Liquors"`
-	Rate3Liquors []*LiquorSimple `json:"rate3Liquors"`
-	Rate2Liquors []*LiquorSimple `json:"rate2Liquors"`
-	Rate1Liquors []*LiquorSimple `json:"rate1Liquors"`
+	RecentComments []*BoardPost  `json:"recentComments"`
+	Rate5Liquors   []*UserLiquor `json:"rate5Liquors"`
+	Rate4Liquors   []*UserLiquor `json:"rate4Liquors"`
+	Rate3Liquors   []*UserLiquor `json:"rate3Liquors"`
+	Rate2Liquors   []*UserLiquor `json:"rate2Liquors"`
+	Rate1Liquors   []*UserLiquor `json:"rate1Liquors"`
+	Rate0Liquors   []*UserLiquor `json:"rate0Liquors"`
+}
+
+type UserLiquor struct {
+	ID           string  `json:"id"`
+	CategoryID   int     `json:"categoryId"`
+	CategoryName string  `json:"categoryName"`
+	Name         string  `json:"name"`
+	Comment      *string `json:"comment,omitempty"`
+	ImageBase64  *string `json:"imageBase64,omitempty"`
 }
 
 type UserPageData struct {

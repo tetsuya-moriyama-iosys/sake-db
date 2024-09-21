@@ -3,15 +3,18 @@ package liquorRepository
 import (
 	"backend/graph/graphModel"
 	"context"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"log"
 	"time"
 )
 
 const (
 	BoardCollectionName = "liquors_boards"
+	Rate                = "rate"
 	LiquorID            = "liquor_id"
 	LiquorName          = "liquor_name"
 	UserID              = "user_id"
@@ -30,16 +33,40 @@ type BoardModel struct {
 	UpdatedAt  time.Time           `bson:"updated_at"`
 }
 
+// Document 各投稿の詳細
+type Document struct {
+	Text      string       `bson:"text"`       // 投稿内容
+	UpdatedAt time.Time    `bson:"updated_at"` // 更新日時
+	Liquor    LiquorDetail `bson:"liquor"`     // 酒の詳細情報（LiquorDetail）
+}
+
+// LiquorDetail 酒の詳細情報
+type LiquorDetail struct {
+	ID           primitive.ObjectID `bson:"_id"`           // 酒のID
+	CategoryID   int                `bson:"category_id"`   // カテゴリID
+	CategoryName string             `bson:"category_name"` // カテゴリ名
+	Name         string             `bson:"name"`          // 酒の名前
+	Description  string             `bson:"description"`   // 説明
+	ImageBase64  string             `bson:"image_base64"`  // 画像（base64エンコード）
+	ImageURL     string             `bson:"image_url"`     // 画像のURL
+	Rate1Users   []string           `bson:"rate1_users"`   // Rate 1 のユーザー
+	Rate2Users   []string           `bson:"rate2_users"`   // Rate 2 のユーザー
+	Rate3Users   []string           `bson:"rate3_users"`   // Rate 3 のユーザー
+	Rate4Users   []string           `bson:"rate4_users"`   // Rate 4 のユーザー
+	Rate5Users   []string           `bson:"rate5_users"`   // Rate 5 のユーザー
+	UpdatedAt    time.Time          `bson:"updated_at"`    // 更新日時
+}
+
 // BoardGroupByRate 各rateごとの掲示板投稿をまとめた構造体
 type BoardGroupByRate struct {
-	Rate      *int         `json:"rate"`      // 評価（nullも許可）
-	Documents []BoardModel `json:"documents"` // 各評価に紐づく投稿
+	Rate      *int       `json:"_id"`       // 評価（nullも許可）
+	Documents []Document `json:"documents"` // 各評価に紐づく投稿
 }
 
 // BoardListResponse 返却用の構造体
 type BoardListResponse struct {
-	GroupedByRate   []BoardGroupByRate `json:"grouped_by_rate"`  // 評価別の投稿
-	RecentDocuments []BoardModel       `json:"recent_documents"` // 直近の投稿
+	GroupedByRate  []BoardGroupByRate `json:"groupedByRate"`   // 評価別の投稿
+	RecentComments []Document         `json:"recentDocuments"` // 直近の投稿
 }
 
 func (m *BoardModel) ToGraphQL() *graphModel.BoardPost {
@@ -82,42 +109,114 @@ func (r *LiquorsRepository) BoardList(ctx context.Context, liquorId primitive.Ob
 }
 
 // BoardListByUser ユーザーに紐づく掲示板投稿履歴を取得する。評価別および最近のものを取得
-func (r *LiquorsRepository) BoardListByUser(ctx context.Context, UserId primitive.ObjectID, limit int) (*BoardListResponse, error) {
+func (r *LiquorsRepository) BoardListByUser(ctx context.Context, uId primitive.ObjectID, limit int) (*BoardListResponse, error) {
+	log.Println("start")
 	pipeline := bson.A{
-		// 1. user_idがidであるドキュメントをフィルタリング
-		bson.M{"$match": bson.M{"user_id": UserId}},
-
+		bson.M{"$match": bson.M{UserID: uId}}, // フィルタ
 		bson.M{"$facet": bson.M{
-			// rate別にグルーピング
 			"groupedByRate": bson.A{
-				bson.M{"$match": bson.M{"rate": bson.M{"$in": []interface{}{1, 2, 3, 4, 5, nil}}}},
 				bson.M{"$group": bson.M{
-					"_id":       "$rate",
+					"_id":       "$rate", // rateごとにグループ化
 					"documents": bson.M{"$push": "$$ROOT"},
 				}},
+				bson.M{"$lookup": bson.M{
+					"from":         CollectionName,        // 結合するコレクション
+					"localField":   "documents.liquor_id", // groupされたドキュメントのliquor_id
+					"foreignField": "_id",                 // Liquorコレクションの_idフィールド
+					"as":           "liquorDetails",       // 結合結果をliquorDetailsフィールドに格納
+				}},
+				// liquorDetailsをdocuments内のliquorフィールドとして追加
+				bson.M{"$addFields": bson.M{
+					"documents": bson.M{
+						"$map": bson.M{
+							"input": "$documents",
+							"as":    "document",
+							"in": bson.M{
+								"_id":         "$$document._id",
+								"category_id": "$$document.category_id",
+								"liquor_id":   "$$document.liquor_id",
+								"liquor_name": "$$document.liquor_name",
+								"text":        "$$document.text",
+								"updated_at":  "$$document.updated_at",
+								// liquorDetailsの最初の要素をliquorフィールドとして埋め込む
+								"liquor": bson.M{
+									"$arrayElemAt": bson.A{"$liquorDetails", 0},
+								},
+							},
+						},
+					},
+				}},
+				// liquorDetailsを除外する
+				bson.M{"$project": bson.M{
+					"liquorDetails":               0, // liquorDetailsフィールドを除外
+					"documents._id":               0,
+					"documents.category_id":       0,
+					"documents.liquor_id":         0, // documents内のliquor_idを削除
+					"documents.liquor_name":       0, // documents内のliquor_nameを削除
+					"documents.liquor.version_no": 0, // liquor内のversion_noを削除
+				}},
 			},
-			// 直近10件の取得
 			"recentDocuments": bson.A{
-				bson.M{"$sort": bson.M{"createdAt": -1}}, // createdAtの降順にソート
-				bson.M{"$limit": limit},                  // 直近n件を取得
+				bson.M{"$sort": bson.M{ID: -1}}, // 降順にソート
+				bson.M{"$limit": limit},         // 直近n件を取得
+				// liquor_idでLiquorコレクションを$lookup
+				bson.M{"$lookup": bson.M{
+					"from":         CollectionName,  // 結合するコレクション
+					"localField":   "liquor_id",     // recentDocuments内のliquor_id
+					"foreignField": "_id",           // Liquorコレクションの_idフィールド
+					"as":           "liquorDetails", // 結合結果をliquorDetailsフィールドに格納
+				}},
+				// liquorDetailsをrecentDocuments内のliquorフィールドとして追加
+				bson.M{"$addFields": bson.M{
+					"liquor": bson.M{
+						"$arrayElemAt": bson.A{"$liquorDetails", 0}, // liquorDetailsの最初の要素をliquorフィールドとして埋め込む
+					},
+				}},
+				// liquorDetailsを除外する
+				bson.M{"$project": bson.M{
+					"liquorDetails":     0, // liquorDetailsフィールドを除外
+					"_id":               0, // liquorDetailsフィールドを除外
+					"category_id":       0,
+					"liquor_id":         0, // documents内のliquor_idを削除
+					"liquor_name":       0, // documents内のliquor_nameを削除
+					"user_id":           0,
+					"user_name":         0,
+					"liquor.version_no": 0, // liquor内のversion_noを削除
+				}},
 			},
 		}},
 	}
 
 	// MongoDBの集計クエリを実行
-	cursor, err := r.collection.Aggregate(ctx, pipeline)
+	cursor, err := r.boardCollection.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
 
+	//ログ用
+	//for cursor.Next(ctx) {
+	//	var result bson.M
+	//	if err := cursor.Decode(&result); err != nil {
+	//		log.Fatal(err)
+	//	}
+	//
+	//	// JSON形式で整形して出力
+	//	jsonData, err := json.MarshalIndent(result, "", "  ")
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	//
+	//	fmt.Println(string(jsonData))
+	//}
+
 	// 返り値の変数を用意
 	var result struct {
 		GroupedByRate []struct {
-			Rate      *int         `bson:"_id"`
-			Documents []BoardModel `bson:"documents"`
+			Rate      *int       `bson:"_id"`
+			Documents []Document `bson:"documents"`
 		} `bson:"groupedByRate"`
-		RecentDocuments []BoardModel `bson:"recentDocuments"`
+		RecentDocuments []Document `bson:"recentDocuments"`
 	}
 
 	// クエリ結果を詰め替え
@@ -125,11 +224,15 @@ func (r *LiquorsRepository) BoardListByUser(ctx context.Context, UserId primitiv
 		if err := cursor.Decode(&result); err != nil {
 			return nil, err
 		}
+		// クエリ結果を確認
+		fmt.Printf("%+v\n", result)
 	}
+
+	log.Println(result)
 
 	// 最終的なレスポンス用構造体に詰め替え
 	response := &BoardListResponse{
-		RecentDocuments: result.RecentDocuments,
+		RecentComments: result.RecentDocuments,
 	}
 
 	// GroupedByRateの詰め替え

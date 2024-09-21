@@ -62,12 +62,13 @@ func (m *Model) ToGraphQL() *graphModel.Liquor {
 	}
 }
 
-func (m *Model) ToGraphQLSimple() *graphModel.LiquorSimple {
-	return &graphModel.LiquorSimple{
-		ID:           m.ID.Hex(),
-		CategoryID:   m.CategoryID,
-		CategoryName: m.CategoryName,
-		Name:         m.Name,
-		ImageBase64:  m.ImageBase64,
-	}
-}
+//
+//func (m *Model) ToGraphQLSimple() *graphModel.UserLiquor {
+//	return &graphModel.UserLiquor{
+//		ID:           m.ID.Hex(),
+//		CategoryID:   m.CategoryID,
+//		CategoryName: m.CategoryName,
+//		Name:         m.Name,
+//		ImageBase64:  m.ImageBase64,
+//	}
+//}

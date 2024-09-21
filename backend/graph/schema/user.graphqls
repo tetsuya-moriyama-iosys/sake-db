@@ -3,21 +3,23 @@ type UserPageData{
   user:User!
 }
 
-type LiquorSimple {
+type UserLiquor {
   id: String!
   categoryId: Int!
   categoryName: String!
   name: String!
+  comment: String #評価がnullの場合は空になる
   imageBase64: String     # 縮小された画像のBase64エンコードデータ
 }
 
 type UserDetail{
-comments:[BoardPost!]!
-rate5Liquors:[LiquorSimple!]!
-rate4Liquors:[LiquorSimple!]!
-rate3Liquors:[LiquorSimple!]!
-rate2Liquors:[LiquorSimple!]!
-rate1Liquors:[LiquorSimple!]!
+  recentComments:[BoardPost!]!
+  rate5Liquors:[UserLiquor!]!
+  rate4Liquors:[UserLiquor!]!
+  rate3Liquors:[UserLiquor!]!
+  rate2Liquors:[UserLiquor!]!
+  rate1Liquors:[UserLiquor!]!
+  rate0Liquors:[UserLiquor!]! #評価なし
 }
 
 extend type Query {

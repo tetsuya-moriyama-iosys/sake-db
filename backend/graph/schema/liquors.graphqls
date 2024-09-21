@@ -39,8 +39,8 @@ type BoardPost{
  name: String
  userId: ID
  categoryId: Int!
- LiquorId:ID! #ユーザーページ内のデータ取得時に必要
- LiquorName:String!
+ liquorId:ID! #ユーザーページ内のデータ取得時に必要
+ liquorName:String!
  text: String!
  rate: Int
  updatedAt: DateTime!
