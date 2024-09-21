@@ -36,7 +36,7 @@ type LiquorHistory{
 
 type BoardPost{
   id:ID!
-  userId: ID #名無しの場合もあるの
+  userId: ID #名無しの場合もあるので
   userName: String
   categoryId: Int!
   categoryName: String!

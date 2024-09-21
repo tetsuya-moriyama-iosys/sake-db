@@ -37,13 +37,13 @@ func (r *queryResolver) GetUserByIDDetail(ctx context.Context, id string) (*grap
 	}
 
 	//ここからはユーザーページに特異なデータ
-	uDetail, err := userService.GenerateUserDetail(ctx, uObjID, r.LiquorRepo)
+	eList, err := userService.GenerateUserDetail(ctx, uObjID, r.LiquorRepo)
 	if err != nil {
 		return nil, err
 	}
 	result := &graphModel.UserPageData{
-		User:   user,
-		Detail: uDetail,
+		User:         user,
+		EvaluateList: eList.ToGraphQL(),
 	}
 
 	return result, nil

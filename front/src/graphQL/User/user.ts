@@ -1,94 +1,124 @@
 import type { DocumentNode } from 'graphql/index';
 import { gql } from '@apollo/client/core';
-
-export interface GetUserdataResponse<T extends AuthUser> {
-  readonly getUser: T;
-}
-export interface GetUserDataFullResponse {
-  readonly getUserByIdDetail: UserFullData;
-}
-
-// export interface DetailType{
-//   readonly getUserByIdDetail:
-// }
-
-// export interface Detail{
-//   readonly rate5Liquors: Liquor[];
-//   readonly rate4Liquors: Liquor[];
-//   readonly rate3Liquors: Liquor[];
-//   readonly rate2Liquors: Liquor[];
-//   readonly rate1Liquors: Liquor[];
-// }
-
-//ログイン時に返ってくるデータ
-export interface AuthUser {
-  readonly id: string;
-  readonly name: string;
-  readonly imageBase64: string | undefined; //アイコン表示に必要
-}
+import type { AuthUser } from '@/graphQL/Auth/auth';
 
 //外部に公開可能なユーザー情報
-export interface User extends AuthUser {
+export interface User extends Omit<AuthUser, 'email'> {
   readonly profile: string;
 }
 
-//ユーザー情報(パスワード以外の情報)
-export type UserFullData = AuthUser & User;
-
-export interface GetUserByIdResponse {
+export interface GetUserDetailResponse {
   readonly getUserByIdDetail: User;
 }
 
-//指定したIDのユーザーデータ
-export const GET_USERDATA: DocumentNode = gql`
-  query ($id: String!) {
-    getUserById(id: $id) {
-      id
-      name
-      profile
-      imageBase64
-    }
-  }
-`;
+export interface UserDetail {
+  readonly evaluateList: EvaluateList;
+  readonly user: User;
+}
 
+export interface EvaluateList {
+  readonly recentComments: UserLiquor[];
+  readonly rate5Liquors: UserLiquor[];
+  readonly rate4Liquors: UserLiquor[];
+  readonly rate3Liquors: UserLiquor[];
+  readonly rate2Liquors: UserLiquor[];
+  readonly rate1Liquors: UserLiquor[];
+  readonly noRateLiquors: UserLiquor[];
+}
+
+export interface UserLiquor {
+  readonly id: string;
+  readonly categoryId: string;
+  readonly categoryName: string;
+  readonly liquorId: string;
+  readonly name: string;
+  readonly imageBase64: string;
+  readonly comment: string;
+  readonly rate: number;
+  readonly updatedAt: Date;
+}
+
+//ユーザーページ用のフルデータ
 export const GET_USERDATA_FULL: DocumentNode = gql`
   query ($id: String!) {
     getUserByIdDetail(id: $id) {
-      detail {
-        rate5Liquors {
+      evaluateList {
+        recentComments {
           id
-          name
           categoryId
           categoryName
+          liquorId
+          name
           imageBase64
+          comment
+          rate
+          updatedAt
+        }
+        rate5Liquors {
+          id
+          categoryId
+          categoryName
+          liquorId
+          name
+          imageBase64
+          comment
+          rate
+          updatedAt
         }
         rate4Liquors {
           id
-          name
           categoryId
           categoryName
+          liquorId
+          name
           imageBase64
+          comment
+          rate
+          updatedAt
         }
         rate3Liquors {
           id
-          name
           categoryId
           categoryName
+          liquorId
+          name
           imageBase64
+          comment
+          rate
+          updatedAt
         }
         rate2Liquors {
           id
-          name
           categoryId
           categoryName
+          liquorId
+          name
           imageBase64
+          comment
+          rate
+          updatedAt
         }
         rate1Liquors {
           id
-          name
           categoryId
           categoryName
+          liquorId
+          name
           imageBase64
+          comment
+          rate
+          updatedAt
+        }
+        noRateLiquors {
+          id
+          categoryId
+          categoryName
+          liquorId
+          name
+          imageBase64
+          comment
+          rate
+          updatedAt
         }
       }
       user {

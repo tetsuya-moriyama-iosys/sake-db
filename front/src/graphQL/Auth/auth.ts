@@ -1,6 +1,18 @@
 import type { DocumentNode } from 'graphql/index';
 import { gql } from '@apollo/client/core';
-import type { AuthUser } from '@/graphQL/User/user';
+
+//ログイン時に返ってくるデータ
+export interface GetUserdataResponse {
+  readonly getUser: AuthUser;
+}
+
+//認証済みユーザー情報(要はパスワード以外のデータ)
+export interface AuthUser {
+  readonly id: string;
+  readonly name: string;
+  readonly email: string;
+  readonly imageBase64: string | undefined; //アイコン表示に必要
+}
 
 export interface LoginResponse {
   readonly login: LoginResult;
