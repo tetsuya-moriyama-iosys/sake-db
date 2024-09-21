@@ -1,22 +1,22 @@
 <template>
   <RadiusImage
-    v-if="user.imageBase64"
-    :imageSrc="user.imageBase64"
+    v-if="userDetail.user.imageBase64"
+    :imageSrc="userDetail.user.imageBase64"
     radius="50px"
   />
-  {{ user.name }}
+  {{ userDetail.user.name }}
   <div>
-    {{ user.profile }}
+    {{ userDetail.user.profile }}
   </div>
 </template>
 <script setup lang="ts">
-import type { User } from '@/graphQL/User/user';
+import type { UserDetail } from '@/graphQL/User/user';
 import RadiusImage from '@/components/parts/common/RadiusImage.vue';
 
 interface Props {
-  user: User;
+  userDetail: UserDetail;
 }
 
-const { user } = defineProps<Props>();
+const { userDetail } = defineProps<Props>();
 </script>
 <style scoped></style>

@@ -2,30 +2,34 @@ import type { DocumentNode } from 'graphql/index';
 import { gql } from '@apollo/client/core';
 import type { AuthUser } from '@/graphQL/Auth/auth';
 
-//外部に公開可能なユーザー情報
-export interface User extends Omit<AuthUser, 'email'> {
-  readonly profile: string;
-}
-
+//ユーザーのフルデータ
 export interface GetUserDetailResponse {
-  readonly getUserByIdDetail: User;
+  readonly getUserByIdDetail: UserDetail;
 }
 
+//ユーザー情報と評価情報が入っているインターフェース
 export interface UserDetail {
   readonly evaluateList: EvaluateList;
   readonly user: User;
 }
 
-export interface EvaluateList {
-  readonly recentComments: UserLiquor[];
-  readonly rate5Liquors: UserLiquor[];
-  readonly rate4Liquors: UserLiquor[];
-  readonly rate3Liquors: UserLiquor[];
-  readonly rate2Liquors: UserLiquor[];
-  readonly rate1Liquors: UserLiquor[];
-  readonly noRateLiquors: UserLiquor[];
+//外部に公開可能なユーザー情報
+export interface User extends Omit<AuthUser, 'email'> {
+  readonly profile: string;
 }
 
+//評価履歴のデータベース
+export interface EvaluateList {
+  readonly recentComments: UserLiquor[] | null;
+  readonly rate5Liquors: UserLiquor[] | null;
+  readonly rate4Liquors: UserLiquor[] | null;
+  readonly rate3Liquors: UserLiquor[] | null;
+  readonly rate2Liquors: UserLiquor[] | null;
+  readonly rate1Liquors: UserLiquor[] | null;
+  readonly noRateLiquors: UserLiquor[] | null;
+}
+
+//評価レコード
 export interface UserLiquor {
   readonly id: string;
   readonly categoryId: string;
