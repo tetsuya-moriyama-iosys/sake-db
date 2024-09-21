@@ -5,7 +5,7 @@
       <router-link
         v-if="post.userId"
         :to="{ name: 'UserPage', params: { id: post.userId } }"
-        >{{ post.name }}</router-link
+        >{{ post.userName }}</router-link
       >
       <span v-else>名無し</span>
       :

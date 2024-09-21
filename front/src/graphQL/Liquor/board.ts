@@ -14,8 +14,7 @@ export interface PostCore {
 }
 
 export interface Post extends PostCore {
-  readonly id: string;
-  readonly name: string | null;
+  readonly userName: string | null;
   readonly userId: string | null;
   readonly updatedAt: Date;
 }
@@ -36,8 +35,7 @@ export const GetMyPostByLiquorId: DocumentNode = gql`
 export const GET_BOARD: DocumentNode = gql`
   query ($liquorId: String!) {
     board(liquorId: $liquorId) {
-      id
-      name
+      userName
       userId
       text
       rate
