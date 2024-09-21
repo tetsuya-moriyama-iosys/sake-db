@@ -35,8 +35,8 @@ export const GetMyPostByLiquorId: DocumentNode = gql`
 export const GET_BOARD: DocumentNode = gql`
   query ($liquorId: String!) {
     board(liquorId: $liquorId) {
-      userName
       userId
+      userName
       text
       rate
       updatedAt
