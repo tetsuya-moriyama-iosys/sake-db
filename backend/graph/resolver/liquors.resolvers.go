@@ -19,8 +19,15 @@ import (
 
 // PostBoard is the resolver for the postBoard field.
 func (r *mutationResolver) PostBoard(ctx context.Context, input graphModel.BoardInput) (bool, error) {
-	var userID *primitive.ObjectID
-	var userName *string
+	//バリデーション処理
+	if len(input.Text) > 500 {
+		return false, nil
+	}
+	if input.Rate != nil && (*input.Rate < 1 || *input.Rate > 5) {
+		return false, nil
+	}
+
+	var userID *primitive.ObjectID                        //名無しの可能性がある
 	user, err := userService.GetUserData(ctx, r.UserRepo) //未ログイン状態ならuserIDはnilになる
 
 	if err != nil {
@@ -29,28 +36,20 @@ func (r *mutationResolver) PostBoard(ctx context.Context, input graphModel.Board
 
 	if user != nil {
 		userID = &user.ID
-		userName = &user.Name
 	}
 
 	lId, err := primitive.ObjectIDFromHex(input.LiquorID)
 	if err != nil {
 		return false, err
 	}
-	liquor, err := r.LiquorRepo.GetLiquorById(ctx, lId)
-	if err != nil {
-		return false, err
-	}
 
 	//挿入するデータを準備
 	model := &liquorRepository.BoardModel{
-		UserId:     userID,
-		UserName:   userName, //joinする想定だから使わない想定だが、一応非正規化して取っておく
-		CategoryID: liquor.CategoryID,
-		LiquorID:   lId,
-		LiquorName: liquor.Name,
-		Text:       input.Text,
-		Rate:       input.Rate,
-		UpdatedAt:  time.Now(),
+		UserId:    userID,
+		LiquorID:  lId,
+		Text:      input.Text,
+		Rate:      input.Rate,
+		UpdatedAt: time.Now(),
 	}
 
 	//トランザクション(返り値を返さないといけない構造になっていたので、boolを返すことにした)
@@ -61,7 +60,7 @@ func (r *mutationResolver) PostBoard(ctx context.Context, input graphModel.Board
 		}
 		//ユーザーが存在しており、かつ評価値がある場合はupdateする
 		if userID != nil {
-			err = r.LiquorRepo.UpdateRate(ctx, input.LiquorID, *userID, input.Rate)
+			err = r.LiquorRepo.UpdateRate(ctx, lId, *userID, input.Rate)
 			if err != nil {
 				return false, err
 			}

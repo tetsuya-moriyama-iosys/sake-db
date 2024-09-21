@@ -67,15 +67,16 @@ type ComplexityRoot struct {
 	}
 
 	BoardPost struct {
-		CategoryID func(childComplexity int) int
-		ID         func(childComplexity int) int
-		LiquorID   func(childComplexity int) int
-		LiquorName func(childComplexity int) int
-		Name       func(childComplexity int) int
-		Rate       func(childComplexity int) int
-		Text       func(childComplexity int) int
-		UpdatedAt  func(childComplexity int) int
-		UserID     func(childComplexity int) int
+		CategoryID   func(childComplexity int) int
+		CategoryName func(childComplexity int) int
+		ID           func(childComplexity int) int
+		LiquorID     func(childComplexity int) int
+		LiquorName   func(childComplexity int) int
+		Rate         func(childComplexity int) int
+		Text         func(childComplexity int) int
+		UpdatedAt    func(childComplexity int) int
+		UserID       func(childComplexity int) int
+		UserName     func(childComplexity int) int
 	}
 
 	Category struct {
@@ -263,6 +264,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.BoardPost.CategoryID(childComplexity), true
 
+	case "BoardPost.categoryName":
+		if e.complexity.BoardPost.CategoryName == nil {
+			break
+		}
+
+		return e.complexity.BoardPost.CategoryName(childComplexity), true
+
 	case "BoardPost.id":
 		if e.complexity.BoardPost.ID == nil {
 			break
@@ -270,26 +278,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.BoardPost.ID(childComplexity), true
 
-	case "BoardPost.LiquorId":
+	case "BoardPost.liquorId":
 		if e.complexity.BoardPost.LiquorID == nil {
 			break
 		}
 
 		return e.complexity.BoardPost.LiquorID(childComplexity), true
 
-	case "BoardPost.LiquorName":
+	case "BoardPost.liquorName":
 		if e.complexity.BoardPost.LiquorName == nil {
 			break
 		}
 
 		return e.complexity.BoardPost.LiquorName(childComplexity), true
-
-	case "BoardPost.name":
-		if e.complexity.BoardPost.Name == nil {
-			break
-		}
-
-		return e.complexity.BoardPost.Name(childComplexity), true
 
 	case "BoardPost.rate":
 		if e.complexity.BoardPost.Rate == nil {
@@ -318,6 +319,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BoardPost.UserID(childComplexity), true
+
+	case "BoardPost.userName":
+		if e.complexity.BoardPost.UserName == nil {
+			break
+		}
+
+		return e.complexity.BoardPost.UserName(childComplexity), true
 
 	case "Category.children":
 		if e.complexity.Category.Children == nil {
@@ -991,15 +999,16 @@ type LiquorHistory{
 }
 
 type BoardPost{
- id:ID!
- name: String
- userId: String
- categoryId: Int!
- LiquorId:String!
- LiquorName:String!
- text: String!
- rate: Int
- updatedAt: DateTime!
+  id:ID!
+  userId: ID #名無しの場合もあるの
+  userName: String
+  categoryId: Int!
+  categoryName: String!
+  liquorId:ID!
+  liquorName:String!
+  text: String!
+  rate: Int
+  updatedAt: DateTime!
 }
 
 input BoardInput{
@@ -1725,47 +1734,6 @@ func (ec *executionContext) fieldContext_BoardPost_id(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _BoardPost_name(ctx context.Context, field graphql.CollectedField, obj *graphModel.BoardPost) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BoardPost_name(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_BoardPost_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BoardPost",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _BoardPost_userId(ctx context.Context, field graphql.CollectedField, obj *graphModel.BoardPost) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_BoardPost_userId(ctx, field)
 	if err != nil {
@@ -1791,10 +1759,51 @@ func (ec *executionContext) _BoardPost_userId(ctx context.Context, field graphql
 	}
 	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_BoardPost_userId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BoardPost",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BoardPost_userName(ctx context.Context, field graphql.CollectedField, obj *graphModel.BoardPost) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BoardPost_userName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BoardPost_userName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BoardPost",
 		Field:      field,
@@ -1851,8 +1860,52 @@ func (ec *executionContext) fieldContext_BoardPost_categoryId(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _BoardPost_LiquorId(ctx context.Context, field graphql.CollectedField, obj *graphModel.BoardPost) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BoardPost_LiquorId(ctx, field)
+func (ec *executionContext) _BoardPost_categoryName(ctx context.Context, field graphql.CollectedField, obj *graphModel.BoardPost) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BoardPost_categoryName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CategoryName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BoardPost_categoryName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BoardPost",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BoardPost_liquorId(ctx context.Context, field graphql.CollectedField, obj *graphModel.BoardPost) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BoardPost_liquorId(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1879,24 +1932,24 @@ func (ec *executionContext) _BoardPost_LiquorId(ctx context.Context, field graph
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_BoardPost_LiquorId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_BoardPost_liquorId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BoardPost",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _BoardPost_LiquorName(ctx context.Context, field graphql.CollectedField, obj *graphModel.BoardPost) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BoardPost_LiquorName(ctx, field)
+func (ec *executionContext) _BoardPost_liquorName(ctx context.Context, field graphql.CollectedField, obj *graphModel.BoardPost) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BoardPost_liquorName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1926,7 +1979,7 @@ func (ec *executionContext) _BoardPost_LiquorName(ctx context.Context, field gra
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_BoardPost_LiquorName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_BoardPost_liquorName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BoardPost",
 		Field:      field,
@@ -4585,16 +4638,18 @@ func (ec *executionContext) fieldContext_Query_board(ctx context.Context, field 
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_BoardPost_id(ctx, field)
-			case "name":
-				return ec.fieldContext_BoardPost_name(ctx, field)
 			case "userId":
 				return ec.fieldContext_BoardPost_userId(ctx, field)
+			case "userName":
+				return ec.fieldContext_BoardPost_userName(ctx, field)
 			case "categoryId":
 				return ec.fieldContext_BoardPost_categoryId(ctx, field)
-			case "LiquorId":
-				return ec.fieldContext_BoardPost_LiquorId(ctx, field)
-			case "LiquorName":
-				return ec.fieldContext_BoardPost_LiquorName(ctx, field)
+			case "categoryName":
+				return ec.fieldContext_BoardPost_categoryName(ctx, field)
+			case "liquorId":
+				return ec.fieldContext_BoardPost_liquorId(ctx, field)
+			case "liquorName":
+				return ec.fieldContext_BoardPost_liquorName(ctx, field)
 			case "text":
 				return ec.fieldContext_BoardPost_text(ctx, field)
 			case "rate":
@@ -4677,16 +4732,18 @@ func (ec *executionContext) fieldContext_Query_getMyBoard(ctx context.Context, f
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_BoardPost_id(ctx, field)
-			case "name":
-				return ec.fieldContext_BoardPost_name(ctx, field)
 			case "userId":
 				return ec.fieldContext_BoardPost_userId(ctx, field)
+			case "userName":
+				return ec.fieldContext_BoardPost_userName(ctx, field)
 			case "categoryId":
 				return ec.fieldContext_BoardPost_categoryId(ctx, field)
-			case "LiquorId":
-				return ec.fieldContext_BoardPost_LiquorId(ctx, field)
-			case "LiquorName":
-				return ec.fieldContext_BoardPost_LiquorName(ctx, field)
+			case "categoryName":
+				return ec.fieldContext_BoardPost_categoryName(ctx, field)
+			case "liquorId":
+				return ec.fieldContext_BoardPost_liquorId(ctx, field)
+			case "liquorName":
+				return ec.fieldContext_BoardPost_liquorName(ctx, field)
 			case "text":
 				return ec.fieldContext_BoardPost_text(ctx, field)
 			case "rate":
@@ -7178,22 +7235,27 @@ func (ec *executionContext) _BoardPost(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "name":
-			out.Values[i] = ec._BoardPost_name(ctx, field, obj)
 		case "userId":
 			out.Values[i] = ec._BoardPost_userId(ctx, field, obj)
+		case "userName":
+			out.Values[i] = ec._BoardPost_userName(ctx, field, obj)
 		case "categoryId":
 			out.Values[i] = ec._BoardPost_categoryId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "LiquorId":
-			out.Values[i] = ec._BoardPost_LiquorId(ctx, field, obj)
+		case "categoryName":
+			out.Values[i] = ec._BoardPost_categoryName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "LiquorName":
-			out.Values[i] = ec._BoardPost_LiquorName(ctx, field, obj)
+		case "liquorId":
+			out.Values[i] = ec._BoardPost_liquorId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "liquorName":
+			out.Values[i] = ec._BoardPost_liquorName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -9214,6 +9276,22 @@ func (ec *executionContext) marshalODateTime2ᚖtimeᚐTime(ctx context.Context,
 		return graphql.Null
 	}
 	res := graphql.MarshalTime(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalID(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalID(*v)
 	return res
 }
 
