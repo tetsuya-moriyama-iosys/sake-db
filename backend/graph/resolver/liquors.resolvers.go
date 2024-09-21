@@ -213,6 +213,11 @@ func (r *queryResolver) GetMyBoard(ctx context.Context, liquorID string) (*graph
 
 	board, err := r.LiquorRepo.BoardGetByUserAndLiquor(ctx, id, *uid)
 	if err != nil {
+		// 結果が0件の場合、nilを返す
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		// 他のエラーの場合はそのまま返す
 		return nil, err
 	}
 
