@@ -30,14 +30,15 @@ type BoardInput struct {
 }
 
 type BoardPost struct {
-	ID        string    `json:"id"`
-	LiquorID  string    `json:"liquorId"`
-	Name      *string   `json:"name,omitempty"`
-	UserID    *string   `json:"userId,omitempty"`
-	Text      string    `json:"text"`
-	Rate      *int      `json:"rate,omitempty"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	ID         string    `json:"id"`
+	Name       *string   `json:"name,omitempty"`
+	UserID     *string   `json:"userId,omitempty"`
+	CategoryID int       `json:"categoryId"`
+	LiquorID   string    `json:"LiquorId"`
+	LiquorName string    `json:"LiquorName"`
+	Text       string    `json:"text"`
+	Rate       *int      `json:"rate,omitempty"`
+	UpdatedAt  time.Time `json:"updatedAt"`
 }
 
 type Category struct {
@@ -48,7 +49,6 @@ type Category struct {
 	ImageURL    *string     `json:"imageUrl,omitempty"`
 	ImageBase64 *string     `json:"imageBase64,omitempty"`
 	VersionNo   *int        `json:"versionNo,omitempty"`
-	CreatedAt   *time.Time  `json:"createdAt,omitempty"`
 	UpdatedAt   *time.Time  `json:"updatedAt,omitempty"`
 	Children    []*Category `json:"children,omitempty"`
 }
@@ -72,7 +72,6 @@ type Liquor struct {
 	Description   *string          `json:"description,omitempty"`
 	ImageURL      *string          `json:"imageUrl,omitempty"`
 	ImageBase64   *string          `json:"imageBase64,omitempty"`
-	CreatedAt     time.Time        `json:"createdAt"`
 	UpdatedAt     time.Time        `json:"updatedAt"`
 	Rate5Users    []string         `json:"rate5Users"`
 	Rate4Users    []string         `json:"rate4Users"`

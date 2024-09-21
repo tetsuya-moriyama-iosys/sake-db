@@ -7,7 +7,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"log"
 )
 
 type LiquorsRepository struct {
@@ -26,17 +25,10 @@ func NewLiquorsRepository(db *db.DB) LiquorsRepository {
 	}
 }
 
-func (r *LiquorsRepository) GetLiquorById(ctx context.Context, id string) (*Model, error) {
-	// idをObjectIDに変換
-	objectID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, fmt.Errorf("無効なID形式: %s", id)
-	}
-
+func (r *LiquorsRepository) GetLiquorById(ctx context.Context, id primitive.ObjectID) (*Model, error) {
 	// コレクションを取得
 	var liquor Model
-	if err := r.collection.FindOne(ctx, bson.M{ID: objectID}).Decode(&liquor); err != nil {
-		log.Println("デコードエラー:", err)
+	if err := r.collection.FindOne(ctx, bson.M{ID: id}).Decode(&liquor); err != nil {
 		return nil, err
 	}
 

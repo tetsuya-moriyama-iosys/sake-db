@@ -14,7 +14,6 @@ type Liquor {
   description: String
   imageUrl: String        # S3に保存された画像のURL
   imageBase64: String     # 縮小された画像のBase64エンコードデータ
-  createdAt: DateTime!
   updatedAt: DateTime!
   rate5Users: [ID!]!
   rate4Users: [ID!]!
@@ -37,12 +36,13 @@ type LiquorHistory{
 
 type BoardPost{
  id:ID!
- liquorId:ID! #ユーザーページ内のデータ取得時に必要
  name: String
- userId: String
+ userId: ID
+ categoryId: Int!
+ LiquorId:ID! #ユーザーページ内のデータ取得時に必要
+ LiquorName:String!
  text: String!
  rate: Int
- createdAt: DateTime!
  updatedAt: DateTime!
 }
 
