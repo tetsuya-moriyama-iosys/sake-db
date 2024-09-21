@@ -116,7 +116,6 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 	//ここから新規・更新で処理を共通にする
 	//新バージョンNoを作成する
 	var newVersionNo int
-	var newCreatedAt time.Time
 	var id int
 	if request.Id != nil {
 		//更新の場合
@@ -135,7 +134,6 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 		}
 		id = maxId + 1
 		newVersionNo = 1 // 初回作成の場合、VersionNoを1に設定
-		newCreatedAt = time.Now()
 	}
 
 	//画像は毎回送信しないため、フォームが空であれば前回の値をそのまま代入
@@ -160,7 +158,6 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 		Description: request.Description,
 		ImageURL:    newImageURL,
 		ImageBase64: newBase64,
-		CreatedAt:   newCreatedAt,
 		UpdatedAt:   time.Now(),
 		VersionNo:   &newVersionNo,
 	}
