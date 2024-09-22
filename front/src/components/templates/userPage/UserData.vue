@@ -8,10 +8,14 @@
   <div>
     {{ userDetail.user.profile }}
   </div>
+  <div>
+    <UserPosts :evaluates="userDetail.evaluateList" />
+  </div>
 </template>
 <script setup lang="ts">
 import type { UserDetail } from '@/graphQL/User/user';
 import RadiusImage from '@/components/parts/common/RadiusImage.vue';
+import UserPosts from '@/components/templates/userPage/UserPosts.vue';
 
 interface Props {
   userDetail: UserDetail;
