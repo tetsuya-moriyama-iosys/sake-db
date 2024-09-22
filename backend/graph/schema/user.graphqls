@@ -1,3 +1,32 @@
+type UserPageData{
+  evaluateList:UserEvaluateList!
+  user:User!
+}
+
+type UserEvaluateList{
+  recentComments:[UserLiquor!]
+  rate5Liquors:[UserLiquor!]
+  rate4Liquors:[UserLiquor!]
+  rate3Liquors:[UserLiquor!]
+  rate2Liquors:[UserLiquor!]
+  rate1Liquors:[UserLiquor!]
+  noRateLiquors:[UserLiquor!] #評価なし
+}
+
+type UserLiquor {
+  id:ID!
+  liquorId: ID!
+  name: String!
+  categoryId: Int!
+  categoryName: String!
+  imageBase64: String     # 縮小された画像のBase64エンコードデータ
+  comment: String #評価がnullの場合は空になる
+  rate:Int #recentCommnts用 rate～系では常にnil(このためにリレーションを取るのがコストでしかないので)
+  updatedAt:DateTime!
+}
+
+
 extend type Query {
-  getUserById(id:String!): User!
+  getUserById(id:String!): User! #単純に外部公開可能なユーザー基本情報を取得する(使わない...？)
+  getUserByIdDetail(id:String!): UserPageData! #ユーザーページに表示するフルデータ
 }

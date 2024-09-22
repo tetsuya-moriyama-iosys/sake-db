@@ -119,3 +119,30 @@ type User struct {
 	Profile     *string `json:"profile,omitempty"`
 	ImageBase64 *string `json:"imageBase64,omitempty"`
 }
+
+type UserEvaluateList struct {
+	RecentComments []*UserLiquor `json:"recentComments,omitempty"`
+	Rate5Liquors   []*UserLiquor `json:"rate5Liquors,omitempty"`
+	Rate4Liquors   []*UserLiquor `json:"rate4Liquors,omitempty"`
+	Rate3Liquors   []*UserLiquor `json:"rate3Liquors,omitempty"`
+	Rate2Liquors   []*UserLiquor `json:"rate2Liquors,omitempty"`
+	Rate1Liquors   []*UserLiquor `json:"rate1Liquors,omitempty"`
+	NoRateLiquors  []*UserLiquor `json:"noRateLiquors,omitempty"`
+}
+
+type UserLiquor struct {
+	ID           string    `json:"id"`
+	LiquorID     string    `json:"liquorId"`
+	Name         string    `json:"name"`
+	CategoryID   int       `json:"categoryId"`
+	CategoryName string    `json:"categoryName"`
+	ImageBase64  *string   `json:"imageBase64,omitempty"`
+	Comment      *string   `json:"comment,omitempty"`
+	Rate         *int      `json:"rate,omitempty"`
+	UpdatedAt    time.Time `json:"updatedAt"`
+}
+
+type UserPageData struct {
+	EvaluateList *UserEvaluateList `json:"evaluateList"`
+	User         *User             `json:"user"`
+}

@@ -1,83 +1,11 @@
 package liquorRepository
 
 import (
-	"backend/graph/graphModel"
 	"context"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"time"
 )
-
-const (
-	BoardCollectionName = "liquors_boards"
-	LiquorID            = "liquor_id"
-	LiquorName          = "liquor_name"
-	UserID              = "user_id"
-	UserName            = "user_name"
-)
-
-// BoardModel Collectionに挿入するデータ
-type BoardModel struct {
-	ID        primitive.ObjectID  `bson:"_id,omitempty"`
-	LiquorID  primitive.ObjectID  `bson:"liquor_id"`
-	UserId    *primitive.ObjectID `bson:"user_id"`
-	Text      string              `bson:"text"`
-	Rate      *int                `bson:"rate"`
-	UpdatedAt time.Time           `bson:"updated_at"`
-}
-
-// BoardModelWithRelation リレーション込みのモデル(実際に取得してくるデータ)
-type BoardModelWithRelation struct {
-	ID           primitive.ObjectID  `bson:"_id,omitempty"`
-	CategoryID   int                 `bson:"category_id"`
-	CategoryName string              `bson:"category_name"`
-	LiquorID     primitive.ObjectID  `bson:"liquor_id"`
-	LiquorName   string              `bson:"liquor_name"`
-	UserId       *primitive.ObjectID `bson:"user_id"`
-	UserName     *string             `bson:"user_name"`
-	Text         string              `bson:"text"`
-	Rate         *int                `bson:"rate"`
-	UpdatedAt    time.Time           `bson:"updated_at"`
-}
-
-func (m *BoardModel) ToGraphQL() *graphModel.BoardPost {
-	//userはnilの可能性があり、そのままObjectIDを変換して*stringに代入できないので変換
-	var userId *string
-	if m.UserId != nil {
-		id := m.UserId.Hex()
-		userId = &id
-	}
-	return &graphModel.BoardPost{
-		ID:        m.ID.Hex(),
-		UserID:    userId,
-		LiquorID:  m.LiquorID.Hex(),
-		Text:      m.Text,
-		Rate:      m.Rate,
-		UpdatedAt: m.UpdatedAt,
-	}
-}
-
-func (m *BoardModelWithRelation) ToGraphQL() *graphModel.BoardPost {
-	//userはnilの可能性があり、そのままObjectIDを変換して*stringに代入できないので変換
-	var userId *string
-	if m.UserId != nil {
-		id := m.UserId.Hex()
-		userId = &id
-	}
-	return &graphModel.BoardPost{
-		ID:           m.ID.Hex(),
-		UserName:     m.UserName,
-		UserID:       userId,
-		CategoryID:   m.CategoryID,
-		CategoryName: m.CategoryName,
-		LiquorID:     m.LiquorID.Hex(),
-		LiquorName:   m.LiquorName,
-		Text:         m.Text,
-		Rate:         m.Rate,
-		UpdatedAt:    m.UpdatedAt,
-	}
-}
 
 func (r *LiquorsRepository) BoardList(ctx context.Context, id primitive.ObjectID) ([]*BoardModelWithRelation, error) {
 	// パイプラインを定義
@@ -124,6 +52,7 @@ func (r *LiquorsRepository) BoardList(ctx context.Context, id primitive.ObjectID
 
 	// パイプラインを実行
 	cursor, err := r.boardCollection.Aggregate(ctx, pipeline)
+
 	if err != nil {
 		return nil, err
 	}
@@ -138,6 +67,100 @@ func (r *LiquorsRepository) BoardList(ctx context.Context, id primitive.ObjectID
 	}
 
 	return boards, nil
+}
+
+// BoardListByUser ユーザーに紐づく掲示板投稿履歴を取得する。評価別および最近のものを取得
+func (r *LiquorsRepository) BoardListByUser(ctx context.Context, uId primitive.ObjectID, limit int) (*BoardListResponse, error) {
+	pipeline := bson.A{
+		bson.M{"$match": bson.M{UserID: uId}}, // フィルタ
+		bson.M{"$facet": bson.M{
+			"groupedByRate": bson.A{
+				bson.M{"$group": bson.M{
+					"_id":   "$rate", // rateごとにグループ化
+					"posts": bson.M{"$push": "$$ROOT"},
+				}},
+				bson.M{"$lookup": bson.M{
+					"from":         CollectionName,    // 結合するコレクション
+					"localField":   "posts.liquor_id", // groupされたドキュメントのliquor_id
+					"foreignField": "_id",             // Liquorコレクションの_idフィールド
+					"as":           "liquorDetails",   // 結合結果をliquorDetailsフィールドに格納
+				}},
+				// liquorDetailsをdocuments内のliquorフィールドとして追加
+				bson.M{"$addFields": bson.M{
+					"posts": bson.M{
+						"$map": bson.M{
+							"input": "$posts",
+							"as":    "post",
+							"in": bson.M{
+								"_id":         "$$post._id",
+								"category_id": "$$post.category_id",
+								"liquor_id":   "$$post.liquor_id",
+								"liquor_name": "$$post.liquor_name",
+								"text":        "$$post.text",
+								"updated_at":  "$$post.updated_at",
+								// liquorDetailsの最初の要素をliquorフィールドとして埋め込む
+								"liquor": bson.M{
+									"$arrayElemAt": bson.A{"$liquorDetails", 0},
+								},
+							},
+						},
+					},
+				}},
+				// liquorDetailsを除外する
+				bson.M{"$project": bson.M{
+					"liquorDetails":           0, // liquorDetailsフィールドを除外
+					"posts.category_id":       0,
+					"posts.liquor_id":         0,
+					"posts.liquor_name":       0,
+					"posts.liquor.version_no": 0,
+				}},
+			},
+			"recentPosts": bson.A{
+				bson.M{"$sort": bson.M{ID: -1}}, // 降順にソート
+				bson.M{"$limit": limit},         // 直近n件を取得
+				// liquor_idでLiquorコレクションを$lookup
+				bson.M{"$lookup": bson.M{
+					"from":         CollectionName,  // 結合するコレクション
+					"localField":   "liquor_id",     // recentDocuments内のliquor_id
+					"foreignField": "_id",           // Liquorコレクションの_idフィールド
+					"as":           "liquorDetails", // 結合結果をliquorDetailsフィールドに格納
+				}},
+				// liquorDetailsをrecentDocuments内のliquorフィールドとして追加
+				bson.M{"$addFields": bson.M{
+					"liquor": bson.M{
+						"$arrayElemAt": bson.A{"$liquorDetails", 0}, // liquorDetailsの最初の要素をliquorフィールドとして埋め込む
+					},
+				}},
+				// liquorDetailsを除外する
+				bson.M{"$project": bson.M{
+					"liquorDetails":     0, // liquorDetailsフィールドを除外
+					"category_id":       0,
+					"liquor_id":         0,
+					"liquor_name":       0,
+					"user_id":           0,
+					"user_name":         0,
+					"liquor.version_no": 0,
+				}},
+			},
+		}},
+	}
+
+	// MongoDBの集計クエリを実行
+	cursor, err := r.boardCollection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	// クエリ結果を詰め替え
+	var result *BoardListResponse
+	if cursor.Next(ctx) {
+		if err := cursor.Decode(&result); err != nil {
+			return nil, err
+		}
+	}
+
+	return result, nil
 }
 
 // BoardGetByUserAndLiquor ユーザーIDとLiquorIDの組み合わせで、一意のモデルを取得する(編集用)

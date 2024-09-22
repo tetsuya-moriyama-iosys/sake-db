@@ -4,22 +4,21 @@
 
 import { ref, onMounted, type Ref } from 'vue';
 import useQuery from '@/funcs/composable/useQuery';
+import type { DocumentNode } from 'graphql/index';
 import {
   type AuthUser,
+  GET_MY_USERDATA_FULL,
   type GetUserdataResponse,
-  type UserFullData,
-} from '@/graphQL/User/user';
-import type { DocumentNode } from 'graphql/index';
-import { GET_MY_USERDATA_FULL } from '@/graphQL/Auth/auth';
+} from '@/graphQL/Auth/auth';
 
-function core<T extends AuthUser>(query: DocumentNode) {
-  const user: Ref<T | null | undefined> = ref<T | null>();
-  const { fetch } = useQuery<GetUserdataResponse<T>>(query, {
+function core(query: DocumentNode) {
+  const user: Ref<AuthUser | null | undefined> = ref<AuthUser | null>();
+  const { fetch } = useQuery<GetUserdataResponse>(query, {
     isAuth: true,
   });
 
   const fetchUser = async (): Promise<void> => {
-    const response: GetUserdataResponse<T> = await fetch();
+    const response: GetUserdataResponse = await fetch();
     user.value = response.getUser;
   };
 
@@ -29,7 +28,7 @@ function core<T extends AuthUser>(query: DocumentNode) {
 }
 
 export function useUser() {
-  const { user } = core<UserFullData>(GET_MY_USERDATA_FULL);
+  const { user } = core(GET_MY_USERDATA_FULL);
 
   return { user };
 }

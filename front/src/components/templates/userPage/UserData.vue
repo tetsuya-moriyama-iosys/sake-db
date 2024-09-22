@@ -1,11 +1,30 @@
-<template>ユーザーデータ 名前：{{ props.user.name }}</template>
+<template>
+  <RadiusImage
+    v-if="userDetail.user.imageBase64"
+    :imageSrc="userDetail.user.imageBase64"
+    radius="50px"
+  />
+  {{ userDetail.user.name }}
+  <div>
+    {{ userDetail.user.profile }}
+  </div>
+  <div>
+    <UserPosts :evaluates="userDetail.evaluateList" />
+  </div>
+  <div class="user-recent-posts mt-5">
+    <UserRecentPosts :recent-posts="userDetail.evaluateList.recentComments" />
+  </div>
+</template>
 <script setup lang="ts">
-import type { User } from '@/graphQL/User/user';
+import type { UserDetail } from '@/graphQL/User/user';
+import RadiusImage from '@/components/parts/common/RadiusImage.vue';
+import UserPosts from '@/components/templates/userPage/UserPosts.vue';
+import UserRecentPosts from '@/components/templates/userPage/UserRecentPosts.vue';
 
 interface Props {
-  user: User;
+  userDetail: UserDetail;
 }
 
-const props = defineProps<Props>();
+const { userDetail } = defineProps<Props>();
 </script>
 <style scoped></style>

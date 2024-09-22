@@ -1,29 +1,34 @@
 <template>
-  <UserData v-if="user" :user="user" />
+  <UserData v-if="userDetail" :userDetail="userDetail" />
 </template>
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 import { ref, watch } from 'vue';
 import useQuery from '@/funcs/composable/useQuery';
 import {
-  GET_USERDATA,
-  type GetUserByIdResponse,
-  type User,
+  GET_USERDATA_FULL,
+  type GetUserDetailResponse,
+  type UserDetail,
 } from '@/graphQL/User/user';
 import UserData from '@/components/templates/userPage/UserData.vue';
 
-const user = ref<User>();
+const userDetail = ref<UserDetail>();
 
 const route = useRoute();
 
-const { fetch } = useQuery<GetUserByIdResponse>(GET_USERDATA);
+const { fetch } = useQuery<GetUserDetailResponse>(GET_USERDATA_FULL);
 
 // データフェッチ
 const fetchData = async (id: string): Promise<void> => {
-  const { getUserById: response } = await fetch({
-    id: id,
-  });
-  user.value = response;
+  const { getUserByIdDetail: response } = await fetch(
+    {
+      id: id,
+    },
+    {
+      fetchPolicy: 'no-cache', // なぜかこれを付けないとrateがnullになる(キャッシュが原因なのか...？)
+    },
+  );
+  userDetail.value = response;
 };
 
 watch(

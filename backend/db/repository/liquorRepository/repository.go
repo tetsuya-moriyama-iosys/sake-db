@@ -35,6 +35,28 @@ func (r *LiquorsRepository) GetLiquorById(ctx context.Context, id primitive.Obje
 	return &liquor, nil
 }
 
+func (r *LiquorsRepository) GetLiquorsByIds(ctx context.Context, ids []primitive.ObjectID) ([]Model, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	// コレクションからフィルタに一致するドキュメントを取得
+	cursor, err := r.collection.Find(ctx, bson.M{ID: bson.M{"$in": ids}})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	// 結果を格納するスライス
+	var liquors []Model
+
+	// 取得したドキュメントをスライスにデコード
+	if err = cursor.All(ctx, &liquors); err != nil {
+		return nil, err
+	}
+
+	return liquors, nil
+}
+
 func (r *LiquorsRepository) GetRandomLiquors(ctx context.Context, limit int) ([]*Model, error) {
 	// $sampleパイプラインを使ってランダムに指定件数を取得
 	cursor, err := r.collection.Aggregate(ctx, mongo.Pipeline{

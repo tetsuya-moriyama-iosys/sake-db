@@ -221,5 +221,10 @@ func (r *queryResolver) GetMyBoard(ctx context.Context, liquorID string) (*graph
 		return nil, err
 	}
 
+	//対象が存在しなければ、普通にnilを返す
+	if board == nil {
+		return nil, nil
+	}
+
 	return board.ToGraphQL(), nil
 }
