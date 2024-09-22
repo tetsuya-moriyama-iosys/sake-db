@@ -19,21 +19,43 @@
     <MenuItems
       class="absolute right-0 mt-2 py-2 w-48 bg-white rounded-md shadow-xl"
     >
-      <MenuItem class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
-        <router-link :to="{ name: 'Register' }">新規登録</router-link>
+      <MenuItem
+        v-slot="{ close }"
+        class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
+      >
+        <span>
+          <router-link :to="{ name: 'Register' }" @click="close()"
+            >新規登録</router-link
+          ></span
+        >
       </MenuItem>
       <MenuItem
         v-if="!userStore.isLogin"
+        v-slot="{ close }"
         class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
       >
-        <router-link :to="{ name: 'Login' }">ログイン</router-link>
+        <span>
+          <router-link :to="{ name: 'Login' }" @click="close"
+            >ログイン</router-link
+          >
+        </span>
       </MenuItem>
       <div v-else>
-        <MenuItem class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
-          <router-link :to="{ name: 'MyPageIndex' }">マイページ</router-link>
+        <MenuItem
+          class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
+          v-slot="{ close }"
+        >
+          <span>
+            <router-link :to="{ name: 'MyPageIndex' }" @click="close"
+              >マイページ</router-link
+            >
+          </span>
         </MenuItem>
-        <MenuItem class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
-          <span @click="handleLogout">ログアウト</span>
+        <MenuItem
+          class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
+          v-slot="{ close }"
+        >
+          <span @click="handleLogout(close)">ログアウト</span>
         </MenuItem>
       </div>
     </MenuItems>
@@ -48,8 +70,10 @@ import { useRouter } from 'vue-router';
 const userStore = useUserStore();
 const router = useRouter();
 
-const handleLogout = () => {
-  userStore.logout();
+const handleLogout = (close: () => void) => {
+  userStore.logout(); //ログアウト処理を実行する
+  close(); //メニューを閉じる
+  //routerはコンポーネントからしか呼び出せない
   router.push({ name: 'Index' });
 };
 </script>

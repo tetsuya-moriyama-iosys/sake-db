@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
 import {
+  type AuthUser,
   GET_USER,
   type GetUserResponse,
   type LoginResult,
 } from '@/graphQL/Auth/auth';
-import type { AuthUser } from '@/graphQL/User/user';
 import useQuery from '@/funcs/composable/useQuery';
 
 export const USER_STORE = 'user_store';
@@ -24,7 +24,9 @@ export const useUserStore = defineStore({
     logout() {
       //ページ遷移はrouterを使って行うため、ストアで実行不可。あくまでも状態のみを変える。
       localStorage.removeItem(import.meta.env.VITE_JWT_TOKEN_NAME);
+      //ストア情報のクリア
       this.isLogin = false;
+      this.user = null;
     },
     //画面リロード時などにユーザーデータを取得するために使用
     async restoreUserData() {
