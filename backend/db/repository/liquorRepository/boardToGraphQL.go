@@ -69,6 +69,7 @@ func (m *LiquorDetail) ToGraphQL() *graphModel.UserLiquor {
 }
 
 func (m *Post) ToGraphQL() *graphModel.UserLiquor {
+	comment := m.Text
 	return &graphModel.UserLiquor{
 		ID:           m.ID.Hex(),
 		LiquorID:     m.Liquor.ID.Hex(),
@@ -76,7 +77,7 @@ func (m *Post) ToGraphQL() *graphModel.UserLiquor {
 		CategoryID:   m.Liquor.CategoryID,
 		CategoryName: m.Liquor.CategoryName,
 		ImageBase64:  m.Liquor.ImageBase64,
-		Comment:      &m.Text,
+		Comment:      &comment,
 		Rate:         m.Rate,
 		UpdatedAt:    m.UpdatedAt,
 	}

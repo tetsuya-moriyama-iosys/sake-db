@@ -5,11 +5,13 @@
       <router-link
         :to="{ name: 'LiquorDetail', params: { id: post.liquorId } }"
       >
-        <img
-          v-if="post.imageBase64"
-          :src="`data:image/jpg;base64,${post.imageBase64}`"
-          :alt="post.name"
-        />
+        <div class="img-container">
+          <img
+            v-if="post.imageBase64"
+            :src="`data:image/jpg;base64,${post.imageBase64}`"
+            :alt="post.name"
+          />
+        </div>
       </router-link>
       <div class="detail flex-1">
         <router-link
@@ -32,11 +34,12 @@
       </div>
     </li>
   </ul>
-  <div>まだ感想の投稿がありません</div>
+  <div v-else>まだ感想の投稿がありません</div>
 </template>
 
 <script setup lang="ts">
 import type { UserLiquor } from '@/graphQL/User/user';
+import DisplayStar from '@/components/parts/common/DisplayStar.vue';
 
 interface Props {
   recentPosts: UserLiquor[] | null;
@@ -50,23 +53,38 @@ div.title {
   margin-left: 5px;
   border-left: 5px solid black;
   padding-left: 5px;
+  font-size: 125%;
+  font-weight: bold;
 }
 
-img {
-  max-height: 100px;
-}
+li {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #777;
 
-div.detail {
-  p.category-name {
-    font-size: 75%;
-    text-decoration: underline;
+  div.img-container {
+    width: 100px;
   }
-  p.title {
-    text-decoration: underline;
-    font-weight: bold;
+
+  img {
+    max-height: 100px;
+    width: 100px;
   }
-  div.comment {
-    font-size: 85%;
+
+  div.detail {
+    p.category-name {
+      font-size: 75%;
+      text-decoration: underline;
+    }
+
+    p.title {
+      text-decoration: underline;
+      font-weight: bold;
+    }
+
+    div.comment {
+      font-size: 85%;
+    }
   }
 }
 </style>

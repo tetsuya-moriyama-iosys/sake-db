@@ -20,9 +20,14 @@ const { fetch } = useQuery<GetUserDetailResponse>(GET_USERDATA_FULL);
 
 // データフェッチ
 const fetchData = async (id: string): Promise<void> => {
-  const { getUserByIdDetail: response } = await fetch({
-    id: id,
-  });
+  const { getUserByIdDetail: response } = await fetch(
+    {
+      id: id,
+    },
+    {
+      fetchPolicy: 'no-cache', // なぜかこれを付けないとrateがnullになる(キャッシュが原因なのか...？)
+    },
+  );
   userDetail.value = response;
 };
 

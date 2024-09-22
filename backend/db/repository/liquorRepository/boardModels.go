@@ -72,6 +72,6 @@ type BoardGroupByRate struct {
 
 // BoardListResponse 返却用の構造体
 type BoardListResponse struct {
-	GroupedByRate []BoardGroupByRate `json:"groupedByRate"` // 評価別の投稿
-	RecentPosts   []Post             `json:"recentPosts"`   // 直近の投稿
+	GroupedByRate []BoardGroupByRate `bson:"groupedByRate"` // 評価別の投稿
+	RecentPosts   []Post             `bson:"recentPosts"`   // 直近の投稿
 }
