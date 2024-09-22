@@ -11,11 +11,15 @@
   <div>
     <UserPosts :evaluates="userDetail.evaluateList" />
   </div>
+  <div class="user-recent-posts mt-5">
+    <UserRecentPosts :recent-posts="userDetail.evaluateList.recentComments" />
+  </div>
 </template>
 <script setup lang="ts">
 import type { UserDetail } from '@/graphQL/User/user';
 import RadiusImage from '@/components/parts/common/RadiusImage.vue';
 import UserPosts from '@/components/templates/userPage/UserPosts.vue';
+import UserRecentPosts from '@/components/templates/userPage/UserRecentPosts.vue';
 
 interface Props {
   userDetail: UserDetail;
