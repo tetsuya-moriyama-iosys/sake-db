@@ -1,0 +1,16 @@
+# ブックマークリストに表示するユーザー情報(将来的に統計情報とか出す構想あるのでインターフェースは分離しておく)
+type BookMarkListUser{
+  userId:ID!
+  name:String!
+  updatedAt:DateTime!
+}
+
+extend type Query {
+  getRecommendLiquorList(id:String!): [Liquor!]! @auth #ブックマークユーザーを考慮したランダムリスト
+  getBookMarkList(id:String!): [BookMarkListUser!] @auth
+}
+
+extend type Mutation {
+  addBookMark(id:String!): Boolean! @auth
+  removeBookMark(id:String!): Boolean! @auth
+}

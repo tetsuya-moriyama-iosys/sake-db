@@ -1,6 +1,7 @@
 package resolver
 
 import (
+	"backend/db/repository/bookmarkRepository"
 	"backend/db/repository/categoriesRepository"
 	"backend/db/repository/liquorRepository"
 	"backend/db/repository/userRepository"
@@ -15,6 +16,7 @@ type Resolver struct {
 	CategoryRepo categoriesRepository.CategoryRepository
 	LiquorRepo   liquorRepository.LiquorsRepository
 	UserRepo     userRepository.UsersRepository
+	BookmarkRepo bookmarkRepository.BookMarkRepository
 }
 
 func NewResolver(db *mongo.Database, categoryRepo categoriesRepository.CategoryRepository, liquorRepo liquorRepository.LiquorsRepository, userRepo userRepository.UsersRepository) *Resolver {

@@ -111,7 +111,7 @@ func (r *queryResolver) GetUser(ctx context.Context) (*graphModel.User, error) {
 	}
 
 	// ユーザー情報をデータベースから取得する処理
-	user, err := r.UserRepo.GetById(ctx, *userID)
+	user, err := r.UserRepo.GetById(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
