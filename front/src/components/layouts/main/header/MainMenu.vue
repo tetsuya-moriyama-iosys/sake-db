@@ -23,10 +23,8 @@
         v-slot="{ close }"
         class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
       >
-        <span>
-          <router-link :to="{ name: 'Register' }" @click="close()"
-            >新規登録</router-link
-          ></span
+        <router-link :to="{ name: 'Register' }"
+          ><div @click="close()">新規登録</div></router-link
         >
       </MenuItem>
       <MenuItem
@@ -34,28 +32,24 @@
         v-slot="{ close }"
         class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
       >
-        <span>
-          <router-link :to="{ name: 'Login' }" @click="close"
-            >ログイン</router-link
-          >
-        </span>
+        <router-link :to="{ name: 'Login' }"
+          ><div @click="close()">ログイン</div></router-link
+        >
       </MenuItem>
       <div v-else>
         <MenuItem
           class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
           v-slot="{ close }"
         >
-          <span>
-            <router-link :to="{ name: 'MyPageIndex' }" @click="close"
-              >マイページ</router-link
-            >
-          </span>
+          <router-link :to="{ name: 'MyPageIndex' }"
+            ><div @click="close()">マイページ</div></router-link
+          >
         </MenuItem>
         <MenuItem
           class="block px-4 py-2 text-gray-800 hover:bg-gray-100"
           v-slot="{ close }"
         >
-          <span @click="handleLogout(close)">ログアウト</span>
+          <div @click="handleLogout(close)">ログアウト</div>
         </MenuItem>
       </div>
     </MenuItems>

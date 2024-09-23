@@ -2,12 +2,13 @@ package bookmarkRepository
 
 import (
 	"backend/db"
+	"backend/db/repository/agg"
+	"backend/db/repository/userRepository"
 	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/net/context"
-	"log"
 )
 
 type BookMarkRepository struct {
@@ -33,19 +34,37 @@ func filter(uid primitive.ObjectID, targetId primitive.ObjectID) bson.M {
 func (r *BookMarkRepository) Find(ctx context.Context, uid primitive.ObjectID, targetId primitive.ObjectID) (*Model, error) {
 	// クエリを実行し、ドキュメントが存在するか確認
 	var result *Model
-	f := bson.M{
-		USER_ID:            uid,
-		BOOKMARKED_USER_ID: targetId,
-	}
-	log.Println(uid.Hex())
-	log.Println(targetId.Hex())
-	log.Println(r.collection)
-	d := r.collection.FindOne(ctx, f)
-	log.Println(d)
 	err := r.collection.FindOne(ctx, filter(uid, targetId)).Decode(&result) //取得しデコードする
-	log.Println(err)
 	//エラーごと返す(エラーならresultがnilのはず)
 	return result, err
+}
+
+func (r *BookMarkRepository) List(ctx context.Context, uid primitive.ObjectID) ([]*BookMarkListUser, error) {
+	// パイプラインを定義
+	pipeline := bson.A{
+		// ドキュメントをフィルタリング
+		agg.Where(USER_ID, uid),
+		agg.LookUp(userRepository.CollectionName, USER_ID, userRepository.ID, "user_data"),
+		agg.GetFirst("user_data"),
+		//projectで整形する
+		bson.M{"$project": bson.M{
+			USER_ID:   "$user_data." + userRepository.ID, // usersコレクションからのuser_name
+			USER_NAME: "$user_data." + userRepository.NAME,
+		}},
+	}
+	// パイプラインを実行
+	cursor, err := r.collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+	// 結果を格納するスライス
+	var bList []*BookMarkListUser
+	// 取得したドキュメントをスライスにデコード
+	if err = cursor.All(ctx, &bList); err != nil {
+		return nil, err
+	}
+	return bList, nil
 }
 
 func (r *BookMarkRepository) Add(ctx context.Context, uid primitive.ObjectID, targetId primitive.ObjectID) error {

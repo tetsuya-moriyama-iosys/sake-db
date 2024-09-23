@@ -45,7 +45,7 @@ type BoardPost struct {
 type BookMarkListUser struct {
 	UserID    string    `json:"userId"`
 	Name      string    `json:"name"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 type Category struct {

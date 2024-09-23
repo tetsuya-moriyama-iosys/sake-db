@@ -11,6 +11,16 @@ export interface RemoveResponse {
   readonly removeBookMark: boolean;
 }
 
+export const LIST: DocumentNode = gql`
+  query {
+    getBookMarkList {
+      userId
+      name
+      updatedAt
+    }
+  }
+`;
+
 export const CHECK: DocumentNode = gql`
   query ($id: String!) {
     getIsBookMarked(id: $id)

@@ -34,12 +34,12 @@ type Model struct {
 	Description  *string            `bson:"description"`
 	ImageURL     *string            `bson:"image_url"`
 	ImageBase64  *string            `bson:"image_base64"`
-	UpdatedAt    time.Time          `bson:"updated_at"`
 	Rate5Users   []string           `bson:"rate5_users"`
 	Rate4Users   []string           `bson:"rate4_users"`
 	Rate3Users   []string           `bson:"rate3_users"`
 	Rate2Users   []string           `bson:"rate2_users"`
 	Rate1Users   []string           `bson:"rate1_users"`
+	UpdatedAt    time.Time          `bson:"updated_at"`
 	VersionNo    *int               `bson:"version_no"`
 }
 

@@ -19,17 +19,22 @@ type Model struct {
 	BookmarkedUserId primitive.ObjectID `bson:"bookmarked_user_id"`
 }
 
-// BookMarkListUser 構造体の定義
+// BookMarkListUser ユーザーページのブックマークリストの構造体
 type BookMarkListUser struct {
-	//ID          int       `json:"id" bson:"_id"`
-	UserId   string `json:"userId" bson:"user_id"`
-	UserName string `json:"userName" bson:"user_name"`
-	//BookmarkedUserId      string      `json:"bookmarkedUserId" bson:"bookmarked_user_id"`
+	UserId   primitive.ObjectID `json:"userId" bson:"user_id"`
+	UserName string             `json:"userName" bson:"user_name"`
 }
 
-func (m *BookMarkListUser) ToGraphQL() *graphModel.BookMarkListUser {
-	return &graphModel.BookMarkListUser{
-		UserID: m.UserId,
-		Name:   m.UserName,
+type BookMarkList []*BookMarkListUser
+
+func (l BookMarkList) ToGraphQL() []*graphModel.BookMarkListUser {
+	var result []*graphModel.BookMarkListUser
+	for _, b := range l {
+		result = append(result, &graphModel.BookMarkListUser{
+			UserID:    b.UserId.Hex(),
+			Name:      b.UserName,
+			CreatedAt: b.UserId.Timestamp(),
+		})
 	}
+	return result
 }

@@ -2,13 +2,13 @@
 type BookMarkListUser{
   userId:ID!
   name:String!
-  updatedAt:DateTime!
+  createdAt:DateTime!
 }
 
 extend type Query {
   getIsBookMarked(id:String!):Boolean! @auth #対象ユーザーがブックマーク済かどうか判定する
-  getRecommendLiquorList(id:String!): [Liquor!]! @auth #ブックマークユーザーを考慮したランダムリスト
-  getBookMarkList(id:String!): [BookMarkListUser!] @auth
+  getRecommendLiquorList: [Liquor!]! @auth #ブックマークユーザーを考慮したランダムリスト
+  getBookMarkList: [BookMarkListUser!] @auth
 }
 
 extend type Mutation {
