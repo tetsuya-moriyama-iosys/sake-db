@@ -9,10 +9,25 @@ import (
 )
 
 // GetUserId コンテキストからユーザーIDを取得する
-func GetUserId(ctx context.Context) (*primitive.ObjectID, error) {
+func GetUserId(ctx context.Context) (primitive.ObjectID, error) {
+	zero := primitive.ObjectID{}
 	userID := ctx.Value(middlewares.UserContextKey)
 	if userID == nil {
-		return nil, errors.New("unauthorized")
+		return zero, errors.New("unauthorized")
+	}
+	userIdObj, err := primitive.ObjectIDFromHex(userID.(string))
+	if err != nil {
+		return zero, err
+	}
+
+	return userIdObj, nil
+}
+
+// GetUserIdNullable nilを返す必要がある場合はこちらを選択
+func GetUserIdNullable(ctx context.Context) (*primitive.ObjectID, error) {
+	userID := ctx.Value(middlewares.UserContextKey)
+	if userID == nil {
+		return nil, nil
 	}
 	userIdObj, err := primitive.ObjectIDFromHex(userID.(string))
 	if err != nil {
@@ -23,7 +38,7 @@ func GetUserId(ctx context.Context) (*primitive.ObjectID, error) {
 }
 
 func GetUserData(ctx context.Context, repo userRepository.UsersRepository) (*userRepository.Model, error) {
-	userID, _ := GetUserId(ctx) //認証済みかどうかは考慮しないため空でも良いことにする
+	userID, _ := GetUserIdNullable(ctx) //認証済みかどうかは考慮しないため空でも良いことにする
 	if userID == nil {
 		return nil, nil
 	}
@@ -34,9 +49,9 @@ func GetUserData(ctx context.Context, repo userRepository.UsersRepository) (*use
 	return user, nil
 }
 
-// 単にログイン済かどうかみたい時
+// IsLogin 単にログイン済かどうか見たい時
 func IsLogin(ctx context.Context) bool {
-	userId, _ := GetUserId(ctx)
+	userId, _ := GetUserIdNullable(ctx)
 	if userId == nil {
 		return false
 	}

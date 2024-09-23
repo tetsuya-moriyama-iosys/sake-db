@@ -42,6 +42,12 @@ type BoardPost struct {
 	UpdatedAt    time.Time `json:"updatedAt"`
 }
 
+type BookMarkListUser struct {
+	UserID    string    `json:"userId"`
+	Name      string    `json:"name"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
 type Category struct {
 	ID          int         `json:"id"`
 	Name        string      `json:"name"`

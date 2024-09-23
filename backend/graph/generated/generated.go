@@ -79,6 +79,12 @@ type ComplexityRoot struct {
 		UserName     func(childComplexity int) int
 	}
 
+	BookMarkListUser struct {
+		Name      func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
+		UserID    func(childComplexity int) int
+	}
+
 	Category struct {
 		Children    func(childComplexity int) int
 		Description func(childComplexity int) int
@@ -131,26 +137,31 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		Login        func(childComplexity int, input graphModel.LoginInput) int
-		PostBoard    func(childComplexity int, input graphModel.BoardInput) int
-		RegisterUser func(childComplexity int, input graphModel.RegisterInput) int
-		UpdateUser   func(childComplexity int, input graphModel.RegisterInput) int
+		AddBookMark    func(childComplexity int, id string) int
+		Login          func(childComplexity int, input graphModel.LoginInput) int
+		PostBoard      func(childComplexity int, input graphModel.BoardInput) int
+		RegisterUser   func(childComplexity int, input graphModel.RegisterInput) int
+		RemoveBookMark func(childComplexity int, id string) int
+		UpdateUser     func(childComplexity int, input graphModel.RegisterInput) int
 	}
 
 	Query struct {
-		Board               func(childComplexity int, liquorID string, page *int) int
-		Categories          func(childComplexity int) int
-		Category            func(childComplexity int, id int) int
-		Data                func(childComplexity int, name string, limit *int) int
-		GetMyBoard          func(childComplexity int, liquorID string) int
-		GetUser             func(childComplexity int) int
-		GetUserByID         func(childComplexity int, id string) int
-		GetUserByIDDetail   func(childComplexity int, id string) int
-		Histories           func(childComplexity int, id int) int
-		Liquor              func(childComplexity int, id string) int
-		LiquorHistories     func(childComplexity int, id string) int
-		ListFromCategory    func(childComplexity int, categoryID int) int
-		RandomRecommendList func(childComplexity int, limit int) int
+		Board                  func(childComplexity int, liquorID string, page *int) int
+		Categories             func(childComplexity int) int
+		Category               func(childComplexity int, id int) int
+		Data                   func(childComplexity int, name string, limit *int) int
+		GetBookMarkList        func(childComplexity int, id string) int
+		GetIsBookMarked        func(childComplexity int, id string) int
+		GetMyBoard             func(childComplexity int, liquorID string) int
+		GetRecommendLiquorList func(childComplexity int, id string) int
+		GetUser                func(childComplexity int) int
+		GetUserByID            func(childComplexity int, id string) int
+		GetUserByIDDetail      func(childComplexity int, id string) int
+		Histories              func(childComplexity int, id int) int
+		Liquor                 func(childComplexity int, id string) int
+		LiquorHistories        func(childComplexity int, id string) int
+		ListFromCategory       func(childComplexity int, categoryID int) int
+		RandomRecommendList    func(childComplexity int, limit int) int
 	}
 
 	User struct {
@@ -193,11 +204,16 @@ type MutationResolver interface {
 	RegisterUser(ctx context.Context, input graphModel.RegisterInput) (*graphModel.User, error)
 	UpdateUser(ctx context.Context, input graphModel.RegisterInput) (bool, error)
 	Login(ctx context.Context, input graphModel.LoginInput) (*graphModel.AuthPayload, error)
+	AddBookMark(ctx context.Context, id string) (bool, error)
+	RemoveBookMark(ctx context.Context, id string) (bool, error)
 	PostBoard(ctx context.Context, input graphModel.BoardInput) (bool, error)
 }
 type QueryResolver interface {
 	Data(ctx context.Context, name string, limit *int) (*graphModel.AffiliateData, error)
 	GetUser(ctx context.Context) (*graphModel.User, error)
+	GetIsBookMarked(ctx context.Context, id string) (bool, error)
+	GetRecommendLiquorList(ctx context.Context, id string) ([]*graphModel.Liquor, error)
+	GetBookMarkList(ctx context.Context, id string) ([]*graphModel.BookMarkListUser, error)
 	Category(ctx context.Context, id int) (*graphModel.Category, error)
 	Categories(ctx context.Context) ([]*graphModel.Category, error)
 	Histories(ctx context.Context, id int) (*graphModel.CategoryHistory, error)
@@ -355,6 +371,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BoardPost.UserName(childComplexity), true
+
+	case "BookMarkListUser.name":
+		if e.complexity.BookMarkListUser.Name == nil {
+			break
+		}
+
+		return e.complexity.BookMarkListUser.Name(childComplexity), true
+
+	case "BookMarkListUser.updatedAt":
+		if e.complexity.BookMarkListUser.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.BookMarkListUser.UpdatedAt(childComplexity), true
+
+	case "BookMarkListUser.userId":
+		if e.complexity.BookMarkListUser.UserID == nil {
+			break
+		}
+
+		return e.complexity.BookMarkListUser.UserID(childComplexity), true
 
 	case "Category.children":
 		if e.complexity.Category.Children == nil {
@@ -587,6 +624,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ListFromCategory.Liquors(childComplexity), true
 
+	case "Mutation.addBookMark":
+		if e.complexity.Mutation.AddBookMark == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_addBookMark_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AddBookMark(childComplexity, args["id"].(string)), true
+
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
 			break
@@ -622,6 +671,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.RegisterUser(childComplexity, args["input"].(graphModel.RegisterInput)), true
+
+	case "Mutation.removeBookMark":
+		if e.complexity.Mutation.RemoveBookMark == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_removeBookMark_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RemoveBookMark(childComplexity, args["id"].(string)), true
 
 	case "Mutation.updateUser":
 		if e.complexity.Mutation.UpdateUser == nil {
@@ -678,6 +739,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Data(childComplexity, args["name"].(string), args["limit"].(*int)), true
 
+	case "Query.getBookMarkList":
+		if e.complexity.Query.GetBookMarkList == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getBookMarkList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetBookMarkList(childComplexity, args["id"].(string)), true
+
+	case "Query.getIsBookMarked":
+		if e.complexity.Query.GetIsBookMarked == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getIsBookMarked_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetIsBookMarked(childComplexity, args["id"].(string)), true
+
 	case "Query.getMyBoard":
 		if e.complexity.Query.GetMyBoard == nil {
 			break
@@ -689,6 +774,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetMyBoard(childComplexity, args["liquorId"].(string)), true
+
+	case "Query.getRecommendLiquorList":
+		if e.complexity.Query.GetRecommendLiquorList == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getRecommendLiquorList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetRecommendLiquorList(childComplexity, args["id"].(string)), true
 
 	case "Query.getUser":
 		if e.complexity.Query.GetUser == nil {
@@ -1103,6 +1200,24 @@ extend type Mutation {
   login(input: LoginInput!): AuthPayload!
 }
 `, BuiltIn: false},
+	{Name: "../schema/bookmarks.graphqls", Input: `# ブックマークリストに表示するユーザー情報(将来的に統計情報とか出す構想あるのでインターフェースは分離しておく)
+type BookMarkListUser{
+  userId:ID!
+  name:String!
+  updatedAt:DateTime!
+}
+
+extend type Query {
+  getIsBookMarked(id:String!):Boolean! @auth #対象ユーザーがブックマーク済かどうか判定する
+  getRecommendLiquorList(id:String!): [Liquor!]! @auth #ブックマークユーザーを考慮したランダムリスト
+  getBookMarkList(id:String!): [BookMarkListUser!] @auth
+}
+
+extend type Mutation {
+  addBookMark(id:String!): Boolean! @auth
+  removeBookMark(id:String!): Boolean! @auth
+}
+`, BuiltIn: false},
 	{Name: "../schema/categories.graphqls", Input: `type Category {
   id: Int!
   name: String!
@@ -1208,6 +1323,16 @@ type Query
   user:User!
 }
 
+type UserEvaluateList{
+  recentComments:[UserLiquor!]
+  rate5Liquors:[UserLiquor!]
+  rate4Liquors:[UserLiquor!]
+  rate3Liquors:[UserLiquor!]
+  rate2Liquors:[UserLiquor!]
+  rate1Liquors:[UserLiquor!]
+  noRateLiquors:[UserLiquor!] #評価なし
+}
+
 type UserLiquor {
   id:ID!
   liquorId: ID!
@@ -1220,15 +1345,6 @@ type UserLiquor {
   updatedAt:DateTime!
 }
 
-type UserEvaluateList{
-  recentComments:[UserLiquor!]
-  rate5Liquors:[UserLiquor!]
-  rate4Liquors:[UserLiquor!]
-  rate3Liquors:[UserLiquor!]
-  rate2Liquors:[UserLiquor!]
-  rate1Liquors:[UserLiquor!]
-  noRateLiquors:[UserLiquor!] #評価なし
-}
 
 extend type Query {
   getUserById(id:String!): User! #単純に外部公開可能なユーザー基本情報を取得する(使わない...？)
@@ -1241,6 +1357,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_addBookMark_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -1284,6 +1415,21 @@ func (ec *executionContext) field_Mutation_registerUser_args(ctx context.Context
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_removeBookMark_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -1380,6 +1526,36 @@ func (ec *executionContext) field_Query_data_args(ctx context.Context, rawArgs m
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_getBookMarkList_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getIsBookMarked_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_getMyBoard_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1392,6 +1568,21 @@ func (ec *executionContext) field_Query_getMyBoard_args(ctx context.Context, raw
 		}
 	}
 	args["liquorId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getRecommendLiquorList_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -2321,6 +2512,138 @@ func (ec *executionContext) _BoardPost_updatedAt(ctx context.Context, field grap
 func (ec *executionContext) fieldContext_BoardPost_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BoardPost",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BookMarkListUser_userId(ctx context.Context, field graphql.CollectedField, obj *graphModel.BookMarkListUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BookMarkListUser_userId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BookMarkListUser_userId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BookMarkListUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BookMarkListUser_name(ctx context.Context, field graphql.CollectedField, obj *graphModel.BookMarkListUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BookMarkListUser_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BookMarkListUser_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BookMarkListUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BookMarkListUser_updatedAt(ctx context.Context, field graphql.CollectedField, obj *graphModel.BookMarkListUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BookMarkListUser_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNDateTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BookMarkListUser_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BookMarkListUser",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -4106,6 +4429,156 @@ func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_addBookMark(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_addBookMark(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AddBookMark(rctx, fc.Args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_addBookMark(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_addBookMark_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_removeBookMark(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_removeBookMark(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().RemoveBookMark(rctx, fc.Args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_removeBookMark(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_removeBookMark_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_postBoard(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_postBoard(ctx, field)
 	if err != nil {
@@ -4314,6 +4787,268 @@ func (ec *executionContext) fieldContext_Query_getUser(_ context.Context, field 
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getIsBookMarked(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getIsBookMarked(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetIsBookMarked(rctx, fc.Args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getIsBookMarked(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getIsBookMarked_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getRecommendLiquorList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getRecommendLiquorList(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetRecommendLiquorList(rctx, fc.Args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*graphModel.Liquor); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*backend/graph/graphModel.Liquor`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*graphModel.Liquor)
+	fc.Result = res
+	return ec.marshalNLiquor2ᚕᚖbackendᚋgraphᚋgraphModelᚐLiquorᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getRecommendLiquorList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Liquor_id(ctx, field)
+			case "categoryId":
+				return ec.fieldContext_Liquor_categoryId(ctx, field)
+			case "categoryName":
+				return ec.fieldContext_Liquor_categoryName(ctx, field)
+			case "categoryTrail":
+				return ec.fieldContext_Liquor_categoryTrail(ctx, field)
+			case "name":
+				return ec.fieldContext_Liquor_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Liquor_description(ctx, field)
+			case "imageUrl":
+				return ec.fieldContext_Liquor_imageUrl(ctx, field)
+			case "imageBase64":
+				return ec.fieldContext_Liquor_imageBase64(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Liquor_updatedAt(ctx, field)
+			case "rate5Users":
+				return ec.fieldContext_Liquor_rate5Users(ctx, field)
+			case "rate4Users":
+				return ec.fieldContext_Liquor_rate4Users(ctx, field)
+			case "rate3Users":
+				return ec.fieldContext_Liquor_rate3Users(ctx, field)
+			case "rate2Users":
+				return ec.fieldContext_Liquor_rate2Users(ctx, field)
+			case "rate1Users":
+				return ec.fieldContext_Liquor_rate1Users(ctx, field)
+			case "versionNo":
+				return ec.fieldContext_Liquor_versionNo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Liquor", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getRecommendLiquorList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getBookMarkList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getBookMarkList(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetBookMarkList(rctx, fc.Args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*graphModel.BookMarkListUser); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*backend/graph/graphModel.BookMarkListUser`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*graphModel.BookMarkListUser)
+	fc.Result = res
+	return ec.marshalOBookMarkListUser2ᚕᚖbackendᚋgraphᚋgraphModelᚐBookMarkListUserᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getBookMarkList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "userId":
+				return ec.fieldContext_BookMarkListUser_userId(ctx, field)
+			case "name":
+				return ec.fieldContext_BookMarkListUser_name(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_BookMarkListUser_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BookMarkListUser", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getBookMarkList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -8495,6 +9230,55 @@ func (ec *executionContext) _BoardPost(ctx context.Context, sel ast.SelectionSet
 	return out
 }
 
+var bookMarkListUserImplementors = []string{"BookMarkListUser"}
+
+func (ec *executionContext) _BookMarkListUser(ctx context.Context, sel ast.SelectionSet, obj *graphModel.BookMarkListUser) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, bookMarkListUserImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("BookMarkListUser")
+		case "userId":
+			out.Values[i] = ec._BookMarkListUser_userId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._BookMarkListUser_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._BookMarkListUser_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var categoryImplementors = []string{"Category"}
 
 func (ec *executionContext) _Category(ctx context.Context, sel ast.SelectionSet, obj *graphModel.Category) graphql.Marshaler {
@@ -8862,6 +9646,20 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "addBookMark":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_addBookMark(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "removeBookMark":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_removeBookMark(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "postBoard":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_postBoard(ctx, field)
@@ -8946,6 +9744,69 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getIsBookMarked":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getIsBookMarked(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getRecommendLiquorList":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getRecommendLiquorList(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getBookMarkList":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getBookMarkList(ctx, field)
 				return res
 			}
 
@@ -9810,6 +10671,16 @@ func (ec *executionContext) marshalNBoardPost2ᚖbackendᚋgraphᚋgraphModelᚐ
 	return ec._BoardPost(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNBookMarkListUser2ᚖbackendᚋgraphᚋgraphModelᚐBookMarkListUser(ctx context.Context, sel ast.SelectionSet, v *graphModel.BookMarkListUser) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._BookMarkListUser(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -10505,6 +11376,53 @@ func (ec *executionContext) marshalOBoardPost2ᚖbackendᚋgraphᚋgraphModelᚐ
 		return graphql.Null
 	}
 	return ec._BoardPost(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOBookMarkListUser2ᚕᚖbackendᚋgraphᚋgraphModelᚐBookMarkListUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*graphModel.BookMarkListUser) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBookMarkListUser2ᚖbackendᚋgraphᚋgraphModelᚐBookMarkListUser(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
