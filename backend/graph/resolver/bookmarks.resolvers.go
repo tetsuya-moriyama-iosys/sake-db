@@ -9,11 +9,15 @@ import (
 	"backend/service/bookmarkService"
 	"context"
 	"fmt"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // AddBookMark is the resolver for the addBookMark field.
 func (r *mutationResolver) AddBookMark(ctx context.Context, id string) (bool, error) {
 	uId, targetId, err := bookmarkService.GetPrimitiveIds(ctx, id)
+	if err != nil {
+		return false, err
+	}
 	err = r.BookmarkRepo.Add(ctx, uId, targetId)
 	if err != nil {
 		return false, err
@@ -24,11 +28,32 @@ func (r *mutationResolver) AddBookMark(ctx context.Context, id string) (bool, er
 // RemoveBookMark is the resolver for the removeBookMark field.
 func (r *mutationResolver) RemoveBookMark(ctx context.Context, id string) (bool, error) {
 	uId, targetId, err := bookmarkService.GetPrimitiveIds(ctx, id)
+	if err != nil {
+		return false, err
+	}
 	err = r.BookmarkRepo.Remove(ctx, uId, targetId)
 	if err != nil {
 		return false, err
 	}
 	return true, err
+}
+
+// GetIsBookMarked is the resolver for the getIsBookMarked field.
+func (r *queryResolver) GetIsBookMarked(ctx context.Context, id string) (bool, error) {
+	uId, targetId, err := bookmarkService.GetPrimitiveIds(ctx, id)
+	if err != nil {
+		return false, err
+	}
+	_, err = r.BookmarkRepo.Find(ctx, uId, targetId)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			// ドキュメントが存在しないエラーは、単にfalseを返せばいい
+			return false, nil
+		}
+		//それ以外のエラーは普通にエラー
+		return false, err
+	}
+	return true, nil
 }
 
 // GetRecommendLiquorList is the resolver for the getRecommendLiquorList field.

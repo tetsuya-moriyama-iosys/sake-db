@@ -1,5 +1,4 @@
 <!--汎用ボタン-->
-
 <template>
   <button :class="buttonClass" :disabled="isDisabled">
     <slot />
@@ -21,7 +20,7 @@ const props = defineProps<ButtonProps>();
 
 const BaseButtonClass: string =
   'group relative inline-flex items-center justify-center overflow-hidden rounded-md px-6 font-medium';
-const EnabledClass: string = `${BaseButtonClass} transition hover:scale-110 text-neutral-200`;
+const EnabledClass: string = `${BaseButtonClass} transition hover:scale-110 text-white`;
 const DisabledClass: string = `${BaseButtonClass} text-neutral-400 cursor-not-allowed`;
 const defaultClass: string = 'h-12';
 

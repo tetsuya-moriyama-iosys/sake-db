@@ -19,12 +19,17 @@ type Resolver struct {
 	BookmarkRepo bookmarkRepository.BookMarkRepository
 }
 
-func NewResolver(db *mongo.Database, categoryRepo categoriesRepository.CategoryRepository, liquorRepo liquorRepository.LiquorsRepository, userRepo userRepository.UsersRepository) *Resolver {
+func NewResolver(db *mongo.Database,
+	categoryRepo categoriesRepository.CategoryRepository,
+	liquorRepo liquorRepository.LiquorsRepository,
+	userRepo userRepository.UsersRepository,
+	bookmarkRepo bookmarkRepository.BookMarkRepository) *Resolver {
 	return &Resolver{
 		DB:           db,
 		CategoryRepo: categoryRepo,
 		LiquorRepo:   liquorRepo,
 		UserRepo:     userRepo,
+		BookmarkRepo: bookmarkRepo,
 	}
 }
 

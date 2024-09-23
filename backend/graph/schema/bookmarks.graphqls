@@ -6,6 +6,7 @@ type BookMarkListUser{
 }
 
 extend type Query {
+  getIsBookMarked(id:String!):Boolean! @auth #対象ユーザーがブックマーク済かどうか判定する
   getRecommendLiquorList(id:String!): [Liquor!]! @auth #ブックマークユーザーを考慮したランダムリスト
   getBookMarkList(id:String!): [BookMarkListUser!] @auth
 }
