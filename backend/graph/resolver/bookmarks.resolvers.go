@@ -10,9 +10,8 @@ import (
 	"backend/service/bookmarkService"
 	"backend/service/userService"
 	"context"
-	"fmt"
-
 	"go.mongodb.org/mongo-driver/mongo"
+	"log"
 )
 
 // AddBookMark is the resolver for the addBookMark field.
@@ -61,7 +60,14 @@ func (r *queryResolver) GetIsBookMarked(ctx context.Context, id string) (bool, e
 
 // GetRecommendLiquorList is the resolver for the getRecommendLiquorList field.
 func (r *queryResolver) GetRecommendLiquorList(ctx context.Context) ([]*graphModel.Liquor, error) {
-	panic(fmt.Errorf("not implemented: GetRecommendLiquorList - getRecommendLiquorList"))
+	uId, err := userService.GetUserId(ctx)
+	if err != nil {
+		return nil, err
+	}
+	b, err := r.BookmarkRepo.GetRecommendLiquors(ctx, uId, nil)
+	log.Println(b)
+	//TODO
+	return nil, nil
 }
 
 // GetBookMarkList is the resolver for the getBookMarkList field.

@@ -19,6 +19,7 @@
     <UserRecentPosts :recent-posts="userDetail.evaluateList.recentComments" />
   </div>
 </template>
+
 <script setup lang="ts">
 import type { UserDetail } from '@/graphQL/User/user';
 import RadiusImage from '@/components/parts/common/RadiusImage.vue';

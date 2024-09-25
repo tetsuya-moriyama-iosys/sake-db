@@ -1,6 +1,15 @@
 import type { DocumentNode } from 'graphql/index';
 import { gql } from '@apollo/client/core';
 
+export interface GetBookmarkListResponse {
+  readonly getBookMarkList: Bookmark[] | null;
+}
+
+export interface Bookmark {
+  readonly userId: string;
+  readonly name: string;
+  readonly createdAt: Date;
+}
 export interface CheckResponse {
   readonly getIsBookMarked: boolean;
 }
@@ -16,7 +25,7 @@ export const LIST: DocumentNode = gql`
     getBookMarkList {
       userId
       name
-      updatedAt
+      createdAt
     }
   }
 `;
