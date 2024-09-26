@@ -8,7 +8,6 @@ import (
 
 const (
 	CollectionName   = "bookmarks"
-	ID               = "_id"
 	UserID           = "user_id"
 	UserName         = "user_name"
 	BookmarkedUserId = "bookmarked_user_id"
@@ -28,6 +27,21 @@ type BookMarkListUser struct {
 }
 
 type BookMarkList []*BookMarkListUser
+
+type Recommend struct {
+	Comment string          `json:"comment"`
+	liquor  RecommendLiquor `json:"liquor"`
+}
+
+type RecommendLiquor struct {
+	ID           primitive.ObjectID `json:"_id"`
+	CategoryID   string             `json:"categoryId"`
+	CategoryName string             `json:"categoryName"`
+	ImageBase64  string             `json:"imageBase64"`
+	ImageBase64  string             `json:"imageBase64"`
+}
+
+type RecommendUser struct{}
 
 func (l BookMarkList) ToGraphQL() []*graphModel.BookMarkListUser {
 	var result []*graphModel.BookMarkListUser

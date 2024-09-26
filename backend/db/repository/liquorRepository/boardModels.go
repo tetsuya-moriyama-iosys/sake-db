@@ -7,7 +7,7 @@ import (
 
 const (
 	BoardCollectionName = "liquors_boards"
-	LiquorID            = "liquor_id"
+	LiquorID            = "liquor_id" //あくまでもBoardsモデルでのみ使うことに留意
 	LiquorName          = "liquor_name"
 	UserID              = "user_id"
 	UserName            = "user_name"

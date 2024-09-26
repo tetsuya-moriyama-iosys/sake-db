@@ -20,6 +20,6 @@ func LookUp(from string, localField string, foreignField string, as string) bson
 }
 
 // GetFirst LookUpOneとしたかったが、[]bson.M...やbson.Aがbson.A内で使えなかったため仕方なく分離。指定したフィールドの0番キーを取り出す。
-func GetFirst(as string) bson.M {
-	return bson.M{"$unwind": bson.M{"path": "$" + as, "preserveNullAndEmptyArrays": true}}
+func GetFirst(as string, isNullable bool) bson.M {
+	return bson.M{"$unwind": bson.M{"path": "$" + as, "preserveNullAndEmptyArrays": isNullable}}
 }

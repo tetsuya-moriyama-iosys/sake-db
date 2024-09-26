@@ -79,12 +79,14 @@ func (r *LiquorsRepository) BoardListByUser(ctx context.Context, uId primitive.O
 					"_id":   "$rate", // rateごとにグループ化
 					"posts": bson.M{"$push": "$$ROOT"},
 				}},
+
 				bson.M{"$lookup": bson.M{
 					"from":         CollectionName,    // 結合するコレクション
 					"localField":   "posts.liquor_id", // groupされたドキュメントのliquor_id
 					"foreignField": "_id",             // Liquorコレクションの_idフィールド
 					"as":           "liquorDetails",   // 結合結果をliquorDetailsフィールドに格納
 				}},
+
 				// liquorDetailsをdocuments内のliquorフィールドとして追加
 				bson.M{"$addFields": bson.M{
 					"posts": bson.M{
@@ -106,6 +108,7 @@ func (r *LiquorsRepository) BoardListByUser(ctx context.Context, uId primitive.O
 						},
 					},
 				}},
+
 				// liquorDetailsを除外する
 				bson.M{"$project": bson.M{
 					"liquorDetails":           0, // liquorDetailsフィールドを除外
@@ -125,12 +128,14 @@ func (r *LiquorsRepository) BoardListByUser(ctx context.Context, uId primitive.O
 					"foreignField": "_id",           // Liquorコレクションの_idフィールド
 					"as":           "liquorDetails", // 結合結果をliquorDetailsフィールドに格納
 				}},
+
 				// liquorDetailsをrecentDocuments内のliquorフィールドとして追加
 				bson.M{"$addFields": bson.M{
 					"liquor": bson.M{
 						"$arrayElemAt": bson.A{"$liquorDetails", 0}, // liquorDetailsの最初の要素をliquorフィールドとして埋め込む
 					},
 				}},
+
 				// liquorDetailsを除外する
 				bson.M{"$project": bson.M{
 					"liquorDetails":     0, // liquorDetailsフィールドを除外
