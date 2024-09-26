@@ -18,7 +18,7 @@ type Model struct {
 	Name        string             `bson:"name"`
 	Email       string             `bson:"email"`
 	Password    []byte             `bson:"password"`
-	ImageBase64 *string            `bson:"imageBase64"`
+	ImageBase64 *string            `bson:"image_base64"`
 	Profile     *string            `bson:"profile"`
 }
 
