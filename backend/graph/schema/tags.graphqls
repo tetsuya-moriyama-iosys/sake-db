@@ -1,0 +1,12 @@
+type Tag {
+  id:ID!
+  name:String!
+}
+
+extend type Query {
+  getTagsForLiquor(id:String!): [Tag!]! @auth
+}
+
+extend type Mutation {
+  registerTag(tag:String!): User! @auth
+}
