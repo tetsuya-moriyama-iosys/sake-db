@@ -4,7 +4,7 @@
 </template>
 
 <script setup lang="ts">
-import IndexMain from '@/components/templates/IndexMain.vue';
+import IndexMain from '@/components/templates/index/IndexMain.vue';
 </script>
 
 <style scoped></style>

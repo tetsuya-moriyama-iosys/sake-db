@@ -164,6 +164,29 @@ type ComplexityRoot struct {
 		RandomRecommendList    func(childComplexity int, limit int) int
 	}
 
+	Recommend struct {
+		Comment   func(childComplexity int) int
+		Liquor    func(childComplexity int) int
+		Rate      func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
+		User      func(childComplexity int) int
+	}
+
+	RecommendLiquor struct {
+		CategoryID   func(childComplexity int) int
+		CategoryName func(childComplexity int) int
+		Description  func(childComplexity int) int
+		ID           func(childComplexity int) int
+		ImageBase64  func(childComplexity int) int
+		Name         func(childComplexity int) int
+	}
+
+	RecommendUser struct {
+		ID          func(childComplexity int) int
+		ImageBase64 func(childComplexity int) int
+		Name        func(childComplexity int) int
+	}
+
 	User struct {
 		Email       func(childComplexity int) int
 		ID          func(childComplexity int) int
@@ -212,7 +235,7 @@ type QueryResolver interface {
 	Data(ctx context.Context, name string, limit *int) (*graphModel.AffiliateData, error)
 	GetUser(ctx context.Context) (*graphModel.User, error)
 	GetIsBookMarked(ctx context.Context, id string) (bool, error)
-	GetRecommendLiquorList(ctx context.Context) ([]*graphModel.Liquor, error)
+	GetRecommendLiquorList(ctx context.Context) ([]*graphModel.Recommend, error)
 	GetBookMarkList(ctx context.Context) ([]*graphModel.BookMarkListUser, error)
 	Category(ctx context.Context, id int) (*graphModel.Category, error)
 	Categories(ctx context.Context) ([]*graphModel.Category, error)
@@ -868,6 +891,104 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.RandomRecommendList(childComplexity, args["limit"].(int)), true
 
+	case "Recommend.comment":
+		if e.complexity.Recommend.Comment == nil {
+			break
+		}
+
+		return e.complexity.Recommend.Comment(childComplexity), true
+
+	case "Recommend.liquor":
+		if e.complexity.Recommend.Liquor == nil {
+			break
+		}
+
+		return e.complexity.Recommend.Liquor(childComplexity), true
+
+	case "Recommend.rate":
+		if e.complexity.Recommend.Rate == nil {
+			break
+		}
+
+		return e.complexity.Recommend.Rate(childComplexity), true
+
+	case "Recommend.updatedAt":
+		if e.complexity.Recommend.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Recommend.UpdatedAt(childComplexity), true
+
+	case "Recommend.user":
+		if e.complexity.Recommend.User == nil {
+			break
+		}
+
+		return e.complexity.Recommend.User(childComplexity), true
+
+	case "RecommendLiquor.categoryId":
+		if e.complexity.RecommendLiquor.CategoryID == nil {
+			break
+		}
+
+		return e.complexity.RecommendLiquor.CategoryID(childComplexity), true
+
+	case "RecommendLiquor.categoryName":
+		if e.complexity.RecommendLiquor.CategoryName == nil {
+			break
+		}
+
+		return e.complexity.RecommendLiquor.CategoryName(childComplexity), true
+
+	case "RecommendLiquor.description":
+		if e.complexity.RecommendLiquor.Description == nil {
+			break
+		}
+
+		return e.complexity.RecommendLiquor.Description(childComplexity), true
+
+	case "RecommendLiquor.id":
+		if e.complexity.RecommendLiquor.ID == nil {
+			break
+		}
+
+		return e.complexity.RecommendLiquor.ID(childComplexity), true
+
+	case "RecommendLiquor.imageBase64":
+		if e.complexity.RecommendLiquor.ImageBase64 == nil {
+			break
+		}
+
+		return e.complexity.RecommendLiquor.ImageBase64(childComplexity), true
+
+	case "RecommendLiquor.name":
+		if e.complexity.RecommendLiquor.Name == nil {
+			break
+		}
+
+		return e.complexity.RecommendLiquor.Name(childComplexity), true
+
+	case "RecommendUser.id":
+		if e.complexity.RecommendUser.ID == nil {
+			break
+		}
+
+		return e.complexity.RecommendUser.ID(childComplexity), true
+
+	case "RecommendUser.imageBase64":
+		if e.complexity.RecommendUser.ImageBase64 == nil {
+			break
+		}
+
+		return e.complexity.RecommendUser.ImageBase64(childComplexity), true
+
+	case "RecommendUser.name":
+		if e.complexity.RecommendUser.Name == nil {
+			break
+		}
+
+		return e.complexity.RecommendUser.Name(childComplexity), true
+
 	case "User.email":
 		if e.complexity.User.Email == nil {
 			break
@@ -1197,9 +1318,32 @@ type BookMarkListUser{
   createdAt:DateTime!
 }
 
+type Recommend{
+  rate:Int!
+  comment:String!
+  liquor:RecommendLiquor!
+  user:RecommendUser!
+  updatedAt:DateTime!
+}
+
+type RecommendLiquor{
+  id:ID!
+  name:String!
+  categoryId:Int!
+  categoryName:String!
+  imageBase64:String
+  description:String!
+}
+
+type RecommendUser{
+  id:ID!
+  name:String!
+  imageBase64:String
+}
+
 extend type Query {
   getIsBookMarked(id:String!):Boolean! @auth #対象ユーザーがブックマーク済かどうか判定する
-  getRecommendLiquorList: [Liquor!]! @auth #ブックマークユーザーを考慮したランダムリスト
+  getRecommendLiquorList: [Recommend!]! @auth #ブックマークユーザーを考慮したランダムリスト
   getBookMarkList: [BookMarkListUser!] @auth
 }
 
@@ -4857,10 +5001,10 @@ func (ec *executionContext) _Query_getRecommendLiquorList(ctx context.Context, f
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.([]*graphModel.Liquor); ok {
+		if data, ok := tmp.([]*graphModel.Recommend); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*backend/graph/graphModel.Liquor`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*backend/graph/graphModel.Recommend`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4872,9 +5016,9 @@ func (ec *executionContext) _Query_getRecommendLiquorList(ctx context.Context, f
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*graphModel.Liquor)
+	res := resTmp.([]*graphModel.Recommend)
 	fc.Result = res
-	return ec.marshalNLiquor2ᚕᚖbackendᚋgraphᚋgraphModelᚐLiquorᚄ(ctx, field.Selections, res)
+	return ec.marshalNRecommend2ᚕᚖbackendᚋgraphᚋgraphModelᚐRecommendᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_getRecommendLiquorList(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4885,38 +5029,18 @@ func (ec *executionContext) fieldContext_Query_getRecommendLiquorList(_ context.
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_Liquor_id(ctx, field)
-			case "categoryId":
-				return ec.fieldContext_Liquor_categoryId(ctx, field)
-			case "categoryName":
-				return ec.fieldContext_Liquor_categoryName(ctx, field)
-			case "categoryTrail":
-				return ec.fieldContext_Liquor_categoryTrail(ctx, field)
-			case "name":
-				return ec.fieldContext_Liquor_name(ctx, field)
-			case "description":
-				return ec.fieldContext_Liquor_description(ctx, field)
-			case "imageUrl":
-				return ec.fieldContext_Liquor_imageUrl(ctx, field)
-			case "imageBase64":
-				return ec.fieldContext_Liquor_imageBase64(ctx, field)
+			case "rate":
+				return ec.fieldContext_Recommend_rate(ctx, field)
+			case "comment":
+				return ec.fieldContext_Recommend_comment(ctx, field)
+			case "liquor":
+				return ec.fieldContext_Recommend_liquor(ctx, field)
+			case "user":
+				return ec.fieldContext_Recommend_user(ctx, field)
 			case "updatedAt":
-				return ec.fieldContext_Liquor_updatedAt(ctx, field)
-			case "rate5Users":
-				return ec.fieldContext_Liquor_rate5Users(ctx, field)
-			case "rate4Users":
-				return ec.fieldContext_Liquor_rate4Users(ctx, field)
-			case "rate3Users":
-				return ec.fieldContext_Liquor_rate3Users(ctx, field)
-			case "rate2Users":
-				return ec.fieldContext_Liquor_rate2Users(ctx, field)
-			case "rate1Users":
-				return ec.fieldContext_Liquor_rate1Users(ctx, field)
-			case "versionNo":
-				return ec.fieldContext_Liquor_versionNo(ctx, field)
+				return ec.fieldContext_Recommend_updatedAt(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Liquor", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Recommend", field.Name)
 		},
 	}
 	return fc, nil
@@ -5903,6 +6027,638 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Recommend_rate(ctx context.Context, field graphql.CollectedField, obj *graphModel.Recommend) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Recommend_rate(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Rate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Recommend_rate(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Recommend",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Recommend_comment(ctx context.Context, field graphql.CollectedField, obj *graphModel.Recommend) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Recommend_comment(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Comment, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Recommend_comment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Recommend",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Recommend_liquor(ctx context.Context, field graphql.CollectedField, obj *graphModel.Recommend) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Recommend_liquor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Liquor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*graphModel.RecommendLiquor)
+	fc.Result = res
+	return ec.marshalNRecommendLiquor2ᚖbackendᚋgraphᚋgraphModelᚐRecommendLiquor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Recommend_liquor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Recommend",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_RecommendLiquor_id(ctx, field)
+			case "name":
+				return ec.fieldContext_RecommendLiquor_name(ctx, field)
+			case "categoryId":
+				return ec.fieldContext_RecommendLiquor_categoryId(ctx, field)
+			case "categoryName":
+				return ec.fieldContext_RecommendLiquor_categoryName(ctx, field)
+			case "imageBase64":
+				return ec.fieldContext_RecommendLiquor_imageBase64(ctx, field)
+			case "description":
+				return ec.fieldContext_RecommendLiquor_description(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RecommendLiquor", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Recommend_user(ctx context.Context, field graphql.CollectedField, obj *graphModel.Recommend) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Recommend_user(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.User, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*graphModel.RecommendUser)
+	fc.Result = res
+	return ec.marshalNRecommendUser2ᚖbackendᚋgraphᚋgraphModelᚐRecommendUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Recommend_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Recommend",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_RecommendUser_id(ctx, field)
+			case "name":
+				return ec.fieldContext_RecommendUser_name(ctx, field)
+			case "imageBase64":
+				return ec.fieldContext_RecommendUser_imageBase64(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RecommendUser", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Recommend_updatedAt(ctx context.Context, field graphql.CollectedField, obj *graphModel.Recommend) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Recommend_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNDateTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Recommend_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Recommend",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RecommendLiquor_id(ctx context.Context, field graphql.CollectedField, obj *graphModel.RecommendLiquor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RecommendLiquor_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RecommendLiquor_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RecommendLiquor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RecommendLiquor_name(ctx context.Context, field graphql.CollectedField, obj *graphModel.RecommendLiquor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RecommendLiquor_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RecommendLiquor_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RecommendLiquor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RecommendLiquor_categoryId(ctx context.Context, field graphql.CollectedField, obj *graphModel.RecommendLiquor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RecommendLiquor_categoryId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CategoryID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RecommendLiquor_categoryId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RecommendLiquor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RecommendLiquor_categoryName(ctx context.Context, field graphql.CollectedField, obj *graphModel.RecommendLiquor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RecommendLiquor_categoryName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CategoryName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RecommendLiquor_categoryName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RecommendLiquor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RecommendLiquor_imageBase64(ctx context.Context, field graphql.CollectedField, obj *graphModel.RecommendLiquor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RecommendLiquor_imageBase64(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ImageBase64, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RecommendLiquor_imageBase64(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RecommendLiquor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RecommendLiquor_description(ctx context.Context, field graphql.CollectedField, obj *graphModel.RecommendLiquor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RecommendLiquor_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RecommendLiquor_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RecommendLiquor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RecommendUser_id(ctx context.Context, field graphql.CollectedField, obj *graphModel.RecommendUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RecommendUser_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RecommendUser_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RecommendUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RecommendUser_name(ctx context.Context, field graphql.CollectedField, obj *graphModel.RecommendUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RecommendUser_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RecommendUser_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RecommendUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RecommendUser_imageBase64(ctx context.Context, field graphql.CollectedField, obj *graphModel.RecommendUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RecommendUser_imageBase64(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ImageBase64, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RecommendUser_imageBase64(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RecommendUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10015,6 +10771,172 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	return out
 }
 
+var recommendImplementors = []string{"Recommend"}
+
+func (ec *executionContext) _Recommend(ctx context.Context, sel ast.SelectionSet, obj *graphModel.Recommend) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, recommendImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Recommend")
+		case "rate":
+			out.Values[i] = ec._Recommend_rate(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "comment":
+			out.Values[i] = ec._Recommend_comment(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "liquor":
+			out.Values[i] = ec._Recommend_liquor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "user":
+			out.Values[i] = ec._Recommend_user(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._Recommend_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var recommendLiquorImplementors = []string{"RecommendLiquor"}
+
+func (ec *executionContext) _RecommendLiquor(ctx context.Context, sel ast.SelectionSet, obj *graphModel.RecommendLiquor) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, recommendLiquorImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RecommendLiquor")
+		case "id":
+			out.Values[i] = ec._RecommendLiquor_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._RecommendLiquor_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "categoryId":
+			out.Values[i] = ec._RecommendLiquor_categoryId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "categoryName":
+			out.Values[i] = ec._RecommendLiquor_categoryName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "imageBase64":
+			out.Values[i] = ec._RecommendLiquor_imageBase64(ctx, field, obj)
+		case "description":
+			out.Values[i] = ec._RecommendLiquor_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var recommendUserImplementors = []string{"RecommendUser"}
+
+func (ec *executionContext) _RecommendUser(ctx context.Context, sel ast.SelectionSet, obj *graphModel.RecommendUser) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, recommendUserImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RecommendUser")
+		case "id":
+			out.Values[i] = ec._RecommendUser_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._RecommendUser_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "imageBase64":
+			out.Values[i] = ec._RecommendUser_imageBase64(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var userImplementors = []string{"User"}
 
 func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *graphModel.User) graphql.Marshaler {
@@ -10892,6 +11814,80 @@ func (ec *executionContext) marshalNListFromCategory2ᚖbackendᚋgraphᚋgraphM
 func (ec *executionContext) unmarshalNLoginInput2backendᚋgraphᚋgraphModelᚐLoginInput(ctx context.Context, v interface{}) (graphModel.LoginInput, error) {
 	res, err := ec.unmarshalInputLoginInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRecommend2ᚕᚖbackendᚋgraphᚋgraphModelᚐRecommendᚄ(ctx context.Context, sel ast.SelectionSet, v []*graphModel.Recommend) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRecommend2ᚖbackendᚋgraphᚋgraphModelᚐRecommend(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNRecommend2ᚖbackendᚋgraphᚋgraphModelᚐRecommend(ctx context.Context, sel ast.SelectionSet, v *graphModel.Recommend) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Recommend(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRecommendLiquor2ᚖbackendᚋgraphᚋgraphModelᚐRecommendLiquor(ctx context.Context, sel ast.SelectionSet, v *graphModel.RecommendLiquor) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RecommendLiquor(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRecommendUser2ᚖbackendᚋgraphᚋgraphModelᚐRecommendUser(ctx context.Context, sel ast.SelectionSet, v *graphModel.RecommendUser) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RecommendUser(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNRegisterInput2backendᚋgraphᚋgraphModelᚐRegisterInput(ctx context.Context, v interface{}) (graphModel.RegisterInput, error) {

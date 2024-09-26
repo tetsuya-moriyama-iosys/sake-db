@@ -5,7 +5,6 @@ import (
 	"backend/db/repository/agg"
 	"backend/db/repository/liquorRepository"
 	"backend/db/repository/userRepository"
-	"backend/util/helper"
 	"errors"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
@@ -113,7 +112,7 @@ func (r *BookMarkRepository) Remove(ctx context.Context, uid primitive.ObjectID,
 	return nil
 }
 
-func (r *BookMarkRepository) GetRecommendLiquors(ctx context.Context, uid primitive.ObjectID, limitArg *int) ([]*Model, error) {
+func (r *BookMarkRepository) GetRecommendLiquors(ctx context.Context, uid primitive.ObjectID, limitArg *int) (*RecommendList, error) {
 	limit := 10
 	if limitArg != nil {
 		limit = *limitArg
@@ -198,8 +197,9 @@ func (r *BookMarkRepository) GetRecommendLiquors(ctx context.Context, uid primit
 				"liquor.image_base64":  1,
 				"liquor.description":   1,
 				//userテーブルについても同様
-				"user_info._id":  1,
-				"user_info.name": 1,
+				"user_info._id":          1,
+				"user_info.name":         1,
+				"user_info.image_base64": 1,
 			},
 		},
 
@@ -207,7 +207,7 @@ func (r *BookMarkRepository) GetRecommendLiquors(ctx context.Context, uid primit
 			"$sample": bson.M{"size": limit},
 		},
 	}
-	fmt.Printf("Pipeline: %+v\n", pipeline)
+	//fmt.Printf("Pipeline: %+v\n", pipeline)
 
 	// パイプライン実行
 	cursor, err := r.collection.Aggregate(ctx, pipeline)
@@ -217,23 +217,19 @@ func (r *BookMarkRepository) GetRecommendLiquors(ctx context.Context, uid primit
 	defer cursor.Close(ctx)
 
 	// 結果を格納するためのスライス
-	var result []interface{} //一旦any型に
+	var result RecommendList
 
 	// 結果を取得してコンソールに出力する
 	for cursor.Next(ctx) {
-		var doc bson.M
+		var doc *Recommend
 		err := cursor.Decode(&doc)
 		if err != nil {
 			return nil, err
 		}
 
 		// 結果をコンソールに表示
-		helper.D(doc)
+		//helper.D(doc)
 
-		// 必要なら result に追加
-		//model := &Model{
-		//	// doc から必要なフィールドをパースして model に追加する
-		//}
 		result = append(result, doc)
 	}
 
@@ -241,5 +237,5 @@ func (r *BookMarkRepository) GetRecommendLiquors(ctx context.Context, uid primit
 		return nil, err
 	}
 
-	return nil, nil
+	return &result, nil
 }

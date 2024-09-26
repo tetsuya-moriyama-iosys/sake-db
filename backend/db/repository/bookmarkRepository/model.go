@@ -19,6 +19,9 @@ type Model struct {
 	BookmarkedUserId primitive.ObjectID `bson:"bookmarked_user_id"`
 }
 
+// BookMarkList ブックマークリスト
+type BookMarkList []*BookMarkListUser
+
 // BookMarkListUser ユーザーページのブックマークリストの構造体
 type BookMarkListUser struct {
 	UserId    primitive.ObjectID `json:"userId" bson:"user_id"`
@@ -26,22 +29,31 @@ type BookMarkListUser struct {
 	CreatedAt time.Time          `bson:"created_at"`
 }
 
-type BookMarkList []*BookMarkListUser
+// RecommendList リコメンドリスト
+type RecommendList []*Recommend
 
 type Recommend struct {
-	Comment string          `json:"comment"`
-	liquor  RecommendLiquor `json:"liquor"`
+	Rate      int             `bson:"rate"`
+	Comment   string          `bson:"comment"`
+	Liquor    RecommendLiquor `bson:"liquor"`
+	User      RecommendUser   `bson:"user_info"`
+	UpdatedAt time.Time       `bson:"updated_at"`
 }
 
 type RecommendLiquor struct {
-	ID           primitive.ObjectID `json:"_id"`
-	CategoryID   string             `json:"categoryId"`
-	CategoryName string             `json:"categoryName"`
-	ImageBase64  string             `json:"imageBase64"`
-	ImageBase64  string             `json:"imageBase64"`
+	ID           primitive.ObjectID `bson:"_id"`
+	Name         string             `bson:"name"`
+	CategoryID   int                `bson:"category_id"`
+	CategoryName string             `bson:"category_name"`
+	ImageBase64  *string            `bson:"image_base64"`
+	Description  string             `bson:"description"`
 }
 
-type RecommendUser struct{}
+type RecommendUser struct {
+	ID          primitive.ObjectID `bson:"_id"`
+	Name        string             `bson:"name"`
+	ImageBase64 *string            `bson:"image_base64"`
+}
 
 func (l BookMarkList) ToGraphQL() []*graphModel.BookMarkListUser {
 	var result []*graphModel.BookMarkListUser
@@ -53,4 +65,36 @@ func (l BookMarkList) ToGraphQL() []*graphModel.BookMarkListUser {
 		})
 	}
 	return result
+}
+
+func (l RecommendList) ToGraphQL() []*graphModel.Recommend {
+	var result []*graphModel.Recommend
+	for _, m := range l {
+		result = append(result, &graphModel.Recommend{
+			Rate:      m.Rate,
+			Comment:   m.Comment,
+			UpdatedAt: m.UpdatedAt,
+			Liquor:    m.Liquor.ToGraphQL(),
+			User:      m.User.ToGraphQL(),
+		})
+	}
+	return result
+}
+
+func (l RecommendLiquor) ToGraphQL() *graphModel.RecommendLiquor {
+	return &graphModel.RecommendLiquor{
+		ID:           l.ID.Hex(),
+		Name:         l.Name,
+		CategoryID:   l.CategoryID,
+		CategoryName: l.CategoryName,
+		ImageBase64:  l.ImageBase64,
+		Description:  l.Description,
+	}
+}
+func (u RecommendUser) ToGraphQL() *graphModel.RecommendUser {
+	return &graphModel.RecommendUser{
+		ID:          u.ID.Hex(),
+		Name:        u.Name,
+		ImageBase64: u.ImageBase64,
+	}
 }

@@ -10,7 +10,7 @@
     <img
       v-if="imageSrc"
       :src="`data:image/jpg;base64,${imageSrc}`"
-      alt="画像"
+      :alt="props.alt ?? '画像'"
     />
   </div>
 </template>
@@ -22,6 +22,7 @@ import convertToBase64 from '@/funcs/util/convertToBase64 ';
 interface Props {
   imageSrc?: string | File; // Base64エンコードされた文字列
   radius?: string; // 任意の半径 (px, %, emなど)
+  alt?: string;
 }
 
 const props = defineProps<Props>();

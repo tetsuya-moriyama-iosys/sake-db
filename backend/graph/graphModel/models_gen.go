@@ -110,6 +110,29 @@ type Mutation struct {
 type Query struct {
 }
 
+type Recommend struct {
+	Rate      int              `json:"rate"`
+	Comment   string           `json:"comment"`
+	Liquor    *RecommendLiquor `json:"liquor"`
+	User      *RecommendUser   `json:"user"`
+	UpdatedAt time.Time        `json:"updatedAt"`
+}
+
+type RecommendLiquor struct {
+	ID           string  `json:"id"`
+	Name         string  `json:"name"`
+	CategoryID   int     `json:"categoryId"`
+	CategoryName string  `json:"categoryName"`
+	ImageBase64  *string `json:"imageBase64,omitempty"`
+	Description  string  `json:"description"`
+}
+
+type RecommendUser struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	ImageBase64 *string `json:"imageBase64,omitempty"`
+}
+
 type RegisterInput struct {
 	Name        string  `json:"name"`
 	Email       string  `json:"email"`
