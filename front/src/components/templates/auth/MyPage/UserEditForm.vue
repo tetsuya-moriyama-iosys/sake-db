@@ -20,6 +20,7 @@
     <SubmitButton>更新</SubmitButton>
   </Form>
 </template>
+
 <script setup lang="ts">
 import { Form, type SubmissionHandler } from 'vee-validate';
 import FormField from '@/components/parts/forms/core/FormField.vue';
@@ -31,13 +32,12 @@ import {
   generateInitialValues,
   validationSchema,
 } from '@/forms/define/auth/EditForm';
-import type { AuthUser, UserFullData } from '@/graphQL/User/user';
-import { Update } from '@/graphQL/Auth/auth';
+import { type AuthUser, Update } from '@/graphQL/Auth/auth';
 import UploadWithImage from '@/components/parts/forms/common/UploadWithImage.vue';
 import SubmitButton from '@/components/parts/common/SubmitButton.vue';
 
 interface Props {
-  user: UserFullData;
+  user: AuthUser;
 }
 
 const props = defineProps<Props>();
@@ -68,7 +68,7 @@ const onSubmit: SubmissionHandler = async (values: FormValues) => {
     },
   }).then(() => {
     toast.showToast({ message: '登録が完了しました' });
-    //ヘッダー等の更新処理
+    //TODO:ヘッダー等の更新処理
   });
 };
 </script>

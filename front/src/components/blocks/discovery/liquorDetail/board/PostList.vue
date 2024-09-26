@@ -1,6 +1,6 @@
 <template>
   <div>みんなの感想</div>
-  <div v-for="post in props.posts" :key="post.id" class="flex">
+  <div v-for="(post, index) in props.posts" :key="index" class="flex">
     <div>
       <router-link
         v-if="post.userId"

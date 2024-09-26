@@ -22,11 +22,10 @@ const BaseButtonClass: string =
   'group relative inline-flex items-center justify-center overflow-hidden rounded-md px-6 font-medium';
 const EnabledClass: string = `${BaseButtonClass} transition hover:scale-110 text-white`;
 const DisabledClass: string = `${BaseButtonClass} text-neutral-400 cursor-not-allowed`;
-const defaultClass: string = 'h-12';
 
 // ボタンのクラスを動的に決定するコンピューテッドプロパティ
 const buttonClass = computed(() => {
-  const baseClass = `${props.isDisabled ? DisabledClass : EnabledClass} ${props.class ?? defaultClass}`;
+  const baseClass = `${props.isDisabled ? DisabledClass : EnabledClass} ${props.class} ${buttonSize.value}`;
 
   if (props.isDisabled) {
     switch (props.color) {
@@ -50,6 +49,17 @@ const buttonClass = computed(() => {
       default:
         return `${baseClass} bg-neutral-950 hover:bg-neutral-800`;
     }
+  }
+});
+
+const buttonSize = computed(() => {
+  switch (props.size) {
+    case 'small':
+      return 'h-8';
+    case 'large':
+      return 'h-16';
+    default:
+      return 'h-12'; // デフォルト
   }
 });
 </script>

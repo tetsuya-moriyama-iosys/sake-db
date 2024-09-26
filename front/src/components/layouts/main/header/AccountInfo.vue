@@ -1,5 +1,5 @@
 <template>
-  <router-link :to="{ name: 'MyPageEdit' }">
+  <router-link :to="{ name: 'MyPageIndex' }">
     <div v-if="userStore.user" class="flex container">
       <RadiusImage
         v-if="userStore.user?.imageBase64"

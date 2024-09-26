@@ -7,11 +7,12 @@ import (
 
 const (
 	BoardCollectionName = "liquors_boards"
-	Rate                = "rate"
-	LiquorID            = "liquor_id"
+	LiquorID            = "liquor_id" //あくまでもBoardsモデルでのみ使うことに留意
 	LiquorName          = "liquor_name"
 	UserID              = "user_id"
 	UserName            = "user_name"
+	Rate                = "rate"
+	Text                = "text"
 )
 
 // BoardModel Collectionに挿入するデータ

@@ -1,4 +1,4 @@
-<!--メイン画面レイアウト-->
+<!--ランダムセレクトリストレイアウト-->
 <template>
   <div id="random-pickup-area">
     <CardContainer>

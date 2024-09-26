@@ -2,7 +2,7 @@
  * メイン画面(データベース検索部分)のルーター
  */
 import Layout from '@/components/layouts/main/BaseLayout.vue';
-import IndexPage from '@/views/Discovery/IndexPage.vue';
+import IndexPage from '@/views/IndexPage.vue';
 import CreatePost from '@/views/Edit/LiquorEditPage.vue';
 import DetailPage from '@/views/Discovery/Details/LiquorPage.vue';
 import CategoryPage from '@/views/Discovery/Details/CategoryPage.vue';
