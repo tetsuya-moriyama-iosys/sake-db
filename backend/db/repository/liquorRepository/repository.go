@@ -2,6 +2,7 @@ package liquorRepository
 
 import (
 	"backend/db"
+	"backend/util/helper"
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
@@ -28,6 +29,7 @@ func NewLiquorsRepository(db *db.DB) LiquorsRepository {
 func (r *LiquorsRepository) GetLiquorById(ctx context.Context, id primitive.ObjectID) (*Model, error) {
 	// コレクションを取得
 	var liquor Model
+	helper.D(id.Hex())
 	if err := r.collection.FindOne(ctx, bson.M{ID: id}).Decode(&liquor); err != nil {
 		return nil, err
 	}

@@ -45,7 +45,7 @@ func (r *LiquorsRepository) InsertOneToLog(ctx context.Context, oldLiquor *Model
 		return err
 	}
 
-	data[LiquorID] = oldLiquor
+	data[LiquorID] = oldLiquor.ID
 
 	// ログコレクションに挿入
 	_, err = r.logsCollection.InsertOne(ctx, data)

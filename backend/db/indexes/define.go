@@ -35,10 +35,12 @@ var IndexDefinitions = []IndexDefinition{
 	//掲示板
 	{
 		CollectionName: liquorRepository.BoardCollectionName,
-		IndexKeys:      bson.D{{liquorRepository.LiquorID, 1}, {liquorRepository.UserID, 1}},
-		PartialFilter: bson.D{
-			{liquorRepository.UserID, bson.D{{"$ne", nil}}}, // UserIDがnullでない場合にのみ適用
-		},
+		IndexKeys:      bson.D{{liquorRepository.LiquorID, 1}},
+		IsNonUnique:    true,
+		//null除外はサポートされていないらしい。メモとして残しておく。→つまり、ダブりをDB側でエラー化する術がない･･････
+		//PartialFilter: bson.D{
+		//	{liquorRepository.UserID, bson.D{{"$ne", nil}}}, // UserIDがnullでない場合にのみ適用
+		//},
 	},
 	{
 		CollectionName: liquorRepository.BoardCollectionName,
