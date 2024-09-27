@@ -38,7 +38,6 @@ const initialValues = ref<Liquor | null>(historyData?.now ?? null);
 
 const reflectLog = (log: Liquor) => {
   initialValues.value = { ...log, id: historyData!.now.id }; //過去のデータをそのまま初期値として代入する(IDだけは現在の値で上書き。ここが呼び出された次点で初期値は存在しないとおかしいのでアサーション)
-  console.log('セット:', initialValues.value);
 };
 </script>
 
