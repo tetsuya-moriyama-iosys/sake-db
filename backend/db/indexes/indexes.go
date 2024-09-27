@@ -14,16 +14,16 @@ import (
 type IndexDefinition struct {
 	CollectionName string
 	IndexKeys      bson.D
+	IsNonUnique    bool   //未指定がfalseなので、NonUniqueとしている(基本はユニーク制約をつける想定)
+	PartialFilter  bson.D // Optional: nullの場合ユニーク制約を外すためのフィルター
 }
 
 func AddIndexes() error {
 	helper.LoadEnv()
-	client, err := db.NewMongoClient()
 
 	// 各コレクションに対してインデックスを作成
 	for _, indexDef := range IndexDefinitions {
-		collection := getDatabaseAndCollection(client, indexDef.CollectionName)
-		err = createIndexForCollection(context.Background(), collection, indexDef.IndexKeys)
+		err := createIndexForCollection(context.Background(), indexDef)
 		if err != nil {
 			return err
 		}
@@ -39,12 +39,23 @@ func getDatabaseAndCollection(client *mongo.Client, collectionName string) *mong
 }
 
 // createIndexForCollectionは指定されたコレクションにインデックスを作成します
-func createIndexForCollection(ctx context.Context, collection *mongo.Collection, indexKeys bson.D) error {
-	indexModel := mongo.IndexModel{
-		Keys:    indexKeys,
-		Options: options.Index().SetUnique(true),
+func createIndexForCollection(ctx context.Context, indexData IndexDefinition) error {
+	client, err := db.NewMongoClient()
+	collection := getDatabaseAndCollection(client, indexData.CollectionName)
+
+	// インデックス作成のオプション設定
+	indexOptions := options.Index().SetUnique(!indexData.IsNonUnique)
+
+	// PartialFilterが設定されている場合、partialFilterExpressionを追加
+	if len(indexData.PartialFilter) > 0 {
+		indexOptions.SetPartialFilterExpression(indexData.PartialFilter)
 	}
 
-	_, err := collection.Indexes().CreateOne(ctx, indexModel)
+	indexModel := mongo.IndexModel{
+		Keys:    indexData.IndexKeys,
+		Options: indexOptions,
+	}
+
+	_, err = collection.Indexes().CreateOne(ctx, indexModel)
 	return err
 }

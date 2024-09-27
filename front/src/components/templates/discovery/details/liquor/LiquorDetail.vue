@@ -1,5 +1,4 @@
 <!--酒詳細ページ-->
-
 <template>
   <div v-if="liquor">
     <p class="title">{{ liquor.name }}</p>

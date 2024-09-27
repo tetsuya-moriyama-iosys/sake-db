@@ -10,7 +10,6 @@ const (
 	CollectionName     = "liquors"
 	LogsCollectionName = "liquors_logs"
 	ID                 = "_id"
-	LogID              = "id"
 	CategoryID         = "category_id"
 	CategoryName       = "category_name"
 	Name               = "name"
@@ -28,7 +27,7 @@ const (
 
 type Model struct {
 	ID           primitive.ObjectID `bson:"_id"`
-	CategoryID   int                `bson:"category_id"`
+	CategoryID   int                `bson:"category_id"` //カテゴリIDだけは、番号順にソートしたいのでObjectIDではない実装にしている
 	CategoryName string             `bson:"category_name"`
 	Name         string             `bson:"name"`
 	Description  *string            `bson:"description"`
