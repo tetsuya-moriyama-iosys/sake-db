@@ -158,7 +158,7 @@ func (r *queryResolver) LiquorHistories(ctx context.Context, id string) (*graphM
 	if err != nil {
 		return nil, err
 	}
-	logs, err := r.LiquorRepo.GetLogsById(ctx, id)
+	logs, err := r.LiquorRepo.GetLogsById(ctx, lid)
 	if err != nil {
 		return nil, err
 	}
