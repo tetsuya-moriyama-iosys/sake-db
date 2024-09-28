@@ -1,6 +1,7 @@
 <template>
   <CategoryDetail v-if="category" :category="category" />
 </template>
+
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 import useQuery from '@/funcs/composable/useQuery';

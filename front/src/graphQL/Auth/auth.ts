@@ -8,10 +8,10 @@ export interface GetUserdataResponse {
 
 //認証済みユーザー情報(要はパスワード以外のデータ)
 export interface AuthUser {
-  readonly id: string;
-  readonly name: string;
-  readonly email: string;
-  readonly imageBase64: string | undefined; //アイコン表示に必要
+  id: string;
+  name: string;
+  email: string;
+  imageBase64: string | undefined; //アイコン表示に必要
 }
 
 export interface LoginResponse {

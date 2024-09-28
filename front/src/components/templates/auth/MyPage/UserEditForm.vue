@@ -35,6 +35,7 @@ import {
 import { type AuthUser, Update } from '@/graphQL/Auth/auth';
 import UploadWithImage from '@/components/parts/forms/common/UploadWithImage.vue';
 import SubmitButton from '@/components/parts/common/SubmitButton.vue';
+import { useUserStore } from '@/stores/userStore';
 
 interface Props {
   user: AuthUser;
@@ -43,6 +44,8 @@ interface Props {
 const props = defineProps<Props>();
 
 const toast = useToast();
+const userStore = useUserStore();
+
 const { execute } = useMutation<AuthUser>(Update, {
   isUseSpinner: true,
   isAuth: true,
@@ -68,7 +71,10 @@ const onSubmit: SubmissionHandler = async (values: FormValues) => {
     },
   }).then(() => {
     toast.showToast({ message: '登録が完了しました' });
-    //TODO:ヘッダー等の更新処理
+    //ユーザー情報のリフレッシュ
+    userStore.restoreUserData({
+      isReFetch: true,
+    });
   });
 };
 </script>
