@@ -67,6 +67,31 @@ function useCommon<T>(option?: QueryOption) {
   return { loading, error, data, handleError };
 }
 
+function generate<V = unknown>(
+  request: V,
+  options?: Omit<QueryOptions, 'query' | 'variables'>,
+  customOptions?: QueryOption,
+) {
+  //渡されたオプションからヘッダーを生成
+  const headers = options?.context?.headers || {};
+
+  // isAuthフラグがtrueの場合、JWTトークンを追加
+  if (customOptions?.isAuth) {
+    const token = localStorage.getItem(import.meta.env.VITE_JWT_TOKEN_NAME);
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+
+  //リクエストをvariablesでラップ
+  const variables = request ? { variables: request } : {};
+
+  return {
+    variables,
+    headers,
+  };
+}
+
 export function useQuery<T = unknown, V = unknown>(
   query: DocumentNode,
   option?: QueryOption,
@@ -84,21 +109,11 @@ export function useQuery<T = unknown, V = unknown>(
     ).name.value;
     loading.value = true;
     error.value = null;
+
     try {
-      const headers = options?.context?.headers || {};
-      // isAuthフラグがtrueの場合、JWTトークンを追加
-      if (option?.isAuth) {
-        const token = localStorage.getItem(import.meta.env.VITE_JWT_TOKEN_NAME);
-        console.log('トークン：', token);
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-        }
-      }
+      const { variables, headers } = generate(request, options, option);
 
-      //リクエストをvariablesでラップ
-      const variables = request ? { variables: request } : {};
-
-      console.log(queryName, '送信データ：', options);
+      console.log(queryName, '送信データ：', variables);
       const result: ApolloQueryResult<T> = await client.query<T>({
         ...variables,
         ...options,
@@ -146,20 +161,9 @@ export function useMutation<T = unknown, V = unknown>(
     loading.value = true;
     error.value = null;
     try {
-      const headers = options?.context?.headers || {};
-      // isAuthフラグがtrueの場合、JWTトークンを追加
-      if (option?.isAuth) {
-        const token = localStorage.getItem(import.meta.env.VITE_JWT_TOKEN_NAME);
-        console.log('トークン：', token);
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-        }
-      }
+      const { variables, headers } = generate(request, options, option);
 
-      //リクエストをvariablesでラップ
-      const variables = request ? { variables: request } : {};
-
-      console.log(mutationName, '送信データ：', options);
+      console.log(mutationName, '送信データ：', variables);
       const result: FetchResult<T> = await client.mutate<T>({
         ...variables,
         ...options,

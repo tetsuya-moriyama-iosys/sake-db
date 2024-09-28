@@ -1,6 +1,7 @@
 <template>
   <UserData v-if="userDetail" :userDetail="userDetail" />
 </template>
+
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 import { ref, watch } from 'vue';

@@ -48,6 +48,7 @@ onMounted(async () => {
   void fetchData();
   sidebarStore.setReloadFlgFalse();
 });
+
 watch(
   () => sidebarStore.isReloadFlg,
   () => {
