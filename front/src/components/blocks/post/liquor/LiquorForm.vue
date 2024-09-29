@@ -10,18 +10,14 @@
     <FormField :name="FormKeys.SELECTED_VERSION_NO" type="hidden" />
     <FormField :name="FormKeys.NAME" label="名前" />
     <FormField :name="FormKeys.DESCRIPTION" label="説明" as="textarea" />
-    <img
-      v-if="initialData?.imageBase64"
-      :src="`data:image/jpg;base64,${initialData.imageBase64}`"
-      alt="画像"
-    />
-    <FormField
+    <UploadWithImage
+      v-slot="{ setImage }"
       :name="FormKeys.IMAGE"
-      type="file"
-      as="input"
-      label="画像"
-      rules="required|image|size:5000"
-    />
+      :default="initialData?.imageBase64"
+    >
+      <!-- trigger を ref に保存 -->
+      <template v-if="setTrigger(setImage)"></template>
+    </UploadWithImage>
     <SubmitButton>登録</SubmitButton>
   </VForm>
 </template>
@@ -49,6 +45,7 @@ import type { LiquorForEdit } from '@/graphQL/Liquor/liquor';
 import { computed, type ComputedRef, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import type { AxiosResponse } from 'axios';
+import UploadWithImage from '@/components/parts/forms/common/UploadWithImage.vue';
 
 // propsから受け取る初期値
 const props = defineProps<{
@@ -64,14 +61,30 @@ const loading = useLoading();
 
 const form = ref<InstanceType<typeof VForm> | null>(null); //Form内部に定義されているフォームメソッドにアクセスするのに必要
 
+// trigger を保存する変数(↓typeなのにno-unused-varsが出るのでコメントアウト)
+// eslint-disable-next-line no-unused-vars
+type SetImage = (value: string | undefined) => void;
+let setImage: SetImage | null = null;
+
+// 子コンポーネントから受け取った trigger をセットする関数
+const setTrigger = (fn: SetImage) => {
+  setImage = fn;
+  return true; // v-if のために true を返す
+};
+
 //初期データが変更されたら、フォームをリセットする
 const resetForm = () => {
+  if (setImage == null) {
+    //通常ここには到達しないはず
+    return;
+  }
   form.value?.resetForm({
     values: {
       ...generateInitialValues(props.initialData),
       [FormKeys.VERSION_NO]: props.versionNo,
     },
   });
+  setImage(props.initialData?.imageBase64);
 };
 
 //初期値が変更されたらフォームをリセットする(Formコンポーネントに依存しているので、初回はonMounted)

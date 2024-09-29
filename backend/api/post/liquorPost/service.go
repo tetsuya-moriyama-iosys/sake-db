@@ -59,6 +59,7 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 		return nil, errors.New("不正な値が送信されました")
 	}
 
+	//TODO:更新時も、別IDに同名が存在するかどうかチェックした方がいいような気もする
 	if request.Id == nil {
 		//新規時のみ、名前の重複チェックを行う
 		l, err := h.LiquorsRepo.GetLiquorByName(ctx, request.Name)

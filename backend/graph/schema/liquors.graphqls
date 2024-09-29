@@ -57,7 +57,7 @@ extend type Query {
   liquor(id: String!): Liquor!
   randomRecommendList(limit: Int!): [Liquor!]! #ランダムなリスト
   listFromCategory(categoryId: Int!): ListFromCategory! #カテゴリで絞り込んだリスト
-  liquorHistories(id: String!):LiquorHistory
+  liquorHistories(id: String!):LiquorHistory #編集時に実行する、バージョン履歴つきのデータ
   board(liquorId: String!,page:Int):[BoardPost!]
   getMyBoard(liquorId: String!):BoardPost @optionalAuth #未ログイン時にも呼ばれるのでoptionalに
 }
