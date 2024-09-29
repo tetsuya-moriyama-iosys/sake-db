@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import useQuery from '@/funcs/composable/useQuery';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import LiquorEdit from '@/components/templates/post/LiquorEdit.vue';
 import {
@@ -42,6 +42,20 @@ onMounted(async () => {
       isLoading.value = false;
     });
 });
+
+//編集→新規投稿の導線があるが、考慮されていないのでパス監視を追加する
+watch(
+  () => route.params.id, // ルートのパスやクエリ、パラメータなどを監視
+  (to) => {
+    // ルートが変更された際に実行される処理
+    const id = to as string; // ルートパラメータからidを取得
+    if (!id) {
+      liquor.value = null;
+      return;
+    }
+  },
+  { immediate: true }, // 初回レンダリング時に実行される
+);
 </script>
 
 <style scoped></style>

@@ -14,6 +14,7 @@
         "
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
       >
+        <option :value="undefined">未選択</option>
         <option
           v-for="category in level"
           :key="category.id"
@@ -31,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, type ComputedRef, ref, watch } from 'vue';
 import { ErrorMessage, useField } from 'vee-validate';
 import useQuery from '@/funcs/composable/useQuery';
 import {
@@ -49,7 +50,7 @@ const props = defineProps<{
 }>();
 
 //階層構造の記憶
-const selectedValues = ref<string[]>([]);
+const selectedValues = ref<Array<string | undefined>>([]);
 //現時点で表示しているデータ
 const levels = ref<Category[][]>([]);
 
@@ -63,11 +64,16 @@ watch(
   () => props.initialId,
   async (newVal: number | null | undefined) => {
     const { categories: response } = await fetch({
-      fetchPolicy: 'no-cache', //カテゴリが途中で変更されると、意図しない変更になるリスクがある
+      fetchPolicy: 'no-cache', //カテゴリが途中で変更されると、意図しない変更になるリスクがあるので再取得
     });
     levels.value = [response]; // 最初の階層を設定
     initializeSelections(newVal, response); // 初期値で選択肢を初期化
     hiddenField.value = newVal?.toString(); // hiddenFieldにも設定
+    console.log('hiddenField.value:', hiddenField.value);
+    //idが空値の場合、セレクトボックスの初期化が必要
+    if (props.initialId == null) {
+      selectedValues.value = [];
+    }
   },
   { immediate: true }, // 初回に監視対象がある場合も実行
 );
@@ -78,11 +84,15 @@ const handleChange = (index: number) => {
   selectedValues.value = selectedValues.value.slice(0, index + 1);
   levels.value = levels.value.slice(0, index + 1);
 
+  if (selectedValues.value[index] === undefined) {
+    return;
+  }
+
   // 新しい選択肢を追加
   const selectedId = selectedValues.value[index];
   const selectedCategory = findCategoryById(
     levels.value[0], //大元のカテゴリを起点にして検索開始
-    parseInt(selectedId),
+    parseInt(selectedId as string), //ここに到達する時点でundefinedではない
   );
 
   //見つかったカテゴリが子カテゴリを持っていれば、選択肢に追加
@@ -106,9 +116,19 @@ const findCategoryById = (
 };
 
 //カテゴリリストの一番子のIDが、現時点で取得されている(最後に選択された)もの
-const finalCategoryId = computed(() => {
-  const lastSelected = selectedValues.value[selectedValues.value.length - 1];
-  return lastSelected || '';
+const finalCategoryId: ComputedRef<string> = computed(() => {
+  const lastSelected: string | undefined =
+    selectedValues.value[selectedValues.value.length - 1];
+  if (lastSelected !== undefined) {
+    return lastSelected as string;
+  }
+  //未選択の場合
+  if (selectedValues.value.length === 1) {
+    //一番親のカテゴリだった場合は空値を返す
+    return '';
+  }
+  //それ以外の場合は、更にその親の値を返せばOK
+  return selectedValues.value[selectedValues.value.length - 2] as string;
 });
 
 // finalCategoryIdの変更を検知してcategoryIdをセットする
@@ -118,7 +138,7 @@ watch(finalCategoryId, (newVal) => {
 
 // 指定された値に基づいてセレクトボックスを設定する関数
 const initializeSelections = (
-  id: number | null | undefined,
+  id: number | null | undefined, //未設定か明示的にnullが渡されてくるかでnullかundefined
   categories: Category[],
 ) => {
   //該当するIDまでのカテゴリ配列を取得

@@ -2,12 +2,14 @@ package liquorRepository
 
 import (
 	"backend/db"
-	"backend/util/helper"
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"math/rand"
+	"time"
 )
 
 type LiquorsRepository struct {
@@ -29,8 +31,25 @@ func NewLiquorsRepository(db *db.DB) LiquorsRepository {
 func (r *LiquorsRepository) GetLiquorById(ctx context.Context, id primitive.ObjectID) (*Model, error) {
 	// コレクションを取得
 	var liquor Model
-	helper.D(id.Hex())
 	if err := r.collection.FindOne(ctx, bson.M{ID: id}).Decode(&liquor); err != nil {
+		return nil, err
+	}
+
+	return &liquor, nil
+}
+func (r *LiquorsRepository) GetLiquorByName(ctx context.Context, name string) (*Model, error) {
+	// コレクションを取得
+	var liquor Model
+	if err := r.collection.FindOne(ctx, bson.M{Name: name}).Decode(&liquor); err != nil {
+		return nil, err
+	}
+
+	return &liquor, nil
+}
+func (r *LiquorsRepository) GetLiquorByRandomKey(ctx context.Context, key float64) (*Model, error) {
+	// コレクションを取得
+	var liquor Model
+	if err := r.collection.FindOne(ctx, bson.M{RandomKey: key}).Decode(&liquor); err != nil {
 		return nil, err
 	}
 
@@ -60,21 +79,76 @@ func (r *LiquorsRepository) GetLiquorsByIds(ctx context.Context, ids []primitive
 }
 
 func (r *LiquorsRepository) GetRandomLiquors(ctx context.Context, limit int) ([]*Model, error) {
-	// $sampleパイプラインを使ってランダムに指定件数を取得
-	cursor, err := r.collection.Aggregate(ctx, mongo.Pipeline{
-		{{"$sample", bson.D{{"size", limit}}}},
-	})
+	var collections []*Model
+
+	// コレクションの総ドキュメント数を取得
+	count, err := r.collection.CountDocuments(ctx, bson.D{})
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(ctx)
 
-	var collections []*Model
-	if err = cursor.All(ctx, &collections); err != nil {
+	if count == 0 {
+		return nil, nil // ドキュメントがない場合
+	}
+
+	//100万件以下であれば、普通にsampleで取得する
+	if count < 1000000 {
+		// $sampleパイプラインを使ってランダムに指定件数を取得
+		cursor, err := r.collection.Aggregate(ctx, mongo.Pipeline{
+			{{"$sample", bson.D{{"size", limit}}}},
+		})
+		if err != nil {
+			return nil, err
+		}
+		defer cursor.Close(ctx)
+
+		if err = cursor.All(ctx, &collections); err != nil {
+			return nil, err
+		}
+
+		return collections, nil
+	}
+
+	//100万件以上ある場合、ランダムキーによる取得ロジックにする
+	randomValue := rand.New(rand.NewSource(time.Now().UnixNano())).Float64() // ランダムな基準値を生成
+	// randomKey がランダム値以上のドキュメントを取得
+	cursor, err := r.collection.Find(ctx, bson.M{
+		RandomKey: bson.M{"$gte": randomValue},
+	}, options.Find().SetLimit(int64(limit)))
+
+	//noDocumentsエラーはFindメソッドでは返されない
+	if err != nil {
 		return nil, err
 	}
 
+	if err := cursor.All(ctx, &collections); err != nil {
+		return nil, err
+	}
+
+	// 取得した配列の長さが足らない場合、逆方向で探索
+	if len(collections) < limit {
+		remaining := limit - len(collections) //取得すべき件数
+
+		// 残りを補完するために randomKey < randomValue の範囲で再クエリ
+		cursor, err = r.collection.Find(ctx, bson.M{
+			"randomKey": bson.M{"$lt": randomValue},
+		}, options.Find().SetLimit(int64(remaining)))
+
+		if err != nil {
+			return nil, err // 再クエリでエラーが発生した場合は終了
+		}
+
+		var moreResults []*Model
+		if err := cursor.All(ctx, &moreResults); err != nil {
+			return nil, err // 再クエリのカーソル操作エラー
+		}
+
+		collections = append(collections, moreResults...)
+	}
+
+	// 取得した結果が足りなくてもエラーにせず、空の場合もそのまま返す
 	return collections, nil
+
 }
 
 func (r *LiquorsRepository) GetLiquorsFromCategoryIds(ctx context.Context, ids []int) ([]*Model, error) {

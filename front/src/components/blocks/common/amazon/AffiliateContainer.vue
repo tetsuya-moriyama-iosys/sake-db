@@ -23,8 +23,9 @@ import AffiliateCard from '@/components/blocks/common/amazon/AffiliateCard.vue';
 
 interface Props {
   name: string; //商品名
+  limit?: number;
 }
-const { name } = defineProps<Props>();
+const { name, limit } = defineProps<Props>();
 
 const { fetch } = useQuery<AffiliateResponse>(GET_AFFILIATE_LIST);
 
@@ -33,6 +34,7 @@ const affiliateData = ref<AffiliateData | null>(null);
 onMounted(async () => {
   const { data: response } = await fetch({
     keyword: name,
+    limit: limit ?? 5,
   });
   affiliateData.value = response;
 });

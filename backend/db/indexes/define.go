@@ -11,6 +11,21 @@ import (
 // IndexDefinitions インデックス定義のスライス
 var IndexDefinitions = []IndexDefinition{
 	//memo:_idには明示的にインデックスをつける必要はない(最初からユニーク制約インデックスがついてる)
+	//カテゴリ
+	//memo:"その他"の扱いが難しい･･････
+	//{
+	//	CollectionName: categoriesRepository.CollectionName,
+	//	IndexKeys:      bson.D{{categoriesRepository.Name, 1}},
+	//},
+	{
+		CollectionName: liquorRepository.CollectionName,
+		IndexKeys:      bson.D{{liquorRepository.Name, 1}},
+	},
+	{
+		CollectionName: liquorRepository.CollectionName,
+		IndexKeys:      bson.D{{liquorRepository.RandomKey, 1}},
+	},
+
 	//ブックマーク類
 	{
 		CollectionName: bookmarkRepository.CollectionName,
