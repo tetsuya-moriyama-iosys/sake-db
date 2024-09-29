@@ -40,6 +40,7 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphModel.Re
 	//登録して、挿入したデータを受け取る
 	newUser, err := r.UserRepo.Register(ctx, &user)
 	if err != nil {
+		//email重複もここに含まれる
 		return nil, errors.New("ユーザー登録に失敗しました。")
 	}
 	return newUser.ToGraphQL(), nil

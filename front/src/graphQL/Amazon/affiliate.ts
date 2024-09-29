@@ -17,8 +17,8 @@ export interface AffiliateResponse {
 }
 
 export const GET_AFFILIATE_LIST: DocumentNode = gql`
-  query ($keyword: String!) {
-    data(name: $keyword) {
+  query ($keyword: String!, $limit: Int) {
+    data(name: $keyword, limit: $limit) {
       items {
         name
         URL

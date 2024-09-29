@@ -22,6 +22,7 @@ const (
 	Rate3Users         = "rate3_users"
 	Rate2Users         = "rate2_users"
 	Rate1Users         = "rate1_users"
+	RandomKey          = "random_key"
 	VersionNo          = "version_no"
 )
 
@@ -39,6 +40,7 @@ type Model struct {
 	Rate2Users   []string           `bson:"rate2_users"`
 	Rate1Users   []string           `bson:"rate1_users"`
 	UpdatedAt    time.Time          `bson:"updated_at"`
+	RandomKey    float64            `bson:"random_key"`
 	VersionNo    *int               `bson:"version_no"`
 }
 
