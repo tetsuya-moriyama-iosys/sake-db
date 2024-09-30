@@ -35,4 +35,5 @@ extend type Mutation {
   updateUser(input: RegisterInput!): Boolean! @auth
   login(input: LoginInput!): AuthPayload!
   resetEmail(email:String!):Boolean!
+  resetEmailExe(token:String!):Boolean!
 }

@@ -12,6 +12,7 @@ export interface AuthUser {
   name: string;
   email: string;
   imageBase64: string | undefined; //アイコン表示に必要
+  profile: string;
 }
 
 export interface LoginResponse {
@@ -78,5 +79,11 @@ export const LOGIN: DocumentNode = gql`
         imageBase64
       }
     }
+  }
+`;
+
+export const PASSWORD_RESET: DocumentNode = gql`
+  mutation ($email: String!) {
+    passwordReset(email: $email)
   }
 `;

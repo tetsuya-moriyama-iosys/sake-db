@@ -144,6 +144,7 @@ type ComplexityRoot struct {
 		RegisterUser   func(childComplexity int, input graphModel.RegisterInput) int
 		RemoveBookMark func(childComplexity int, id string) int
 		ResetEmail     func(childComplexity int, email string) int
+		ResetEmailExe  func(childComplexity int, token string) int
 		UpdateUser     func(childComplexity int, input graphModel.RegisterInput) int
 	}
 
@@ -231,6 +232,7 @@ type MutationResolver interface {
 	UpdateUser(ctx context.Context, input graphModel.RegisterInput) (bool, error)
 	Login(ctx context.Context, input graphModel.LoginInput) (*graphModel.AuthPayload, error)
 	ResetEmail(ctx context.Context, email string) (bool, error)
+	ResetEmailExe(ctx context.Context, token string) (bool, error)
 	AddBookMark(ctx context.Context, id string) (bool, error)
 	RemoveBookMark(ctx context.Context, id string) (bool, error)
 	PostBoard(ctx context.Context, input graphModel.BoardInput) (bool, error)
@@ -730,6 +732,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.ResetEmail(childComplexity, args["email"].(string)), true
+
+	case "Mutation.resetEmailExe":
+		if e.complexity.Mutation.ResetEmailExe == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_resetEmailExe_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ResetEmailExe(childComplexity, args["token"].(string)), true
 
 	case "Mutation.updateUser":
 		if e.complexity.Mutation.UpdateUser == nil {
@@ -1346,6 +1360,7 @@ extend type Mutation {
   updateUser(input: RegisterInput!): Boolean! @auth
   login(input: LoginInput!): AuthPayload!
   resetEmail(email:String!):Boolean!
+  resetEmailExe(token:String!):Boolean!
 }
 `, BuiltIn: false},
 	{Name: "../schema/bookmarks.graphqls", Input: `# ブックマークリストに表示するユーザー情報(将来的に統計情報とか出す構想あるのでインターフェースは分離しておく)
@@ -1603,6 +1618,21 @@ func (ec *executionContext) field_Mutation_removeBookMark_args(ctx context.Conte
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_resetEmailExe_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["token"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("token"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["token"] = arg0
 	return args, nil
 }
 
@@ -4692,6 +4722,61 @@ func (ec *executionContext) fieldContext_Mutation_resetEmail(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_resetEmail_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_resetEmailExe(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_resetEmailExe(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().ResetEmailExe(rctx, fc.Args["token"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_resetEmailExe(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_resetEmailExe_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -10574,6 +10659,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "resetEmail":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_resetEmail(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resetEmailExe":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_resetEmailExe(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
