@@ -9,9 +9,9 @@ import (
 	"backend/graph/generated"
 	"backend/graph/graphModel"
 	"backend/service/userService"
+	"backend/util/amazon/ses"
 	"context"
 	"errors"
-
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -102,6 +102,17 @@ func (r *mutationResolver) Login(ctx context.Context, input graphModel.LoginInpu
 		Token: user.Token,
 	}
 	return result, nil
+}
+
+// ResetEmail is the resolver for the resetEmail field.
+func (r *mutationResolver) ResetEmail(ctx context.Context, email string) (bool, error) {
+	//TODO:リセットトークン生成処理
+	token := "dummy"
+	err := ses.SendPasswordReset(ctx, email, token)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 // GetUser is the resolver for the getUser field.
