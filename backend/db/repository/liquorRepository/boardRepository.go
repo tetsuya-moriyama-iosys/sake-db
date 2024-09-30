@@ -80,28 +80,15 @@ func (r *LiquorsRepository) BoardListByUser(ctx context.Context, uId primitive.O
 					"_id":   "$rate", // rateごとにグループ化
 					"posts": bson.M{"$push": "$$ROOT"},
 				}},
+				// posts配列の各要素に対してunwindを行う
+				bson.M{"$unwind": "$posts"},
 
 				agg.LookUp(CollectionName, "posts."+LiquorID, ID, "liquorDetails"),
 
 				// liquorDetailsをdocuments内のliquorフィールドとして追加
 				bson.M{"$addFields": bson.M{
-					"posts": bson.M{
-						"$map": bson.M{
-							"input": "$posts",
-							"as":    "post",
-							"in": bson.M{
-								"_id":         "$$post._id",
-								"category_id": "$$post.category_id",
-								"liquor_id":   "$$post.liquor_id",
-								"liquor_name": "$$post.liquor_name",
-								"text":        "$$post.text",
-								"updated_at":  "$$post.updated_at",
-								// liquorDetailsの最初の要素をliquorフィールドとして埋め込む
-								"liquor": bson.M{
-									"$arrayElemAt": bson.A{"$liquorDetails", 0},
-								},
-							},
-						},
+					"posts.liquor": bson.M{
+						"$arrayElemAt": bson.A{"$liquorDetails", 0}, // liquorDetailsの最初の要素をliquorとして埋め込む
 					},
 				}},
 
@@ -113,17 +100,18 @@ func (r *LiquorsRepository) BoardListByUser(ctx context.Context, uId primitive.O
 					"posts.liquor_name":       0,
 					"posts.liquor.version_no": 0,
 				}},
+				// 再びposts配列に戻す
+				bson.M{"$group": bson.M{
+					"_id":   "$_id",
+					"posts": bson.M{"$push": "$posts"},
+				}},
 			},
+			////////////////////////////////////////
 			"recentPosts": bson.A{
 				bson.M{"$sort": bson.M{ID: -1}}, // 降順にソート
 				bson.M{"$limit": limit},         // 直近n件を取得
 				// liquor_idでLiquorコレクションを$lookup
-				bson.M{"$lookup": bson.M{
-					"from":         CollectionName,  // 結合するコレクション
-					"localField":   "liquor_id",     // recentDocuments内のliquor_id
-					"foreignField": "_id",           // Liquorコレクションの_idフィールド
-					"as":           "liquorDetails", // 結合結果をliquorDetailsフィールドに格納
-				}},
+				agg.LookUp(CollectionName, LiquorID, ID, "liquorDetails"),
 
 				// liquorDetailsをrecentDocuments内のliquorフィールドとして追加
 				bson.M{"$addFields": bson.M{
@@ -152,6 +140,17 @@ func (r *LiquorsRepository) BoardListByUser(ctx context.Context, uId primitive.O
 		return nil, err
 	}
 	defer cursor.Close(ctx)
+
+	// クエリ結果をデバッグ用に出力
+	//for cursor.Next(ctx) {
+	//	// 生のドキュメントをbson.M型で取得してみる
+	//	var rawDoc bson.M
+	//	if err := cursor.Decode(&rawDoc); err != nil {
+	//		return nil, err
+	//	}
+	//	// 取得したドキュメントを標準出力にデバッグ出力
+	//	helper.D(rawDoc)
+	//}
 
 	// クエリ結果を詰め替え
 	var result *BoardListResponse
