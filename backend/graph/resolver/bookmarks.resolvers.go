@@ -10,7 +10,7 @@ import (
 	"backend/service/bookmarkService"
 	"backend/service/userService"
 	"context"
-
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -76,6 +76,19 @@ func (r *queryResolver) GetBookMarkList(ctx context.Context) ([]*graphModel.Book
 		return nil, err
 	}
 	bList, err := r.BookmarkRepo.List(ctx, uId)
+	if err != nil {
+		return nil, err
+	}
+	return bookmarkRepository.BookMarkList(bList).ToGraphQL(), nil
+}
+
+// GetBookMarkedList is the resolver for the getBookMarkedList field.
+func (r *queryResolver) GetBookMarkedList(ctx context.Context, id string) ([]*graphModel.BookMarkListUser, error) {
+	idObj, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+	bList, err := r.BookmarkRepo.BookmarkedList(ctx, idObj)
 	if err != nil {
 		return nil, err
 	}

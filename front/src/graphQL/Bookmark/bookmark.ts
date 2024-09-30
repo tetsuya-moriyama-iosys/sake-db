@@ -4,6 +4,9 @@ import { gql } from '@apollo/client/core';
 export interface GetBookmarkListResponse {
   readonly getBookMarkList: Bookmark[] | null;
 }
+export interface GetBookmarkedListResponse {
+  readonly getBookMarkedList: Bookmark[] | null;
+}
 
 export interface Bookmark {
   readonly userId: string;
@@ -30,11 +33,23 @@ export const LIST: DocumentNode = gql`
   }
 `;
 
+//被ブックマークのリスト
+export const BOOKMARKED_LIST: DocumentNode = gql`
+  query ($id: ID!) {
+    getBookMarkedList(id: $id) {
+      userId
+      name
+      createdAt
+    }
+  }
+`;
+
 export const CHECK: DocumentNode = gql`
   query ($id: String!) {
     getIsBookMarked(id: $id)
   }
 `;
+
 export const ADD: DocumentNode = gql`
   mutation ($id: String!) {
     addBookMark(id: $id)

@@ -151,6 +151,7 @@ type ComplexityRoot struct {
 		Category               func(childComplexity int, id int) int
 		Data                   func(childComplexity int, name string, limit *int) int
 		GetBookMarkList        func(childComplexity int) int
+		GetBookMarkedList      func(childComplexity int, id string) int
 		GetIsBookMarked        func(childComplexity int, id string) int
 		GetMyBoard             func(childComplexity int, liquorID string) int
 		GetRecommendLiquorList func(childComplexity int) int
@@ -237,6 +238,7 @@ type QueryResolver interface {
 	GetIsBookMarked(ctx context.Context, id string) (bool, error)
 	GetRecommendLiquorList(ctx context.Context) ([]*graphModel.Recommend, error)
 	GetBookMarkList(ctx context.Context) ([]*graphModel.BookMarkListUser, error)
+	GetBookMarkedList(ctx context.Context, id string) ([]*graphModel.BookMarkListUser, error)
 	Category(ctx context.Context, id int) (*graphModel.Category, error)
 	Categories(ctx context.Context) ([]*graphModel.Category, error)
 	Histories(ctx context.Context, id int) (*graphModel.CategoryHistory, error)
@@ -768,6 +770,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetBookMarkList(childComplexity), true
+
+	case "Query.getBookMarkedList":
+		if e.complexity.Query.GetBookMarkedList == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getBookMarkedList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetBookMarkedList(childComplexity, args["id"].(string)), true
 
 	case "Query.getIsBookMarked":
 		if e.complexity.Query.GetIsBookMarked == nil {
@@ -1345,6 +1359,7 @@ extend type Query {
   getIsBookMarked(id:String!):Boolean! @auth #対象ユーザーがブックマーク済かどうか判定する
   getRecommendLiquorList: [Recommend!]! @auth #ブックマークユーザーを考慮したランダムリスト
   getBookMarkList: [BookMarkListUser!] @auth
+  getBookMarkedList(id:ID!):[BookMarkListUser!] #ブックマークされたユーザーの一覧
 }
 
 extend type Mutation {
@@ -1437,7 +1452,7 @@ extend type Query {
   liquor(id: String!): Liquor!
   randomRecommendList(limit: Int!): [Liquor!]! #ランダムなリスト
   listFromCategory(categoryId: Int!): ListFromCategory! #カテゴリで絞り込んだリスト
-  liquorHistories(id: String!):LiquorHistory
+  liquorHistories(id: String!):LiquorHistory #編集時に実行する、バージョン履歴つきのデータ
   board(liquorId: String!,page:Int):[BoardPost!]
   getMyBoard(liquorId: String!):BoardPost @optionalAuth #未ログイン時にも呼ばれるのでoptionalに
 }
@@ -1657,6 +1672,21 @@ func (ec *executionContext) field_Query_data_args(ctx context.Context, rawArgs m
 		}
 	}
 	args["limit"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getBookMarkedList_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -5111,6 +5141,66 @@ func (ec *executionContext) fieldContext_Query_getBookMarkList(_ context.Context
 			}
 			return nil, fmt.Errorf("no field named %q was found under type BookMarkListUser", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getBookMarkedList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getBookMarkedList(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetBookMarkedList(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*graphModel.BookMarkListUser)
+	fc.Result = res
+	return ec.marshalOBookMarkListUser2ᚕᚖbackendᚋgraphᚋgraphModelᚐBookMarkListUserᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getBookMarkedList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "userId":
+				return ec.fieldContext_BookMarkListUser_userId(ctx, field)
+			case "name":
+				return ec.fieldContext_BookMarkListUser_name(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_BookMarkListUser_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BookMarkListUser", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getBookMarkedList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -10501,6 +10591,25 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getBookMarkList(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getBookMarkedList":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getBookMarkedList(ctx, field)
 				return res
 			}
 
