@@ -1,6 +1,7 @@
 package liquorRepository
 
 import (
+	"backend/db/repository/agg"
 	"context"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -80,12 +81,7 @@ func (r *LiquorsRepository) BoardListByUser(ctx context.Context, uId primitive.O
 					"posts": bson.M{"$push": "$$ROOT"},
 				}},
 
-				bson.M{"$lookup": bson.M{
-					"from":         CollectionName,    // 結合するコレクション
-					"localField":   "posts.liquor_id", // groupされたドキュメントのliquor_id
-					"foreignField": "_id",             // Liquorコレクションの_idフィールド
-					"as":           "liquorDetails",   // 結合結果をliquorDetailsフィールドに格納
-				}},
+				agg.LookUp(CollectionName, "posts."+LiquorID, ID, "liquorDetails"),
 
 				// liquorDetailsをdocuments内のliquorフィールドとして追加
 				bson.M{"$addFields": bson.M{

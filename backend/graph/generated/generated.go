@@ -80,9 +80,10 @@ type ComplexityRoot struct {
 	}
 
 	BookMarkListUser struct {
-		CreatedAt func(childComplexity int) int
-		Name      func(childComplexity int) int
-		UserID    func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
+		ImageBase64 func(childComplexity int) int
+		Name        func(childComplexity int) int
+		UserID      func(childComplexity int) int
 	}
 
 	Category struct {
@@ -403,6 +404,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BookMarkListUser.CreatedAt(childComplexity), true
+
+	case "BookMarkListUser.imageBase64":
+		if e.complexity.BookMarkListUser.ImageBase64 == nil {
+			break
+		}
+
+		return e.complexity.BookMarkListUser.ImageBase64(childComplexity), true
 
 	case "BookMarkListUser.name":
 		if e.complexity.BookMarkListUser.Name == nil {
@@ -1329,6 +1337,7 @@ extend type Mutation {
 type BookMarkListUser{
   userId:ID!
   name:String!
+  imageBase64:String
   createdAt:DateTime!
 }
 
@@ -2732,6 +2741,47 @@ func (ec *executionContext) _BookMarkListUser_name(ctx context.Context, field gr
 }
 
 func (ec *executionContext) fieldContext_BookMarkListUser_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BookMarkListUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BookMarkListUser_imageBase64(ctx context.Context, field graphql.CollectedField, obj *graphModel.BookMarkListUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BookMarkListUser_imageBase64(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ImageBase64, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BookMarkListUser_imageBase64(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BookMarkListUser",
 		Field:      field,
@@ -5136,6 +5186,8 @@ func (ec *executionContext) fieldContext_Query_getBookMarkList(_ context.Context
 				return ec.fieldContext_BookMarkListUser_userId(ctx, field)
 			case "name":
 				return ec.fieldContext_BookMarkListUser_name(ctx, field)
+			case "imageBase64":
+				return ec.fieldContext_BookMarkListUser_imageBase64(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_BookMarkListUser_createdAt(ctx, field)
 			}
@@ -5185,6 +5237,8 @@ func (ec *executionContext) fieldContext_Query_getBookMarkedList(ctx context.Con
 				return ec.fieldContext_BookMarkListUser_userId(ctx, field)
 			case "name":
 				return ec.fieldContext_BookMarkListUser_name(ctx, field)
+			case "imageBase64":
+				return ec.fieldContext_BookMarkListUser_imageBase64(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_BookMarkListUser_createdAt(ctx, field)
 			}
@@ -10035,6 +10089,8 @@ func (ec *executionContext) _BookMarkListUser(ctx context.Context, sel ast.Selec
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "imageBase64":
+			out.Values[i] = ec._BookMarkListUser_imageBase64(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._BookMarkListUser_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

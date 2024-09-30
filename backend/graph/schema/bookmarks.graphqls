@@ -2,6 +2,7 @@
 type BookMarkListUser{
   userId:ID!
   name:String!
+  imageBase64:String
   createdAt:DateTime!
 }
 

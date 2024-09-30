@@ -1,6 +1,6 @@
 <template>
   <table>
-    <tr>
+    <tr v-if="props.isShowHeader">
       <th>ユーザー名</th>
       <th v-if="props.isShowCreatedAt">追加日</th>
       <th v-if="$slots.default">
@@ -9,6 +9,11 @@
     </tr>
     <tr v-for="user in props.userList" :key="user.userId">
       <td>
+        <RadiusImage
+          v-if="user.imageBase64"
+          :imageSrc="user.imageBase64"
+          radius="10px"
+        />
         <router-link :to="{ name: 'UserPage', params: { id: user.userId } }">{{
           user.name
         }}</router-link>
@@ -28,9 +33,11 @@
 import { type Bookmark } from '@/graphQL/Bookmark/bookmark';
 import date from '@/funcs/util/date';
 import { format } from 'date-fns';
+import RadiusImage from '@/components/parts/common/RadiusImage.vue';
 
 const props = defineProps<{
   userList: Bookmark[];
+  isShowHeader?: boolean;
   isShowCreatedAt?: boolean;
 }>();
 </script>

@@ -11,6 +11,7 @@ export interface GetBookmarkedListResponse {
 export interface Bookmark {
   readonly userId: string;
   readonly name: string;
+  readonly imageBase64: string | null;
   readonly createdAt: Date;
 }
 export interface CheckResponse {
@@ -28,6 +29,7 @@ export const LIST: DocumentNode = gql`
     getBookMarkList {
       userId
       name
+      imageBase64
       createdAt
     }
   }
@@ -39,6 +41,7 @@ export const BOOKMARKED_LIST: DocumentNode = gql`
     getBookMarkedList(id: $id) {
       userId
       name
+      imageBase64
       createdAt
     }
   }

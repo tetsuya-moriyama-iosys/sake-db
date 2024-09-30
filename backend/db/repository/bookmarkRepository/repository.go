@@ -70,6 +70,7 @@ func (r *BookMarkRepository) BookmarkedList(ctx context.Context, uid primitive.O
 		return nil, err
 	}
 	defer cursor.Close(ctx)
+
 	// 結果を格納するスライス
 	var bList []*BookMarkListUser
 	// 取得したドキュメントをスライスにデコード

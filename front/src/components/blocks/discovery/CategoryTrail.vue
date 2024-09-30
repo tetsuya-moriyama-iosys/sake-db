@@ -7,7 +7,7 @@
       class="inline-block category-trail-item"
     >
       <router-link
-        :to="{ name: 'CategoryDetail', params: { id: category.id } }"
+        :to="{ name: 'CategoryNarrowDown', params: { id: category.id } }"
       >
         {{ category.name }}
       </router-link>

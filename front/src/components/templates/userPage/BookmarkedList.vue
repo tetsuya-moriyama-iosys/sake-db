@@ -1,7 +1,12 @@
 <template>
   このユーザーをブックマークしているユーザー
   <span v-if="userList">({{ userList.length }}人)</span>
-  <UserList v-if="userList" :user-list="userList" />
+  <UserList
+    v-if="userList"
+    :user-list="userList"
+    :is-show-created-at="false"
+    :is-show-header="false"
+  />
 </template>
 
 <script setup lang="ts">

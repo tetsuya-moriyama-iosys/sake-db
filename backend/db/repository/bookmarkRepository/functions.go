@@ -28,9 +28,10 @@ func generatePipeline(uid primitive.ObjectID, target Target, joinTarget Target) 
 		}},
 		//projectで整形する
 		bson.M{"$project": bson.M{
-			UserID:    "$user_data." + userRepository.ID, // usersコレクションからのuser_name
-			UserName:  "$user_data." + userRepository.NAME,
-			CreatedAT: 1,
+			UserID:      "$user_data." + userRepository.ID, // usersコレクションからのuser_name
+			UserName:    "$user_data." + userRepository.NAME,
+			ImageBase64: "$user_data." + userRepository.ImageBase64,
+			CreatedAT:   1,
 		}},
 	}
 }
