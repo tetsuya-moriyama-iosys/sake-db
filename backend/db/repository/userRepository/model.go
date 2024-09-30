@@ -9,6 +9,7 @@ const (
 	CollectionName = "users"
 	ID             = "_id"
 	NAME           = "name"
+	ImageBase64    = "image_base64"
 	EMAIL          = "email"
 	PASSWORD       = "password"
 )

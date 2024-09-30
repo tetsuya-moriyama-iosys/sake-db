@@ -1,5 +1,5 @@
 <template>
-  <slot :isBookmarked="isBookmarked" :onClick="onClick" />
+  <slot :isBookmarked="isBookmarked" :onClick="onClick" :remove="remove" />
 </template>
 
 <script setup lang="ts">

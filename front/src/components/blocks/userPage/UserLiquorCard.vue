@@ -1,6 +1,8 @@
 <template>
   <div class="liquor-container">
-    <router-link :to="{ name: 'LiquorDetail', params: { id: liquor.id } }">
+    <router-link
+      :to="{ name: 'LiquorDetail', params: { id: liquor.liquorId } }"
+    >
       <div class="top-content">
         <img
           v-if="liquor.imageBase64"
@@ -14,7 +16,8 @@
         :to="{ name: 'CategoryNarrowDown', params: { id: liquor.categoryId } }"
         ><p class="category-name">{{ liquor.categoryName }}</p></router-link
       >
-      <router-link :to="{ name: 'LiquorDetail', params: { id: liquor.id } }"
+      <router-link
+        :to="{ name: 'LiquorDetail', params: { id: liquor.liquorId } }"
         ><p class="title">{{ liquor.name }}</p></router-link
       >
       <div class="comment">

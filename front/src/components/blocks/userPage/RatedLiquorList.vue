@@ -4,7 +4,7 @@
       <UserLiquorCard
         v-for="liquor in liquorList"
         :liquor="liquor"
-        :key="liquor.id"
+        :key="liquor.liquorId"
       />
     </CardContainer>
   </div>

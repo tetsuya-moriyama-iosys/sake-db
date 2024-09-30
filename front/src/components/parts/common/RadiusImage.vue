@@ -60,6 +60,7 @@ watch(
 
 <style scoped>
 .image-container {
+  display: inline-block;
   overflow: hidden; /* 丸型に切り抜くために必要 */
 }
 

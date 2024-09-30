@@ -15,6 +15,9 @@
   <div>
     <UserPosts :evaluates="userDetail.evaluateList" />
   </div>
+  <div>
+    <BookmarkedList :id="userDetail.user.id" />
+  </div>
   <div class="user-recent-posts mt-5">
     <UserRecentPosts :recent-posts="userDetail.evaluateList.recentComments" />
   </div>
@@ -27,6 +30,7 @@ import UserPosts from '@/components/templates/userPage/UserPosts.vue';
 import UserRecentPosts from '@/components/templates/userPage/UserRecentPosts.vue';
 import BookMarkButton from '@/components/blocks/userPage/BookMarkButton.vue';
 import { useUserStore } from '@/stores/userStore';
+import BookmarkedList from '@/components/templates/userPage/BookmarkedList.vue';
 
 interface Props {
   userDetail: UserDetail;
@@ -34,4 +38,5 @@ interface Props {
 const userStore = useUserStore();
 const { userDetail } = defineProps<Props>();
 </script>
+
 <style scoped></style>
