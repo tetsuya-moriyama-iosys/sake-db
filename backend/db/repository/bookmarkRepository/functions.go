@@ -18,7 +18,7 @@ func generatePipeline(uid primitive.ObjectID, target Target, joinTarget Target) 
 	return bson.A{
 		// ドキュメントをフィルタリング
 		agg.Where(string(target), uid),
-		agg.LookUp(userRepository.CollectionName, string(joinTarget), userRepository.ID, "user_data"),
+		agg.LookUp(userRepository.CollectionName, string(joinTarget), userRepository.Id, "user_data"),
 		agg.GetFirst("user_data", false),
 		bson.M{"$sort": bson.M{
 			"_id": -1, // _idで降順ソート（新しい順）
@@ -28,8 +28,8 @@ func generatePipeline(uid primitive.ObjectID, target Target, joinTarget Target) 
 		}},
 		//projectで整形する
 		bson.M{"$project": bson.M{
-			UserID:      "$user_data." + userRepository.ID, // usersコレクションからのuser_name
-			UserName:    "$user_data." + userRepository.NAME,
+			UserID:      "$user_data." + userRepository.Id, // usersコレクションからのuser_name
+			UserName:    "$user_data." + userRepository.Name,
 			ImageBase64: "$user_data." + userRepository.ImageBase64,
 			CreatedAT:   1,
 		}},

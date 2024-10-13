@@ -114,7 +114,7 @@ func (r *mutationResolver) ResetEmail(ctx context.Context, email string) (bool, 
 	if err != nil {
 		return false, err
 	}
-	
+
 	//生成したトークンからメールを作り送信する
 	err = ses.SendPasswordReset(ctx, email, token)
 	if err != nil {
