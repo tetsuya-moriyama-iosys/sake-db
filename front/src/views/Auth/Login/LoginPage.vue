@@ -6,7 +6,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 
-import LoginForm from '@/components/templates/auth/login/LoginForm.vue';
+import LoginForm from '@/views/Auth/Login/form/LoginForm.vue';
 
 // const { isLogin } = useLogin();
 // const router = useRouter();
