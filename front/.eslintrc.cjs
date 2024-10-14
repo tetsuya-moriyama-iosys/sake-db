@@ -21,11 +21,13 @@ module.exports = {
     project: './tsconfig.eslint.json',
     extraFileExtensions: ['.vue'],
   },
-  plugins: ['vue', '@typescript-eslint', 'prettier'],
+  plugins: ['vue', '@typescript-eslint', 'prettier',"simple-import-sort"],
   rules: {
     'prettier/prettier': 'error',
     'no-unused-vars': 'error',
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error"
   },
   overrides: [
     {

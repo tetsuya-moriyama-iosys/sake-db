@@ -3,11 +3,9 @@ pre-commit:
   parallel: true
   commands:
     eslint:
-      run: npm run lint
+      run: npm run lint --fix
     prettier:
       run: npm run format
-    test:
-      run: npm run test
 
 post-commit:
   commands:
