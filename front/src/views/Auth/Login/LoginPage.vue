@@ -4,8 +4,9 @@
 </template>
 
 <script setup lang="ts">
-import LoginForm from '@/components/templates/auth/login/LoginForm.vue';
 import { onMounted } from 'vue';
+
+import LoginForm from '@/components/templates/auth/login/LoginForm.vue';
 
 // const { isLogin } = useLogin();
 // const router = useRouter();
