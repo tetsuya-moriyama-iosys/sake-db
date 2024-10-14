@@ -15,16 +15,17 @@
   />
 </template>
 <script setup lang="ts">
+import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+
 import useQuery from '@/funcs/composable/useQuery';
+import type { Liquor } from '@/graphQL/Index/random';
 import {
   LIQUOR_LIST_FROM_CATEGORY,
   type ListFromCategoryResponse,
 } from '@/graphQL/Liquor/liquor';
-import type { Liquor } from '@/graphQL/Index/random';
-import { ref, watch } from 'vue';
 import { useSelectedCategoryStore } from '@/stores/sidebar';
-import FromCategory from '@/components/templates/discovery/FromCategory.vue';
+import FromCategory from '@/views/Discovery/NarrowDowns/FromCategory.vue';
 
 const route = useRoute(); // 現在のルートを取得
 const sidebarStore = useSelectedCategoryStore();

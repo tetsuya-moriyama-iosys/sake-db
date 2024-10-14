@@ -13,9 +13,9 @@
   </div>
 </template>
 <script setup lang="ts">
-import HeaderArea from '@/components/layouts/main/header/HeaderArea.vue';
 import FooterArea from '@/components/layouts/main/FooterArea.vue';
-import SideBar from '@/components/layouts/main/sideBar/SideBar.vue';
+import HeaderArea from '@/components/layouts/main/header/HeaderArea.vue';
+import SideBar from '@/components/layouts/main/SideBar/SideBar.vue';
 </script>
 
 <style scoped>

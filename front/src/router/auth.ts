@@ -1,7 +1,7 @@
-import RegisterPage from '@/views/Auth/RegisterPage.vue';
-import LoginPage from '@/views/Auth/LoginPage.vue';
-import PasswordReset from '@/views/Auth/PasswordReset.vue';
-import PasswordResetExe from '@/views/Auth/PasswordResetExe.vue';
+import LoginPage from '@/views/Auth/Login/LoginPage.vue';
+import PasswordReset from '@/views/Auth/PasswordReset/PasswordReset.vue';
+import PasswordResetExe from '@/views/Auth/PasswordResetExe/PasswordResetExe.vue';
+import RegisterPage from '@/views/Auth/Register/RegisterPage.vue';
 
 const AuthRouter = {
   path: 'auth',
