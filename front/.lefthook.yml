@@ -1,0 +1,15 @@
+# .lefthook.yml
+pre-commit:
+  parallel: true
+  commands:
+    eslint:
+      run: npm run lint
+    prettier:
+      run: npm run format
+    test:
+      run: npm run test
+
+post-commit:
+  commands:
+    message:
+      run: echo "コミットが完了しました。"
