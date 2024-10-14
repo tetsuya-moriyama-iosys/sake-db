@@ -181,7 +181,7 @@ func (r *BookMarkRepository) GetRecommendLiquors(ctx context.Context, uid primit
 		},
 
 		//ユーザー情報・お酒情報を結合
-		agg.LookUp(userRepository.CollectionName, "user_id", userRepository.ID, "user_info"),
+		agg.LookUp(userRepository.CollectionName, "user_id", userRepository.Id, "user_info"),
 		agg.GetFirst("user_info", false),
 		agg.LookUp(liquorRepository.CollectionName, "liquor_id", liquorRepository.ID, "liquor"),
 		agg.GetFirst("liquor", false),

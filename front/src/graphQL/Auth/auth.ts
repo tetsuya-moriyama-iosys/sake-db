@@ -12,10 +12,14 @@ export interface AuthUser {
   name: string;
   email: string;
   imageBase64: string | undefined; //アイコン表示に必要
+  profile: string;
 }
 
 export interface LoginResponse {
   readonly login: LoginResult;
+}
+export interface ResetEmailExeResponse {
+  readonly resetExe: LoginResult;
 }
 export interface LoginResult {
   readonly token: string;
@@ -71,6 +75,24 @@ export const GET_MY_USERDATA_FULL: DocumentNode = gql`
 export const LOGIN: DocumentNode = gql`
   mutation ($input: LoginInput!) {
     login(input: $input) {
+      token
+      user {
+        id
+        name
+        imageBase64
+      }
+    }
+  }
+`;
+
+export const PASSWORD_RESET: DocumentNode = gql`
+  mutation ($email: String!) {
+    resetEmail(email: $email)
+  }
+`;
+export const PASSWORD_RESET_EXE: DocumentNode = gql`
+  mutation ($token: String!, $password: String!) {
+    resetExe(token: $token, password: $password) {
       token
       user {
         id

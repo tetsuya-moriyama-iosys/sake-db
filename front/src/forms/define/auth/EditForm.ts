@@ -9,7 +9,7 @@ import {
   validationSchema as RegisterValidationSchema,
 } from './RegisterForm';
 import { string } from 'yup';
-import type { UserFullData } from '@/graphQL/User/user';
+import type { AuthUser } from '@/graphQL/Auth/auth';
 
 yup.setLocale(yupLocaleJP);
 
@@ -24,7 +24,7 @@ export interface FormValues extends RegisterFormValues {
   [FormKeys.PROFILE]: string;
 }
 
-export function generateInitialValues(user: UserFullData): FormValues {
+export function generateInitialValues(user: AuthUser): FormValues {
   return {
     [FormKeys.NAME]: user.name,
     [FormKeys.MAIL]: user.email,

@@ -51,3 +51,10 @@ func Login(ctx context.Context, input graphModel.LoginInput, r *userRepository.U
 	}
 	return result, nil
 }
+
+func (u *UserWithToken) ToGraphQL() *graphModel.AuthPayload {
+	return &graphModel.AuthPayload{
+		User:  u.User.ToGraphQL(),
+		Token: u.Token,
+	}
+}

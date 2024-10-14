@@ -22,7 +22,7 @@ type User {
   name: String!
   email: String!
   profile: String
-  imageBase64: String     # 縮小された画像のBase64エンコードデータ
+  imageBase64: String # 縮小された画像のBase64エンコードデータ
 }
 
 extend type Query {
@@ -34,4 +34,6 @@ extend type Mutation {
   registerUser(input: RegisterInput!): User!
   updateUser(input: RegisterInput!): Boolean! @auth
   login(input: LoginInput!): AuthPayload!
+  resetEmail(email:String!):Boolean!
+  resetExe(token:String!,password:String!): AuthPayload! #一旦ログインさせる方針に
 }

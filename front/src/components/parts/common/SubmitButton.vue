@@ -4,8 +4,8 @@
     v-bind="props"
     :is-disabled="!isValid"
     :class="props.class"
-    ><slot
-  /></CommonButton>
+    ><slot>送信</slot></CommonButton
+  >
 </template>
 
 <script setup lang="ts">
