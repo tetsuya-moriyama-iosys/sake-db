@@ -3,6 +3,7 @@ package userRepository
 import (
 	"backend/db"
 	"context"
+	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -78,11 +79,40 @@ func (r *UsersRepository) GetById(ctx context.Context, id primitive.ObjectID) (*
 
 func (r *UsersRepository) SetPasswordToken(ctx context.Context, email string, token string) error {
 	// ドキュメントの更新
-	_, err := r.collection.UpdateOne(ctx, bson.M{Email: email}, bson.M{
+	result, err := r.collection.UpdateOne(ctx, bson.M{Email: email}, bson.M{
 		"$set": bson.M{
 			PasswordResetToken:       token,
 			PasswordResetTokenExpire: time.Now().Add(1 * time.Hour),
 		},
 	})
+	if result.MatchedCount == 0 {
+		// ドキュメントが存在しなかった場合の処理
+		return errors.New("ユーザーが見つかりません")
+	}
 	return err
+}
+
+func (r *UsersRepository) GetByPasswordToken(ctx context.Context, token string) (*Model, error) {
+	// コレクションを取得
+	var user Model
+	if err := r.collection.FindOne(ctx, bson.M{PasswordResetToken: token, PasswordResetTokenExpire: bson.M{"$gt": time.Now()}}).Decode(&user); err != nil {
+		return nil, errors.New("有効期限切れです。パスワードリセットURLを再発行してください。")
+	}
+
+	return &user, nil
+}
+
+func (r *UsersRepository) PasswordReset(ctx context.Context, user Model, password []byte) error {
+	// パスワードを更新するクエリを実行
+	_, err := r.collection.UpdateOne(ctx, bson.M{"_id": user.ID}, bson.M{
+		"$set": bson.M{
+			Password:                 password,
+			PasswordResetToken:       nil,
+			PasswordResetTokenExpire: nil,
+		},
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }

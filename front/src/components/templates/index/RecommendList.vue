@@ -1,13 +1,16 @@
 <!--リコメンドリストレイアウト-->
 <template>
-  <div id="random-pickup-area">
-    <CardContainer>
-      <RecommendCard
-        v-for="data in dataList"
-        :data="data"
-        :key="data.liquor.id"
-      />
-    </CardContainer>
+  <div v-if="dataList.length > 0">
+    リコメンドリスト
+    <div id="random-pickup-area">
+      <CardContainer>
+        <RecommendCard
+          v-for="data in dataList"
+          :data="data"
+          :key="data.liquor.id"
+        />
+      </CardContainer>
+    </div>
   </div>
 </template>
 

@@ -8,6 +8,7 @@
     <FormField :name="FormKeys.PASSWORD" label="パスワード" type="password" />
     <SubmitButton>ログイン</SubmitButton>
   </Form>
+  <router-link :to="{ name: 'PasswordReset' }">パスワードリセット</router-link>
 </template>
 
 <script setup lang="ts">

@@ -13,8 +13,6 @@ import (
 	"backend/util/amazon/ses"
 	"context"
 	"errors"
-	"fmt"
-
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -100,11 +98,8 @@ func (r *mutationResolver) Login(ctx context.Context, input graphModel.LoginInpu
 	if err != nil {
 		return nil, err
 	}
-	result := &graphModel.AuthPayload{
-		User:  user.User.ToGraphQL(),
-		Token: user.Token,
-	}
-	return result, nil
+
+	return user.ToGraphQL(), nil
 }
 
 // ResetEmail is the resolver for the resetEmail field.
@@ -123,9 +118,21 @@ func (r *mutationResolver) ResetEmail(ctx context.Context, email string) (bool, 
 	return true, nil
 }
 
-// ResetEmailExe is the resolver for the resetEmailExe field.
-func (r *mutationResolver) ResetEmailExe(ctx context.Context, token string) (bool, error) {
-	panic(fmt.Errorf("not implemented: ResetEmailExe - resetEmailExe"))
+// ResetExe is the resolver for the resetExe field.
+func (r *mutationResolver) ResetExe(ctx context.Context, token string, password string) (*graphModel.AuthPayload, error) {
+	user, err := authService.PasswordResetExe(ctx, r.UserRepo, token, password)
+	if err != nil {
+		return nil, err
+	}
+	//ログイン処理も同時にする(トークン発行が必要)
+	lUser, err := r.Login(ctx, graphModel.LoginInput{
+		Email:    user.Email,
+		Password: password,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return lUser, nil
 }
 
 // GetUser is the resolver for the getUser field.

@@ -66,6 +66,6 @@ var IndexDefinitions = []IndexDefinition{
 	//ユーザー系
 	{
 		CollectionName: userRepository.CollectionName,
-		IndexKeys:      bson.D{{userRepository.EMAIL, 1}},
+		IndexKeys:      bson.D{{userRepository.Email, 1}},
 	},
 }

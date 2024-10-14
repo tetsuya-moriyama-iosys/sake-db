@@ -39,13 +39,11 @@ const onSubmit: SubmissionHandler = async (values: {
 }) => {
   await execute({
     email: values[EMAIL_NAME],
-  }).then((res) => {
-    if (res.passwordReset) {
-      toast.showToast({
-        message: 'パスワードリセットメールを送信しました。',
-        type: ToastType.Success,
-      });
-    }
+  }).then(() => {
+    toast.showToast({
+      message: 'パスワードリセットメールを送信しました。',
+      type: ToastType.Success,
+    });
   });
 };
 </script>

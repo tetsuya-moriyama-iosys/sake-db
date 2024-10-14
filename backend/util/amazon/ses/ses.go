@@ -21,9 +21,11 @@ type emailContent struct {
 }
 
 func SendPasswordReset(ctx context.Context, email string, token string) error {
+	//メールテンプレートを作る
 	msg, err := pwRstTemp(&passwordReset{
 		Token: token,
 	})
+	//メールを送信する
 	err = sendMail(ctx, &emailContent{
 		Subject: pwResetTitle,
 		To:      email,

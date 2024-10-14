@@ -4,6 +4,7 @@ import (
 	"backend/db/repository/userRepository"
 	"context"
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
 	"math/rand"
 	"time"
 )
@@ -30,4 +31,20 @@ func GeneratePasswordResetToken(ctx context.Context, r userRepository.UsersRepos
 
 	// base64でエンコードしてトークンを文字列に変換
 	return token, nil
+}
+
+func PasswordResetExe(ctx context.Context, r userRepository.UsersRepository, token string, password string) (*userRepository.Model, error) {
+	user, err := r.GetByPasswordToken(ctx, token)
+	if err != nil {
+		return nil, err
+	}
+	//パスワードをハッシュする
+	var newPassword []byte
+	newPassword, err = bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+	//パスワードリセットを実行する
+	err = r.PasswordReset(ctx, *user, newPassword)
+	return user, err
 }

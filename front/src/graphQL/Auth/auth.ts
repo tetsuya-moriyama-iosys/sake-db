@@ -18,6 +18,9 @@ export interface AuthUser {
 export interface LoginResponse {
   readonly login: LoginResult;
 }
+export interface ResetEmailExeResponse {
+  readonly resetExe: LoginResult;
+}
 export interface LoginResult {
   readonly token: string;
   readonly user: AuthUser;
@@ -84,6 +87,18 @@ export const LOGIN: DocumentNode = gql`
 
 export const PASSWORD_RESET: DocumentNode = gql`
   mutation ($email: String!) {
-    passwordReset(email: $email)
+    resetEmail(email: $email)
+  }
+`;
+export const PASSWORD_RESET_EXE: DocumentNode = gql`
+  mutation ($token: String!, $password: String!) {
+    resetExe(token: $token, password: $password) {
+      token
+      user {
+        id
+        name
+        imageBase64
+      }
+    }
   }
 `;
