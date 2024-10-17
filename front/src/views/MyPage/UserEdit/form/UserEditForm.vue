@@ -29,7 +29,7 @@ import UploadWithImage from '@/components/parts/forms/common/UploadWithImage.vue
 import FormField from '@/components/parts/forms/core/FormField.vue';
 import { useMutation } from '@/funcs/composable/useQuery';
 import { useToast } from '@/funcs/composable/useToast';
-import { type AuthUser, Update } from '@/graphQL/Auth/auth';
+import { type AuthUser, type AuthUserFull, Update } from '@/graphQL/Auth/auth';
 import { useUserStore } from '@/stores/userStore';
 import {
   FormKeys,
@@ -39,7 +39,7 @@ import {
 } from '@/views/MyPage/UserEdit/form/EditForm';
 
 interface Props {
-  user: AuthUser;
+  user: AuthUserFull;
 }
 
 const props = defineProps<Props>();
