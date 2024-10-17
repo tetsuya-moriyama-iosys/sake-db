@@ -1,15 +1,15 @@
 import { defineStore } from 'pinia';
+import { nextTick, ref } from 'vue';
+
+import useQuery from '@/funcs/composable/useQuery';
 import {
   type AuthUser,
   GET_USER,
   type GetUserResponse,
   type LoginResult,
 } from '@/graphQL/Auth/auth';
-import useQuery from '@/funcs/composable/useQuery';
-import { nextTick, ref } from 'vue';
 
 export const USER_STORE = 'user_store';
-export type StoreUser = Omit<AuthUser, 'email'>;
 
 export const useUserStore = defineStore(USER_STORE, () => {
   const { fetch } = useQuery<GetUserResponse>(GET_USER, {
@@ -17,7 +17,7 @@ export const useUserStore = defineStore(USER_STORE, () => {
   });
 
   const isLogin = ref<boolean>(false);
-  const user = ref<StoreUser | null>(null); //emailはさすがに要らない
+  const user = ref<AuthUser | null>(null);
 
   function setUserData(response: LoginResult) {
     localStorage.setItem(import.meta.env.VITE_JWT_TOKEN_NAME, response.token); //ローカルストレージにtokenをセット

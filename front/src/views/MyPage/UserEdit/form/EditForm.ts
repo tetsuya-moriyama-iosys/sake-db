@@ -4,7 +4,7 @@
 import * as yup from 'yup';
 import { string } from 'yup';
 
-import type { AuthUser } from '@/graphQL/Auth/auth';
+import type { AuthUserFull } from '@/graphQL/Auth/auth';
 import yupLocaleJP from '@/lib/yup/yupLocaleJa';
 
 import {
@@ -26,7 +26,7 @@ export interface FormValues extends RegisterFormValues {
   [FormKeys.PROFILE]: string;
 }
 
-export function generateInitialValues(user: AuthUser): FormValues {
+export function generateInitialValues(user: AuthUserFull): FormValues {
   return {
     [FormKeys.NAME]: user.name,
     [FormKeys.MAIL]: user.email,

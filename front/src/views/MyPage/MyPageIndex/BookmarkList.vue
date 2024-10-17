@@ -51,7 +51,6 @@ const reFetch = async ({
 
 //削除ボタンの動作
 const deleteUser = async (userId: string, removeFn: () => Promise<void>) => {
-  console.log(userId);
   await removeFn();
   //再度取得する
   void reFetch({

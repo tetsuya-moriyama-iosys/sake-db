@@ -7,11 +7,11 @@
 </template>
 
 <script setup lang="ts">
-import type { AuthUser } from '@/graphQL/Auth/auth';
+import type { AuthUserFull } from '@/graphQL/Auth/auth';
 import BookmarkList from '@/views/MyPage/MyPageIndex/BookmarkList.vue';
 
 interface Props {
-  user: AuthUser;
+  user: AuthUserFull;
 }
 
 const props = defineProps<Props>();
