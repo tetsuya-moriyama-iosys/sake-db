@@ -11,15 +11,16 @@
 </template>
 
 <script setup lang="ts">
-import useQuery from '@/funcs/composable/useQuery';
 import { onMounted, ref } from 'vue';
+
+import AffiliateCard from '@/components/blocks/common/amazon/AffiliateCard.vue';
+import CardContainer from '@/components/parts/common/CardContainer.vue';
+import useQuery from '@/funcs/composable/useQuery';
 import {
   type AffiliateData,
   type AffiliateResponse,
   GET_AFFILIATE_LIST,
 } from '@/graphQL/Amazon/affiliate';
-import CardContainer from '@/components/parts/common/CardContainer.vue';
-import AffiliateCard from '@/components/blocks/common/amazon/AffiliateCard.vue';
 
 interface Props {
   name: string; //商品名

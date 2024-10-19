@@ -1,5 +1,5 @@
-import type { DocumentNode } from 'graphql/index';
 import { gql } from '@apollo/client/core';
+import type { DocumentNode } from 'graphql/index';
 
 export interface GetBookmarkListResponse {
   readonly getBookMarkList: Bookmark[] | null;

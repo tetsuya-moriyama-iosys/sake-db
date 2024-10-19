@@ -1,26 +1,27 @@
 /**
  * GraphQL用クライアント
  */
-import { ref, watch } from 'vue';
+import type { FetchResult } from '@apollo/client';
+import type { ApolloQueryResult } from '@apollo/client/core/types';
+import type {
+  MutationOptions,
+  QueryOptions,
+} from '@apollo/client/core/watchQueryOptions';
 import {
   type DocumentNode,
   type FieldNode,
   type OperationDefinitionNode,
 } from 'graphql';
-import client from '@/apolloClient';
-import type {
-  MutationOptions,
-  QueryOptions,
-} from '@apollo/client/core/watchQueryOptions';
-import type { ApolloQueryResult } from '@apollo/client/core/types';
-import { useToast } from '@/funcs/composable/useToast';
-import type { FetchResult } from '@apollo/client';
+import { ref, watch } from 'vue';
 import {
   type ActiveLoader,
   type PluginApi,
   useLoading,
 } from 'vue-loading-overlay';
 import { type Router, useRouter } from 'vue-router';
+
+import client from '@/apolloClient';
+import { useToast } from '@/funcs/composable/useToast';
 
 const spinner: PluginApi = useLoading();
 

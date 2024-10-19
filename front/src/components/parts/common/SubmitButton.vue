@@ -9,10 +9,11 @@
 </template>
 
 <script setup lang="ts">
-import CommonButton from '@/components/parts/common/CommonButton.vue';
-import type { ButtonProps } from '@/type/component/parts/ButtonProps';
 import { useIsFormValid } from 'vee-validate';
 import { onMounted, ref, watch } from 'vue';
+
+import CommonButton from '@/components/parts/common/CommonButton.vue';
+import type { ButtonProps } from '@/type/component/parts/ButtonProps';
 
 const props = defineProps<ButtonProps>();
 

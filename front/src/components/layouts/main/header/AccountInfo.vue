@@ -14,8 +14,8 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from '@/stores/userStore';
 import RadiusImage from '@/components/parts/common/RadiusImage.vue';
+import { useUserStore } from '@/stores/userStore';
 
 const userStore = useUserStore();
 </script>
