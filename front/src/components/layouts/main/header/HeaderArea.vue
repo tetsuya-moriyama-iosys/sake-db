@@ -18,8 +18,8 @@
 </template>
 
 <script setup lang="ts">
-import MainMenu from '@/components/layouts/main/header/MainMenu.vue';
 import AccountInfo from '@/components/layouts/main/header/AccountInfo.vue';
+import MainMenu from '@/components/layouts/main/header/menu/MainMenu.vue';
 </script>
 
 <style scoped>

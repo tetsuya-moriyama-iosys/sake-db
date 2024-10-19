@@ -1,10 +1,10 @@
 <template>
-  <slot :isBookmarked="isBookmarked" :onClick="onClick" />
+  <slot :isBookmarked="isBookmarked" :onClick="onClick" :remove="remove" />
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useUserStore } from '@/stores/userStore';
+
 import { useMutation, useQuery } from '@/funcs/composable/useQuery';
 import {
   ADD,
@@ -14,6 +14,7 @@ import {
   REMOVE,
   type RemoveResponse,
 } from '@/graphQL/Bookmark/bookmark';
+import { useUserStore } from '@/stores/userStore';
 
 const userStore = useUserStore();
 const isBookmarked = ref<boolean>(false);

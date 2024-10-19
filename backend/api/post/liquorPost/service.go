@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"math/rand"
 	"net/http"
 	"time"
 )
@@ -38,9 +39,37 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
+	var random float64
+	for {
+		random = rand.New(rand.NewSource(time.Now().UnixNano())).Float64()
+		_, err := h.LiquorsRepo.GetLiquorByRandomKey(ctx, random)
+		//特に見つからなければOK
+		if err == mongo.ErrNoDocuments {
+			break
+		}
+		//それ以外の何らかのエラーがあれば終了
+		if err != nil {
+			return nil, err
+		}
+		//普通に見つかってたらループする
+	}
+
 	// 画像以外のフォームデータを構造体にバインド
 	if err := c.ShouldBind(&request); err != nil {
-		return nil, errors.New("invalid form data")
+		return nil, errors.New("不正な値が送信されました")
+	}
+
+	//TODO:更新時も、別IDに同名が存在するかどうかチェックした方がいいような気もする
+	if request.Id == nil {
+		//新規時のみ、名前の重複チェックを行う
+		l, err := h.LiquorsRepo.GetLiquorByName(ctx, request.Name)
+		if err != mongo.ErrNoDocuments {
+			//見つからないエラーは正常系だが、それ以外のエラーの場合
+			return nil, err
+		}
+		if l != nil {
+			return nil, errors.New("すでに存在するお酒です")
+		}
 	}
 
 	if request.Id != nil {
@@ -167,6 +196,7 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 		ImageURL:     newImageURL,
 		ImageBase64:  newBase64,
 		UpdatedAt:    time.Now(),
+		RandomKey:    random, //毎回更新する
 		VersionNo:    &newVersionNo,
 	}
 

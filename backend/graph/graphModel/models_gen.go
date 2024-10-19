@@ -43,9 +43,10 @@ type BoardPost struct {
 }
 
 type BookMarkListUser struct {
-	UserID    string    `json:"userId"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"createdAt"`
+	UserID      string    `json:"userId"`
+	Name        string    `json:"name"`
+	ImageBase64 *string   `json:"imageBase64,omitempty"`
+	CreatedAt   time.Time `json:"createdAt"`
 }
 
 type Category struct {

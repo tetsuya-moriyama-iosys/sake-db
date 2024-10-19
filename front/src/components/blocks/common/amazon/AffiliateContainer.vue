@@ -11,20 +11,22 @@
 </template>
 
 <script setup lang="ts">
-import useQuery from '@/funcs/composable/useQuery';
 import { onMounted, ref } from 'vue';
+
+import AffiliateCard from '@/components/blocks/common/amazon/AffiliateCard.vue';
+import CardContainer from '@/components/parts/common/CardContainer.vue';
+import useQuery from '@/funcs/composable/useQuery';
 import {
   type AffiliateData,
   type AffiliateResponse,
   GET_AFFILIATE_LIST,
 } from '@/graphQL/Amazon/affiliate';
-import CardContainer from '@/components/parts/common/CardContainer.vue';
-import AffiliateCard from '@/components/blocks/common/amazon/AffiliateCard.vue';
 
 interface Props {
   name: string; //商品名
+  limit?: number;
 }
-const { name } = defineProps<Props>();
+const { name, limit } = defineProps<Props>();
 
 const { fetch } = useQuery<AffiliateResponse>(GET_AFFILIATE_LIST);
 
@@ -33,6 +35,7 @@ const affiliateData = ref<AffiliateData | null>(null);
 onMounted(async () => {
   const { data: response } = await fetch({
     keyword: name,
+    limit: limit ?? 5,
   });
   affiliateData.value = response;
 });

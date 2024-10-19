@@ -9,6 +9,7 @@ const (
 	CollectionName     = "categories"
 	LogsCollectionName = "categories_logs"
 	ID                 = "id"
+	CategoryId         = "category_id" //ログ用
 	Name               = "name"
 	ImageURL           = "image_url"
 	ImageBase64        = "image_base64"

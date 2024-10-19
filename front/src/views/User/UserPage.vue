@@ -1,16 +1,18 @@
 <template>
   <UserData v-if="userDetail" :userDetail="userDetail" />
 </template>
+
 <script setup lang="ts">
-import { useRoute } from 'vue-router';
 import { ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
+
 import useQuery from '@/funcs/composable/useQuery';
 import {
   GET_USERDATA_FULL,
   type GetUserDetailResponse,
   type UserDetail,
 } from '@/graphQL/User/user';
-import UserData from '@/components/templates/userPage/UserData.vue';
+import UserData from '@/views/User/UserData.vue';
 
 const userDetail = ref<UserDetail>();
 

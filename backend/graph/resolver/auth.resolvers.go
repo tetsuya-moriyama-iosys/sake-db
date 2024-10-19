@@ -8,10 +8,11 @@ import (
 	"backend/db/repository/userRepository"
 	"backend/graph/generated"
 	"backend/graph/graphModel"
+	"backend/service/authService"
 	"backend/service/userService"
+	"backend/util/amazon/ses"
 	"context"
 	"errors"
-
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -40,6 +41,7 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphModel.Re
 	//登録して、挿入したデータを受け取る
 	newUser, err := r.UserRepo.Register(ctx, &user)
 	if err != nil {
+		//email重複もここに含まれる
 		return nil, errors.New("ユーザー登録に失敗しました。")
 	}
 	return newUser.ToGraphQL(), nil
@@ -96,11 +98,41 @@ func (r *mutationResolver) Login(ctx context.Context, input graphModel.LoginInpu
 	if err != nil {
 		return nil, err
 	}
-	result := &graphModel.AuthPayload{
-		User:  user.User.ToGraphQL(),
-		Token: user.Token,
+
+	return user.ToGraphQL(), nil
+}
+
+// ResetEmail is the resolver for the resetEmail field.
+func (r *mutationResolver) ResetEmail(ctx context.Context, email string) (bool, error) {
+	//トークンを生成しDBに格納する
+	token, err := authService.GeneratePasswordResetToken(ctx, r.UserRepo, email)
+	if err != nil {
+		return false, err
 	}
-	return result, nil
+
+	//生成したトークンからメールを作り送信する
+	err = ses.SendPasswordReset(ctx, email, token)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+// ResetExe is the resolver for the resetExe field.
+func (r *mutationResolver) ResetExe(ctx context.Context, token string, password string) (*graphModel.AuthPayload, error) {
+	user, err := authService.PasswordResetExe(ctx, r.UserRepo, token, password)
+	if err != nil {
+		return nil, err
+	}
+	//ログイン処理も同時にする(トークン発行が必要)
+	lUser, err := r.Login(ctx, graphModel.LoginInput{
+		Email:    user.Email,
+		Password: password,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return lUser, nil
 }
 
 // GetUser is the resolver for the getUser field.

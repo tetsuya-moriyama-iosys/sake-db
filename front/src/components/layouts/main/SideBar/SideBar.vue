@@ -19,16 +19,17 @@
 </template>
 
 <script setup lang="ts">
+import { computed, type ComputedRef, onMounted, ref, watch } from 'vue';
+
+import CategoryParent from '@/components/layouts/main/SideBar/CategoryParent.vue';
+import { getDisplayCategoryIds } from '@/components/layouts/main/SideBar/func/sideBarFunc';
 import useQuery from '@/funcs/composable/useQuery';
 import {
   type Categories,
   type Category,
   GET_QUERY,
 } from '@/graphQL/Category/categories';
-import { computed, type ComputedRef, onMounted, ref, watch } from 'vue';
 import { useSelectedCategoryStore } from '@/stores/sidebar';
-import { getDisplayCategoryIds } from '@/funcs/component/laouts/main/sideBar/sideBarFunc';
-import CategoryParent from '@/components/layouts/main/sideBar/CategoryParent.vue';
 
 const sidebarStore = useSelectedCategoryStore();
 
@@ -48,6 +49,7 @@ onMounted(async () => {
   void fetchData();
   sidebarStore.setReloadFlgFalse();
 });
+
 watch(
   () => sidebarStore.isReloadFlg,
   () => {

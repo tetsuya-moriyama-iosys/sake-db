@@ -1,5 +1,6 @@
-import type { DocumentNode } from 'graphql/index';
 import { gql } from '@apollo/client/core';
+import type { DocumentNode } from 'graphql/index';
+
 import type { AuthUser } from '@/graphQL/Auth/auth';
 
 //ユーザーのフルデータ
@@ -31,7 +32,6 @@ export interface EvaluateList {
 
 //評価レコード
 export interface UserLiquor {
-  readonly id: string;
   readonly categoryId: string;
   readonly categoryName: string;
   readonly liquorId: string;
@@ -48,7 +48,6 @@ export const GET_USERDATA_FULL: DocumentNode = gql`
     getUserByIdDetail(id: $id) {
       evaluateList {
         recentComments {
-          id
           categoryId
           categoryName
           liquorId
@@ -59,7 +58,6 @@ export const GET_USERDATA_FULL: DocumentNode = gql`
           updatedAt
         }
         rate5Liquors {
-          id
           categoryId
           categoryName
           liquorId
@@ -70,7 +68,6 @@ export const GET_USERDATA_FULL: DocumentNode = gql`
           updatedAt
         }
         rate4Liquors {
-          id
           categoryId
           categoryName
           liquorId
@@ -81,7 +78,6 @@ export const GET_USERDATA_FULL: DocumentNode = gql`
           updatedAt
         }
         rate3Liquors {
-          id
           categoryId
           categoryName
           liquorId
@@ -92,7 +88,6 @@ export const GET_USERDATA_FULL: DocumentNode = gql`
           updatedAt
         }
         rate2Liquors {
-          id
           categoryId
           categoryName
           liquorId
@@ -103,7 +98,6 @@ export const GET_USERDATA_FULL: DocumentNode = gql`
           updatedAt
         }
         rate1Liquors {
-          id
           categoryId
           categoryName
           liquorId
@@ -114,7 +108,6 @@ export const GET_USERDATA_FULL: DocumentNode = gql`
           updatedAt
         }
         noRateLiquors {
-          id
           categoryId
           categoryName
           liquorId

@@ -11,6 +11,7 @@ const (
 	UserID           = "user_id"
 	UserName         = "user_name"
 	BookmarkedUserId = "bookmarked_user_id"
+	ImageBase64      = "image_base64"
 	CreatedAT        = "created_at"
 )
 
@@ -24,9 +25,10 @@ type BookMarkList []*BookMarkListUser
 
 // BookMarkListUser ユーザーページのブックマークリストの構造体
 type BookMarkListUser struct {
-	UserId    primitive.ObjectID `json:"userId" bson:"user_id"`
-	UserName  string             `json:"userName" bson:"user_name"`
-	CreatedAt time.Time          `bson:"created_at"`
+	UserId      primitive.ObjectID `json:"userId" bson:"user_id"`
+	UserName    string             `json:"userName" bson:"user_name"`
+	ImageBase64 *string            `bson:"image_base64"`
+	CreatedAt   time.Time          `bson:"created_at"`
 }
 
 // RecommendList リコメンドリスト
@@ -59,9 +61,10 @@ func (l BookMarkList) ToGraphQL() []*graphModel.BookMarkListUser {
 	var result []*graphModel.BookMarkListUser
 	for _, b := range l {
 		result = append(result, &graphModel.BookMarkListUser{
-			UserID:    b.UserId.Hex(),
-			Name:      b.UserName,
-			CreatedAt: b.CreatedAt,
+			UserID:      b.UserId.Hex(),
+			Name:        b.UserName,
+			ImageBase64: b.ImageBase64,
+			CreatedAt:   b.CreatedAt,
 		})
 	}
 	return result

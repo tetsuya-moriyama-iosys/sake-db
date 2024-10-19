@@ -43,30 +43,34 @@ func (r *BookMarkRepository) Find(ctx context.Context, uid primitive.ObjectID, t
 
 func (r *BookMarkRepository) List(ctx context.Context, uid primitive.ObjectID) ([]*BookMarkListUser, error) {
 	// パイプラインを定義
-	pipeline := bson.A{
-		// ドキュメントをフィルタリング
-		agg.Where(UserID, uid),
-		agg.LookUp(userRepository.CollectionName, BookmarkedUserId, userRepository.ID, "user_data"),
-		agg.GetFirst("user_data", false),
-		bson.M{"$sort": bson.M{
-			"_id": -1, // _idで降順ソート（新しい順）
-		}},
-		bson.M{"$addFields": bson.M{
-			CreatedAT: bson.M{"$toDate": "$$ROOT._id"}, // _id からタイムスタンプを生成し、created_atフィールドに追加
-		}},
-		//projectで整形する
-		bson.M{"$project": bson.M{
-			UserID:    "$user_data." + userRepository.ID, // usersコレクションからのuser_name
-			UserName:  "$user_data." + userRepository.NAME,
-			CreatedAT: 1,
-		}},
-	}
+	pipeline := generatePipeline(uid, UserId, BookmarkedId)
+
 	// パイプラインを実行
 	cursor, err := r.collection.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
+	// 結果を格納するスライス
+	var bList []*BookMarkListUser
+	// 取得したドキュメントをスライスにデコード
+	if err = cursor.All(ctx, &bList); err != nil {
+		return nil, err
+	}
+	return bList, nil
+}
+
+// BookmarkedList そのユーザーをブックマークしている人のリスト
+func (r *BookMarkRepository) BookmarkedList(ctx context.Context, uid primitive.ObjectID) ([]*BookMarkListUser, error) {
+	// パイプラインを定義(Listとは逆に 、被ブックマークIDで絞り込む)
+	pipeline := generatePipeline(uid, BookmarkedId, UserId)
+	// パイプラインを実行
+	cursor, err := r.collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
 	// 結果を格納するスライス
 	var bList []*BookMarkListUser
 	// 取得したドキュメントをスライスにデコード
@@ -177,7 +181,7 @@ func (r *BookMarkRepository) GetRecommendLiquors(ctx context.Context, uid primit
 		},
 
 		//ユーザー情報・お酒情報を結合
-		agg.LookUp(userRepository.CollectionName, "user_id", userRepository.ID, "user_info"),
+		agg.LookUp(userRepository.CollectionName, "user_id", userRepository.Id, "user_info"),
 		agg.GetFirst("user_info", false),
 		agg.LookUp(liquorRepository.CollectionName, "liquor_id", liquorRepository.ID, "liquor"),
 		agg.GetFirst("liquor", false),

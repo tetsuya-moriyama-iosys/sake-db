@@ -8,9 +8,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func (r *LiquorsRepository) GetLogsById(ctx context.Context, id string) ([]*Model, error) {
-	// カテゴリIDがidのコレクションを降順で取得
-	cursor, err := r.logsCollection.Find(ctx, bson.M{LogID: id}, options.Find().SetSort(bson.D{{VersionNo, -1}}))
+func (r *LiquorsRepository) GetLogsById(ctx context.Context, id primitive.ObjectID) ([]*Model, error) {
+	// liquorIDがidのコレクションを降順で取得
+	cursor, err := r.logsCollection.Find(ctx, bson.M{LiquorID: id}, options.Find().SetSort(bson.D{{VersionNo, -1}}))
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +27,7 @@ func (r *LiquorsRepository) GetLogsById(ctx context.Context, id string) ([]*Mode
 func (r *LiquorsRepository) GetLogsByVersionNo(ctx context.Context, id string, versionNo int) (*Model, error) {
 	// バージョンnoを指定して取得
 	var model *Model
-	err := r.logsCollection.FindOne(ctx, bson.M{LogID: id, VersionNo: versionNo}).Decode(&model)
+	err := r.logsCollection.FindOne(ctx, bson.M{LiquorID: id, VersionNo: versionNo}).Decode(&model)
 	if err != nil {
 		return nil, err
 	}
@@ -35,17 +35,17 @@ func (r *LiquorsRepository) GetLogsByVersionNo(ctx context.Context, id string, v
 	return model, nil
 }
 
-func (r *LiquorsRepository) InsertOneToLog(ctx context.Context, liquor *Model) error {
-	// 既存の _id を id フィールドに移動
-	liquorID := liquor.ID               // 現在の _id を保存
-	liquor.ID = primitive.NewObjectID() // _id に新しい ObjectID を割り当て
+func (r *LiquorsRepository) InsertOneToLog(ctx context.Context, oldLiquor *Model) error {
+	newLiquor := *oldLiquor                //旧値を値コピー
+	newLiquor.ID = primitive.NewObjectID() // _id に新しい ObjectID を割り当て
 
-	data, err := db.StructToBsonM(liquor)
+	//継承ができないので、interface型でlog用モデルを定義し直す(Liquorモデルにliquor_id(元となったliquor_id)を追加するだけなのでこの方がラク)
+	data, err := db.StructToBsonM(newLiquor)
 	if err != nil {
 		return err
 	}
 
-	data[LogID] = liquorID.Hex()
+	data[LiquorID] = oldLiquor.ID
 
 	// ログコレクションに挿入
 	_, err = r.logsCollection.InsertOne(ctx, data)

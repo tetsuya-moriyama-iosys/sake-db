@@ -16,11 +16,19 @@ import (
 
 // Data is the resolver for the data field.
 func (r *queryResolver) Data(ctx context.Context, name string, limit *int) (*graphModel.AffiliateData, error) {
+	//TODO:リゾルバにビジネスロジックがベタ書きされているので、リファクタが必要ならその時に整理を検討。
 	//ここ以外に使うことがない想定なので、一旦ベタ書きで実装
 	helper.LoadEnv()
 	key := os.Getenv("AMAZON_ACCESS_KEY")
 	secret := os.Getenv("AMAZON_ACCESS_SECRET")
 	tag := os.Getenv("AMAZON_PARTNER_TRACKING_ID")
+
+	var lim int
+	if limit != nil {
+		lim = *limit
+	} else {
+		lim = 10
+	}
 
 	// Initiate gopaapi5 Client
 	client, err := gopaapi5.NewClient(key, secret, tag, api.Japan)
@@ -104,6 +112,10 @@ func (r *queryResolver) Data(ctx context.Context, name string, limit *int) (*gra
 	//var itemz api.Item
 	var items []*graphModel.AffiliateItem
 	for _, item := range response.SearchResult.Items {
+		if item.Offers.Listings == nil {
+			//データがない場合があるので、その場合は処理を飛ばす
+			continue
+		}
 		price := int(item.Offers.Listings[0].Price.Amount)
 		imageUrl := item.Images.Primary.Medium.URL
 		temp := &graphModel.AffiliateItem{
@@ -128,8 +140,18 @@ func (r *queryResolver) Data(ctx context.Context, name string, limit *int) (*gra
 			lowestPrice = item.Price
 		}
 	}
+
+	//配列をトリミングする
+	var trimmed []*graphModel.AffiliateItem
+	if len(items) <= lim {
+		//長さが足りない場合は参照エラーになるので、そのまま代入
+		trimmed = items
+	} else {
+		trimmed = items[:lim]
+	}
+
 	result := &graphModel.AffiliateData{
-		Items:       items,
+		Items:       trimmed,
 		LowestPrice: lowestPrice,
 	}
 	return result, nil

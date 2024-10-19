@@ -1,13 +1,17 @@
-import type { DocumentNode } from 'graphql/index';
 import { gql } from '@apollo/client/core';
+import type { DocumentNode } from 'graphql/index';
 
 export interface GetBookmarkListResponse {
   readonly getBookMarkList: Bookmark[] | null;
+}
+export interface GetBookmarkedListResponse {
+  readonly getBookMarkedList: Bookmark[] | null;
 }
 
 export interface Bookmark {
   readonly userId: string;
   readonly name: string;
+  readonly imageBase64: string | null;
   readonly createdAt: Date;
 }
 export interface CheckResponse {
@@ -25,6 +29,19 @@ export const LIST: DocumentNode = gql`
     getBookMarkList {
       userId
       name
+      imageBase64
+      createdAt
+    }
+  }
+`;
+
+//被ブックマークのリスト
+export const BOOKMARKED_LIST: DocumentNode = gql`
+  query ($id: ID!) {
+    getBookMarkedList(id: $id) {
+      userId
+      name
+      imageBase64
       createdAt
     }
   }
@@ -35,6 +52,7 @@ export const CHECK: DocumentNode = gql`
     getIsBookMarked(id: $id)
   }
 `;
+
 export const ADD: DocumentNode = gql`
   mutation ($id: String!) {
     addBookMark(id: $id)

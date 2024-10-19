@@ -2,6 +2,7 @@
 type BookMarkListUser{
   userId:ID!
   name:String!
+  imageBase64:String
   createdAt:DateTime!
 }
 
@@ -32,6 +33,7 @@ extend type Query {
   getIsBookMarked(id:String!):Boolean! @auth #対象ユーザーがブックマーク済かどうか判定する
   getRecommendLiquorList: [Recommend!]! @auth #ブックマークユーザーを考慮したランダムリスト
   getBookMarkList: [BookMarkListUser!] @auth
+  getBookMarkedList(id:ID!):[BookMarkListUser!] #ブックマークされたユーザーの一覧
 }
 
 extend type Mutation {

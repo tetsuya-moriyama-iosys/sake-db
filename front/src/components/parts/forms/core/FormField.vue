@@ -13,9 +13,7 @@
         :placeholder="props.placeholder"
       />
       <!--セレクトボックス用(inputはslotがあると正常に描画されない)-->
-      <Field v-if="$slots.default" v-bind="props">
-        <slot></slot>
-      </Field>
+      <Field v-if="$slots.default" v-bind="props"> <slot></slot> </Field>
     </div>
     <div class="error">
       <ErrorMessage :name="props.name" />
@@ -24,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { Field, ErrorMessage } from 'vee-validate';
+import { ErrorMessage, Field } from 'vee-validate';
 
 export interface FormFieldProps {
   label?: string;
