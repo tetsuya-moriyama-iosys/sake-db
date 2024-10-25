@@ -23,7 +23,7 @@ import imageCompression, { type Options } from 'browser-image-compression';
 import { useField } from 'vee-validate';
 import { ref } from 'vue';
 
-import CommonButton from '@/components/parts/common/CommonButton.vue';
+import CommonButton from '@/components/parts/common/CommonButton/CommonButton.vue';
 import FormField from '@/components/parts/forms/core/FormField.vue';
 import convertToBase64 from '@/funcs/util/convertToBase64 ';
 

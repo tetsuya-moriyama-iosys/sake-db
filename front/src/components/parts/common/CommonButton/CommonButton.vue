@@ -13,8 +13,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+
+import type { ButtonProps } from '@/components/parts/common/CommonButton/type';
 import { ColorType } from '@/type/common/ColorType';
-import type { ButtonProps } from '@/type/component/parts/ButtonProps';
 
 const props = defineProps<ButtonProps>();
 

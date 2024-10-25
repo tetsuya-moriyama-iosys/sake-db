@@ -1,4 +1,5 @@
-import { gql, type DocumentNode } from '@apollo/client/core';
+import { type DocumentNode, gql } from '@apollo/client/core';
+
 import { type Liquor as CardLiquor } from '../Index/random';
 
 export interface LiquorResponse<T> {
@@ -21,6 +22,11 @@ export interface Liquor extends CardLiquor {
     readonly id: number;
     readonly name: string;
   }[];
+}
+
+export interface Tag {
+  id: string;
+  text: string;
 }
 
 export type LiquorForEdit = Omit<

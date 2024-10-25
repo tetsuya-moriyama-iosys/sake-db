@@ -30,8 +30,6 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
-console.log('props.posts:', props.posts);
 </script>
 
 <style scoped></style>

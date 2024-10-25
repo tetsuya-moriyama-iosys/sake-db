@@ -1,8 +1,9 @@
-import axios, { type AxiosResponse } from 'axios';
 import { useMutation } from '@tanstack/vue-query';
+import axios, { type AxiosResponse } from 'axios';
 import { unref } from 'vue';
-import type { APIType } from '@/type/api/APIType/APIType';
+
 import { useToast } from '@/funcs/composable/useToast';
+import type { APIType } from '@/type/api/APIType/APIType';
 
 export function useApiMutation<
   Request extends object | null = object,

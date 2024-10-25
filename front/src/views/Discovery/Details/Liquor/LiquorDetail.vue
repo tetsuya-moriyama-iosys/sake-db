@@ -15,16 +15,19 @@
     <router-link :to="{ name: 'LiquorEdit', params: { id: liquor.id } }">
       <CommonButton>編集する</CommonButton></router-link
     >
+    <LiquorTags :liquor-id="liquor.id" />
     <AffiliateContainer :name="liquor.name" />
     <LiquorBoard :liquorId="liquor.id" />
   </div>
 </template>
+
 <script setup lang="ts">
 import AffiliateContainer from '@/components/blocks/common/amazon/AffiliateContainer.vue';
-import CommonButton from '@/components/parts/common/CommonButton.vue';
+import CommonButton from '@/components/parts/common/CommonButton/CommonButton.vue';
 import type { Liquor } from '@/graphQL/Liquor/liquor';
 import LiquorBoard from '@/views/Discovery/Details/Liquor/board/LiquorBoard.vue';
 import CategoryTrail from '@/views/Discovery/Details/Liquor/CategoryTrail.vue';
+import LiquorTags from '@/views/Discovery/Details/Liquor/tag/LiquorTags.vue';
 
 interface Props {
   liquor: Liquor;
@@ -32,6 +35,7 @@ interface Props {
 
 const { liquor } = defineProps<Props>();
 </script>
+
 <style scoped>
 p.title {
   font-size: 150%;
