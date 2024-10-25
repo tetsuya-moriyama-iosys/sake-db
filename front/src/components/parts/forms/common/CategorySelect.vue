@@ -32,15 +32,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, type ComputedRef, ref, watch } from 'vue';
 import { ErrorMessage, useField } from 'vee-validate';
+import { computed, type ComputedRef, ref, watch } from 'vue';
+
+import FormField from '@/components/parts/forms/core/FormField.vue';
 import useQuery from '@/funcs/composable/useQuery';
 import {
   type Categories,
   type Category,
   GET_QUERY,
 } from '@/graphQL/Category/categories';
-import FormField from '@/components/parts/forms/core/FormField.vue';
 
 //propsのセット
 const props = defineProps<{

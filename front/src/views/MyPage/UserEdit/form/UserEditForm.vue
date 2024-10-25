@@ -24,9 +24,9 @@
 <script setup lang="ts">
 import { Form, type SubmissionHandler } from 'vee-validate';
 
-import SubmitButton from '@/components/parts/common/SubmitButton.vue';
 import UploadWithImage from '@/components/parts/forms/common/UploadWithImage.vue';
 import FormField from '@/components/parts/forms/core/FormField.vue';
+import SubmitButton from '@/components/parts/forms/core/SubmitButton.vue';
 import { useMutation } from '@/funcs/composable/useQuery';
 import { useToast } from '@/funcs/composable/useToast';
 import { type AuthUser, type AuthUserFull, Update } from '@/graphQL/Auth/auth';

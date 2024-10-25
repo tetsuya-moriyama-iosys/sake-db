@@ -19,8 +19,10 @@
     <MenuItems
       class="absolute right-0 mt-2 py-2 w-48 bg-white rounded-md shadow-xl"
     >
-      <MenuItem link-to="Register">新規登録</MenuItem>
-      <MenuItem v-if="!userStore.isLogin" link-to="Login">ログイン</MenuItem>
+      <div v-if="!userStore.isLogin">
+        <MenuItem link-to="Register">新規登録</MenuItem>
+        <MenuItem link-to="Login">ログイン</MenuItem>
+      </div>
       <div v-else>
         <MenuItem link-to="MyPageIndex">マイページ</MenuItem>
         <MenuItem link-to="Index" @click="logout">ログアウト</MenuItem>

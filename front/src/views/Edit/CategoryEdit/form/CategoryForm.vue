@@ -30,9 +30,9 @@ import { computed, type ComputedRef, onMounted, ref, watch } from 'vue';
 import { useLoading } from 'vue-loading-overlay';
 import { useRouter } from 'vue-router';
 
-import SubmitButton from '@/components/parts/common/SubmitButton.vue';
 import CategorySelect from '@/components/parts/forms/common/CategorySelect.vue';
 import FormField from '@/components/parts/forms/core/FormField.vue';
+import SubmitButton from '@/components/parts/forms/core/SubmitButton.vue';
 import { useApiMutation } from '@/funcs/composable/useApiMutation';
 import { useToast } from '@/funcs/composable/useToast';
 import type { Category } from '@/graphQL/Category/categories';

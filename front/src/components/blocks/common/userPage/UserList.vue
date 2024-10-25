@@ -30,10 +30,11 @@
 </template>
 
 <script setup lang="ts">
-import { type Bookmark } from '@/graphQL/Bookmark/bookmark';
-import date from '@/funcs/util/date';
 import { format } from 'date-fns';
+
 import RadiusImage from '@/components/parts/common/RadiusImage.vue';
+import date from '@/funcs/util/date';
+import { type Bookmark } from '@/graphQL/Bookmark/bookmark';
 
 const props = defineProps<{
   userList: Bookmark[];

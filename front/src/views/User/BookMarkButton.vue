@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import CommonButton from '@/components/parts/common/CommonButton.vue';
+import CommonButton from '@/components/parts/common/CommonButton/CommonButton.vue';
 import BookMarkLogics from '@/components/slots/BookMarkLogics.vue';
 import { ColorType } from '@/type/common/ColorType';
 

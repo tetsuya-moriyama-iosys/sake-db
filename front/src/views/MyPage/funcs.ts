@@ -1,5 +1,5 @@
 /**
- * ログインユーザー情報取得
+ * ユーザーページ共通関数(composableってほど汎用的でないもの)
  */
 
 import type { DocumentNode } from 'graphql/index';
@@ -28,7 +28,7 @@ function core(query: DocumentNode) {
   return { user };
 }
 
-export function useUser() {
+export function getUserDetail() {
   const { user } = core(GET_MY_USERDATA_FULL);
 
   return { user };

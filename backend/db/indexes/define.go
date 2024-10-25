@@ -58,6 +58,13 @@ var IndexDefinitions = []IndexDefinition{
 		//},
 	},
 	{
+		CollectionName: liquorRepository.TagCollectionName,
+		IndexKeys:      bson.D{{liquorRepository.LiquorID, 1}},
+		IsNonUnique:    true,
+	},
+
+	//タグ
+	{
 		CollectionName: liquorRepository.BoardCollectionName,
 		IndexKeys:      bson.D{{liquorRepository.UserID, 1}},
 		IsNonUnique:    true,

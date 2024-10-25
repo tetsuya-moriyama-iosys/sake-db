@@ -15,8 +15,8 @@
 import { Form, type SubmissionHandler } from 'vee-validate';
 import { useRouter } from 'vue-router';
 
-import SubmitButton from '@/components/parts/common/SubmitButton.vue';
 import FormField from '@/components/parts/forms/core/FormField.vue';
+import SubmitButton from '@/components/parts/forms/core/SubmitButton.vue';
 import { useMutation } from '@/funcs/composable/useQuery';
 import { LOGIN, type LoginResponse } from '@/graphQL/Auth/auth';
 import { useUserStore } from '@/stores/userStore';

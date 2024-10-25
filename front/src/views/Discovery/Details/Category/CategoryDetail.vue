@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import CommonButton from '@/components/parts/common/CommonButton.vue';
+import CommonButton from '@/components/parts/common/CommonButton/CommonButton.vue';
 import type { Category } from '@/graphQL/Category/categories';
 import CategoryChildren from '@/views/Discovery/Details/Category/CategoryChildren.vue';
 

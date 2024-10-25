@@ -4,10 +4,10 @@
 </template>
 
 <script setup lang="ts">
-import { useUser } from '@/funcs/composable/useUser';
+import { getUserDetail } from '@/views/MyPage/funcs';
 import UserEditForm from '@/views/MyPage/UserEdit/form/UserEditForm.vue';
 
-const { user } = useUser();
+const { user } = getUserDetail();
 </script>
 
 <style scoped></style>

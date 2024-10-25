@@ -142,6 +142,16 @@ type RegisterInput struct {
 	ImageBase64 *string `json:"imageBase64,omitempty"`
 }
 
+type Tag struct {
+	ID   string `json:"id"`
+	Text string `json:"text"`
+}
+
+type TagInput struct {
+	LiquorID string `json:"liquorId"`
+	Text     string `json:"text"`
+}
+
 type User struct {
 	ID          string  `json:"id"`
 	Name        string  `json:"name"`

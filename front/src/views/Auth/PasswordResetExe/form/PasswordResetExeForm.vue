@@ -16,8 +16,8 @@ import { useRouter } from 'vue-router';
 import * as yup from 'yup';
 import { object, string } from 'yup';
 
-import SubmitButton from '@/components/parts/common/SubmitButton.vue';
 import FormField from '@/components/parts/forms/core/FormField.vue';
+import SubmitButton from '@/components/parts/forms/core/SubmitButton.vue';
 import { useMutation } from '@/funcs/composable/useQuery';
 import { useToast } from '@/funcs/composable/useToast';
 import {

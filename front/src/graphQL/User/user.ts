@@ -1,5 +1,6 @@
-import type { DocumentNode } from 'graphql/index';
 import { gql } from '@apollo/client/core';
+import type { DocumentNode } from 'graphql/index';
+
 import type { AuthUser } from '@/graphQL/Auth/auth';
 
 //ユーザーのフルデータ

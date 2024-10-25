@@ -17,6 +17,7 @@ type LiquorsRepository struct {
 	collection      *mongo.Collection //コレクションを先に取得して格納しておく
 	logsCollection  *mongo.Collection
 	boardCollection *mongo.Collection
+	tagCollection   *mongo.Collection
 }
 
 func NewLiquorsRepository(db *db.DB) LiquorsRepository {
@@ -25,6 +26,7 @@ func NewLiquorsRepository(db *db.DB) LiquorsRepository {
 		collection:      db.Collection(CollectionName),
 		logsCollection:  db.Collection(LogsCollectionName),
 		boardCollection: db.Collection(BoardCollectionName),
+		tagCollection:   db.Collection(TagCollectionName),
 	}
 }
 

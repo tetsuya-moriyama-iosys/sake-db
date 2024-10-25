@@ -1,24 +1,27 @@
 <template>
   ブックマークリスト
-  <UserList
-    v-if="bookmarks"
-    :is-show-created-at="true"
-    :user-list="bookmarks"
-    v-slot="{ user }"
-  >
-    <BookMarkLogics :target-id="user.userId" v-slot="{ remove }">
-      <CommonButton size="small" @click="deleteUser(user.userId, remove)"
-        >削除</CommonButton
-      >
-    </BookMarkLogics>
-  </UserList>
+  <div v-if="bookmarks">
+    <UserList
+      v-if="bookmarks.length > 0"
+      :is-show-created-at="true"
+      :user-list="bookmarks"
+      v-slot="{ user }"
+    >
+      <BookMarkLogics :target-id="user.userId" v-slot="{ remove }">
+        <CommonButton size="small" @click="deleteUser(user.userId, remove)"
+          >削除</CommonButton
+        >
+      </BookMarkLogics>
+    </UserList>
+  </div>
+  <div v-else>ブックマークしているユーザーはいません</div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 
 import UserList from '@/components/blocks/common/userPage/UserList.vue';
-import CommonButton from '@/components/parts/common/CommonButton.vue';
+import CommonButton from '@/components/parts/common/CommonButton/CommonButton.vue';
 import BookMarkLogics from '@/components/slots/BookMarkLogics.vue';
 import useQuery from '@/funcs/composable/useQuery';
 import {
