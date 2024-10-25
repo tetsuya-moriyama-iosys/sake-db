@@ -144,7 +144,12 @@ type RegisterInput struct {
 
 type Tag struct {
 	ID   string `json:"id"`
-	Name string `json:"name"`
+	Text string `json:"text"`
+}
+
+type TagInput struct {
+	LiquorID string `json:"liquorId"`
+	Text     string `json:"text"`
 }
 
 type User struct {

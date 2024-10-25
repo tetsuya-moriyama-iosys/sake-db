@@ -1,12 +1,18 @@
-type Tag {
-  id:ID!
-  name:String!
+input TagInput{
+  liquorId:ID!
+  text:String!
 }
 
-extend type Query {
-  getTagsForLiquor(id:String!): [Tag!]! @auth
+type Tag{
+  id:ID!
+  text:String!
+}
+
+extend type Query{
+  getTags(liquorId:ID!):[Tag!]! # 一覧などではDBアクセス自体が不要なため、コードの簡単化も兼ねて分けて取得することにした
 }
 
 extend type Mutation {
-  registerTag(tag:String!): User! @auth
+  postTag(input:TagInput!):Tag! @auth
+  deleteTag(id:ID!):Boolean! @auth
 }

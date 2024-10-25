@@ -4,7 +4,9 @@
 
 package liquorRepository
 
-import "backend/graph/graphModel"
+import (
+	"backend/graph/graphModel"
+)
 
 func (m *BoardListResponse) ToGraphQL() *graphModel.UserEvaluateList {
 	//resentPostsの変換
