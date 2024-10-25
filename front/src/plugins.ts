@@ -1,10 +1,13 @@
-import { type App } from 'vue';
-import { createPinia } from 'pinia';
-import ToastPlugin from '@/plugins/toast';
-import { VueQueryPlugin } from '@tanstack/vue-query';
-import router from './router';
-import { LoadingPlugin } from 'vue-loading-overlay';
 import 'vue-loading-overlay/dist/css/index.css';
+
+import { VueQueryPlugin } from '@tanstack/vue-query';
+import { createPinia } from 'pinia';
+import { type App } from 'vue';
+import { LoadingPlugin } from 'vue-loading-overlay';
+
+import ToastPlugin from '@/plugins/toast';
+
+import router from './router';
 
 export function registerPlugins(app: App) {
   /**ライブラリ*/

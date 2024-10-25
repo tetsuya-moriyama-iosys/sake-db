@@ -2,7 +2,12 @@
   <div>
     タグ一覧
     <div>
-      <LiquorTag v-for="tag in tags" :tag="tag" :key="tag.id" />
+      <LiquorTag
+        v-for="tag in tags"
+        :tag="tag"
+        :key="tag.id"
+        @delete="deleted"
+      />
     </div>
     <TagInput v-if="user" :liquor-id="props.liquorId" @submitted="submitted" />
   </div>
@@ -34,6 +39,11 @@ onMounted(async () => {
 //新しいタグが投稿されたら、画面上に反映する
 function submitted(newTag: Tag) {
   tags.value = [...tags.value, newTag];
+}
+
+//削除処理が成功したら、画面上から削除する
+function deleted(deleteId: string) {
+  tags.value = tags.value.filter((tag) => tag.id !== deleteId);
 }
 </script>
 

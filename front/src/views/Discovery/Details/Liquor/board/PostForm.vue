@@ -17,9 +17,9 @@
 import { useForm } from 'vee-validate';
 import { onMounted, ref } from 'vue';
 
-import SubmitButton from '@/components/parts/common/SubmitButton.vue';
 import RatingButton from '@/components/parts/forms/common/RatingButton.vue';
 import FormField from '@/components/parts/forms/core/FormField.vue';
+import SubmitButton from '@/components/parts/forms/core/SubmitButton.vue';
 import { useMutation, useQuery } from '@/funcs/composable/useQuery';
 import { useToast } from '@/funcs/composable/useToast';
 import {

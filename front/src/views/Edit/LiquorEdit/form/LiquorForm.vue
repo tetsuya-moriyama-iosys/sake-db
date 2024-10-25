@@ -18,7 +18,13 @@
       <!-- trigger を ref に保存 -->
       <template v-if="setTrigger(setImage)"></template>
     </UploadWithImage>
-    <SubmitButton>登録</SubmitButton>
+    <div class="mt-5 flex gap-4">
+      <ReturnButton
+        :to="props.initialData ? `LiquorDetail` : undefined"
+        :params="props.initialData ? { id: props.initialData.id } : undefined"
+      />
+      <SubmitButton>登録</SubmitButton>
+    </div>
   </VForm>
 </template>
 
@@ -29,10 +35,11 @@ import { computed, type ComputedRef, onMounted, ref, watch } from 'vue';
 import { useLoading } from 'vue-loading-overlay';
 import { useRouter } from 'vue-router';
 
-import SubmitButton from '@/components/parts/common/SubmitButton.vue';
+import ReturnButton from '@/components/parts/common/ReturnButton.vue';
 import CategorySelect from '@/components/parts/forms/common/CategorySelect.vue';
 import UploadWithImage from '@/components/parts/forms/common/UploadWithImage.vue';
 import FormField from '@/components/parts/forms/core/FormField.vue';
+import SubmitButton from '@/components/parts/forms/core/SubmitButton.vue';
 import { useApiMutation } from '@/funcs/composable/useApiMutation';
 import { useToast } from '@/funcs/composable/useToast';
 import type { LiquorForEdit } from '@/graphQL/Liquor/liquor';

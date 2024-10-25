@@ -1,26 +1,30 @@
 <template>
   <CommonDialog v-bind="props" is-un-use-default-buttons v-slot="{ close }">
     <div><slot /></div>
-    <CommonButton
-      @click="
-        async () => {
-          await handleYes().finally(() => {
-            close();
-          });
-        }
-      "
-      >{{ props.yes }}</CommonButton
-    >
-    <CommonButton
-      @click="
-        async () => {
-          await handleNo().finally(() => {
-            close();
-          });
-        }
-      "
-      >{{ props.no }}</CommonButton
-    >
+    <div class="mt-5 flex justify-center gap-4">
+      <CommonButton
+        size="small"
+        @click="
+          async () => {
+            await handleYes().finally(() => {
+              close();
+            });
+          }
+        "
+        >{{ props.yes }}</CommonButton
+      >
+      <CommonButton
+        size="small"
+        @click="
+          async () => {
+            await handleNo().finally(() => {
+              close();
+            });
+          }
+        "
+        >{{ props.no }}</CommonButton
+      >
+    </div>
   </CommonDialog>
 </template>
 

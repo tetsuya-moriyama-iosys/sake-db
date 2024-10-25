@@ -27,7 +27,7 @@ import CommonButton from '@/components/parts/common/CommonButton/CommonButton.vu
 import type { Liquor } from '@/graphQL/Liquor/liquor';
 import LiquorBoard from '@/views/Discovery/Details/Liquor/board/LiquorBoard.vue';
 import CategoryTrail from '@/views/Discovery/Details/Liquor/CategoryTrail.vue';
-import LiquorTags from '@/views/Discovery/Details/Liquor/tag/LiquorTags.vue';
+import LiquorTags from '@/views/Discovery/Details/Liquor/tag/LiquorTagArea.vue';
 
 interface Props {
   liquor: Liquor;

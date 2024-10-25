@@ -3,10 +3,10 @@
   <Dialog :open="isOpen" @close="handleClose">
     <div
       class="fixed flex inset-0 bg-black/30 overflow-y-auto items-center justify-center"
-      aria-hidden="true"
+      :aria-hidden="!isOpen"
     >
       <div
-        class="bg-white p-4 text-center rounded-2xl transform -translate-y-52"
+        class="dialog-container bg-white p-4 text-center rounded-2xl transform -translate-y-52"
         :class="props.class"
       >
         <DialogPanel>
@@ -40,4 +40,8 @@ function handleClose() {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+div.dialog-container {
+  min-width: 30em;
+}
+</style>

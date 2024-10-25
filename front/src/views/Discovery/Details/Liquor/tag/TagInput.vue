@@ -1,4 +1,5 @@
 <template>
+  <CommonButton @click="showModal">タグ入力</CommonButton>
   <CommonDialog
     title="タグ入力"
     v-model="isDialogOpen"
@@ -24,7 +25,6 @@
       </div>
     </Form>
   </CommonDialog>
-  <CommonButton @click="showModal">タグ入力</CommonButton>
 </template>
 
 <script setup lang="ts">
@@ -33,8 +33,8 @@ import { ref } from 'vue';
 
 import CommonButton from '@/components/parts/common/CommonButton/CommonButton.vue';
 import CommonDialog from '@/components/parts/common/CommonDialog/CommonDialog.vue';
-import SubmitButton from '@/components/parts/common/SubmitButton.vue';
 import FormField from '@/components/parts/forms/core/FormField.vue';
+import SubmitButton from '@/components/parts/forms/core/SubmitButton.vue';
 import { useMutation } from '@/funcs/composable/useQuery';
 import { useToast } from '@/funcs/composable/useToast';
 import {

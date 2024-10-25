@@ -18,7 +18,7 @@ export interface GetTagsResponse {
   readonly getTags: Tag[];
 }
 export interface PostTagResponse {
-  readonly postTag?: Tag[];
+  readonly postTag: Tag[];
 }
 
 export const FetchTags: DocumentNode = gql`
@@ -35,5 +35,11 @@ export const PostTag: DocumentNode = gql`
       id
       text
     }
+  }
+`;
+
+export const DeleteTag: DocumentNode = gql`
+  mutation ($id: ID!) {
+    deleteTag(id: $id)
   }
 `;
