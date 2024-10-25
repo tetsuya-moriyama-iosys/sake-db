@@ -1,17 +1,20 @@
 <template>
   ブックマークリスト
-  <UserList
-    v-if="bookmarks"
-    :is-show-created-at="true"
-    :user-list="bookmarks"
-    v-slot="{ user }"
-  >
-    <BookMarkLogics :target-id="user.userId" v-slot="{ remove }">
-      <CommonButton size="small" @click="deleteUser(user.userId, remove)"
-        >削除</CommonButton
-      >
-    </BookMarkLogics>
-  </UserList>
+  <div v-if="bookmarks">
+    <UserList
+      v-if="bookmarks.length > 0"
+      :is-show-created-at="true"
+      :user-list="bookmarks"
+      v-slot="{ user }"
+    >
+      <BookMarkLogics :target-id="user.userId" v-slot="{ remove }">
+        <CommonButton size="small" @click="deleteUser(user.userId, remove)"
+          >削除</CommonButton
+        >
+      </BookMarkLogics>
+    </UserList>
+  </div>
+  <div v-else>ブックマークしているユーザーはいません</div>
 </template>
 
 <script setup lang="ts">
