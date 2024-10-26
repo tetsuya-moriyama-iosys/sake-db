@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import type { AxiosResponse } from 'axios';
 import { Form as VForm, type SubmissionHandler } from 'vee-validate';
-import { computed, type ComputedRef, onMounted, ref, watch } from 'vue';
+import { computed, type ComputedRef, ref, watch } from 'vue';
 import { useLoading } from 'vue-loading-overlay';
 import { useRouter } from 'vue-router';
 
@@ -69,7 +69,7 @@ const loading = useLoading();
 
 const form = ref<InstanceType<typeof VForm> | null>(null); //Form内部に定義されているフォームメソッドにアクセスするのに必要
 
-// trigger を保存する変数(↓typeなのにno-unused-varsが出るのでコメントアウト)
+// trigger を保存する変数(↓typeなのにvalue部にno-unused-varsが出るのでコメントアウト)
 // eslint-disable-next-line no-unused-vars
 type SetImage = (value: string | undefined) => void;
 let setImage: SetImage | null = null;
@@ -101,10 +101,8 @@ watch(
   () => {
     resetForm();
   },
+  { immediate: true },
 );
-onMounted(() => {
-  resetForm();
-});
 
 const initialParentId: ComputedRef<number | null> = computed(
   () => props.initialData?.categoryId ?? null,
