@@ -50,6 +50,7 @@
                   () => {
                     savedCoordinates = { x: xIndex - 10, y: 10 - yIndex };
                     if (isLogin || votedCoordinates == null) {
+                      //なんか到達不能って出てるけど、そんなことない......
                       isShowPostDialog = true;
                     }
                   }
@@ -144,13 +145,23 @@ onMounted(() => {
 
 async function onFetch() {
   void setVoted(); //再読込ごとに投票済みかどうかを確認
-  const response: FlavorMapResponse = await fetch({ liquorId: liquor.id });
+  const response: FlavorMapResponse = await fetch(
+    { liquorId: liquor.id },
+    {
+      fetchPolicy: 'no-cache',
+    },
+  );
   flavorMap.value = response.getFlavorMap;
 }
 
 async function setVoted(): Promise<void> {
   if (isLogin) {
-    const response: VotedResponse = await votedFetch({ liquorId: liquor.id });
+    const response: VotedResponse = await votedFetch(
+      { liquorId: liquor.id },
+      {
+        fetchPolicy: 'no-cache',
+      },
+    );
     votedCoordinates.value = response.getVoted;
     return;
   }
