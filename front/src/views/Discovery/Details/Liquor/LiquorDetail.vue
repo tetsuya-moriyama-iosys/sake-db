@@ -15,6 +15,7 @@
     <router-link :to="{ name: 'LiquorEdit', params: { id: liquor.id } }">
       <CommonButton>編集する</CommonButton></router-link
     >
+    <FlavorMap :liquor="liquor" />
     <LiquorTags :liquor-id="liquor.id" />
     <AffiliateContainer :name="liquor.name" />
     <LiquorBoard :liquorId="liquor.id" />
@@ -23,6 +24,7 @@
 
 <script setup lang="ts">
 import AffiliateContainer from '@/components/blocks/common/amazon/AffiliateContainer.vue';
+import FlavorMap from '@/components/blocks/FlavorMap/FlavorMap.vue';
 import CommonButton from '@/components/parts/common/CommonButton/CommonButton.vue';
 import type { Liquor } from '@/graphQL/Liquor/liquor';
 import LiquorBoard from '@/views/Discovery/Details/Liquor/board/LiquorBoard.vue';

@@ -1,0 +1,43 @@
+scalar Coordinate
+
+input PostFlavorMap{
+  liquorId:ID!
+  x:Coordinate!
+  y:Coordinate!
+}
+
+type FlavorMapData{
+  categoryId:Int!
+  xNames:[String!]!
+  yNames:[String!]!
+  userFullAmount:Int!
+  guestFullAmount:Int!
+  mapData:[FlavorCellData!]!
+}
+
+type FlavorCellData{
+  # DBの構造と合わせた方が変換しやすそうなので、このようになった
+  x:Coordinate!
+  y:Coordinate!
+  rate:Float! #0～100の浮動小数点
+  userAmount:Int!
+  guestAmount:Int!
+}
+
+type VotedData{
+  liquorId:ID!
+  userId:ID!
+  categoryId:Int!
+  x:Coordinate!
+  y:Coordinate!
+  updatedAt:DateTime!
+}
+
+extend type Query{
+  getFlavorMap(liquorId:ID!):FlavorMapData
+  getVoted(liquorId:ID!):VotedData @auth
+}
+
+extend type Mutation {
+  postFlavor(input:PostFlavorMap!):Boolean! @optionalAuth
+}

@@ -3,6 +3,7 @@ package resolver
 import (
 	"backend/db/repository/bookmarkRepository"
 	"backend/db/repository/categoriesRepository"
+	"backend/db/repository/flavorMapRepository"
 	"backend/db/repository/liquorRepository"
 	"backend/db/repository/userRepository"
 	"context"
@@ -12,24 +13,34 @@ import (
 )
 
 type Resolver struct {
-	DB           *mongo.Database
-	CategoryRepo categoriesRepository.CategoryRepository
-	LiquorRepo   liquorRepository.LiquorsRepository
-	UserRepo     userRepository.UsersRepository
-	BookmarkRepo bookmarkRepository.BookMarkRepository
+	DB               *mongo.Database
+	CategoryRepo     categoriesRepository.CategoryRepository
+	LiquorRepo       liquorRepository.LiquorsRepository
+	UserRepo         userRepository.UsersRepository
+	BookmarkRepo     bookmarkRepository.BookMarkRepository
+	FlavorMapRepo    flavorMapRepository.FlavorMapRepository
+	FlavorMapMstRepo flavorMapRepository.FlavorMapMasterRepository
+	FlavorLiqRepo    flavorMapRepository.FlavorToLiquorRepository
 }
 
 func NewResolver(db *mongo.Database,
 	categoryRepo categoriesRepository.CategoryRepository,
 	liquorRepo liquorRepository.LiquorsRepository,
 	userRepo userRepository.UsersRepository,
-	bookmarkRepo bookmarkRepository.BookMarkRepository) *Resolver {
+	bookmarkRepo bookmarkRepository.BookMarkRepository,
+	flavorMapRepo flavorMapRepository.FlavorMapRepository,
+	flavorMapMstRepo flavorMapRepository.FlavorMapMasterRepository,
+	flavorLiqRepo flavorMapRepository.FlavorToLiquorRepository,
+) *Resolver {
 	return &Resolver{
-		DB:           db,
-		CategoryRepo: categoryRepo,
-		LiquorRepo:   liquorRepo,
-		UserRepo:     userRepo,
-		BookmarkRepo: bookmarkRepo,
+		DB:               db,
+		CategoryRepo:     categoryRepo,
+		LiquorRepo:       liquorRepo,
+		UserRepo:         userRepo,
+		BookmarkRepo:     bookmarkRepo,
+		FlavorMapRepo:    flavorMapRepo,
+		FlavorMapMstRepo: flavorMapMstRepo,
+		FlavorLiqRepo:    flavorLiqRepo,
 	}
 }
 

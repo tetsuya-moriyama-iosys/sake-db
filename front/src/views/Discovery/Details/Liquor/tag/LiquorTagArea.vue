@@ -1,7 +1,7 @@
 <template>
   <div>
     タグ一覧
-    <div>
+    <div v-if="tags.length > 0">
       <LiquorTag
         v-for="tag in tags"
         :tag="tag"
@@ -9,6 +9,7 @@
         @delete="deleted"
       />
     </div>
+    <div v-else>登録されたタグはありません</div>
     <TagInput v-if="user" :liquor-id="props.liquorId" @submitted="submitted" />
   </div>
 </template>
