@@ -89,3 +89,6 @@ models:
     model:
       - github.com/99designs/gqlgen/graphql.Uint
       - github.com/99designs/gqlgen/graphql.Upload
+  Coordinate:
+    model:
+      - backend/graph/schema/customModel.Coordinate

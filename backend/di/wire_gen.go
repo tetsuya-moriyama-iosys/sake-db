@@ -12,6 +12,7 @@ import (
 	"backend/db"
 	"backend/db/repository/bookmarkRepository"
 	"backend/db/repository/categoriesRepository"
+	"backend/db/repository/flavorMapRepository"
 	"backend/db/repository/liquorRepository"
 	"backend/db/repository/userRepository"
 	"backend/di/handlers"
@@ -35,7 +36,10 @@ func InitializeHandler() (*gin.Engine, error) {
 	liquorsRepository := liquorRepository.NewLiquorsRepository(dbDB)
 	usersRepository := userRepository.NewUsersRepository(dbDB)
 	bookMarkRepository := bookmarkRepository.NewBookMarkRepository(dbDB)
-	resolverResolver := resolver.NewResolver(database, categoryRepository, liquorsRepository, usersRepository, bookMarkRepository)
+	flavorMapRepositoryFlavorMapRepository := flavorMapRepository.NewFlavorMapRepository(dbDB)
+	flavorMapMasterRepository := flavorMapRepository.NewFlavorMapMasterRepository(dbDB)
+	flavorToLiquorRepository := flavorMapRepository.NewFlavorToLiquorRepository(dbDB)
+	resolverResolver := resolver.NewResolver(database, categoryRepository, liquorsRepository, usersRepository, bookMarkRepository, flavorMapRepositoryFlavorMapRepository, flavorMapMasterRepository, flavorToLiquorRepository)
 	server := graph.NewGraphQLServer(resolverResolver)
 	s3S3, err := s3.NewS3Client()
 	if err != nil {

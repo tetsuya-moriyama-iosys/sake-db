@@ -3,6 +3,7 @@
 package graphModel
 
 import (
+	"backend/graph/schema/customModel"
 	"time"
 )
 
@@ -71,6 +72,23 @@ type CategoryTrail struct {
 	Name string `json:"name"`
 }
 
+type FlavorCellData struct {
+	X           customModel.Coordinate `json:"x"`
+	Y           customModel.Coordinate `json:"y"`
+	Rate        float64                `json:"rate"`
+	UserAmount  int                    `json:"userAmount"`
+	GuestAmount int                    `json:"guestAmount"`
+}
+
+type FlavorMapData struct {
+	CategoryID      int               `json:"categoryId"`
+	XNames          []string          `json:"xNames"`
+	YNames          []string          `json:"yNames"`
+	UserFullAmount  int               `json:"userFullAmount"`
+	GuestFullAmount int               `json:"guestFullAmount"`
+	MapData         []*FlavorCellData `json:"mapData"`
+}
+
 type Liquor struct {
 	ID            string           `json:"id"`
 	CategoryID    int              `json:"categoryId"`
@@ -106,6 +124,12 @@ type LoginInput struct {
 }
 
 type Mutation struct {
+}
+
+type PostFlavorMap struct {
+	LiquorID string                 `json:"liquorId"`
+	X        customModel.Coordinate `json:"x"`
+	Y        customModel.Coordinate `json:"y"`
 }
 
 type Query struct {
@@ -185,4 +209,13 @@ type UserLiquor struct {
 type UserPageData struct {
 	EvaluateList *UserEvaluateList `json:"evaluateList"`
 	User         *User             `json:"user"`
+}
+
+type VotedData struct {
+	LiquorID   string                 `json:"liquorId"`
+	UserID     string                 `json:"userId"`
+	CategoryID int                    `json:"categoryId"`
+	X          customModel.Coordinate `json:"x"`
+	Y          customModel.Coordinate `json:"y"`
+	UpdatedAt  time.Time              `json:"updatedAt"`
 }

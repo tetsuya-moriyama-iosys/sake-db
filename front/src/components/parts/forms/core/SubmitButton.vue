@@ -30,16 +30,6 @@ onMounted(() => {
 watch(formValid, (value) => {
   isValid.value = value;
 });
-
-watch(
-  isDirty,
-  () => {
-    console.log('isDirty.value:', isDirty.value);
-  },
-  {
-    immediate: true,
-  },
-);
 </script>
 
 <style scoped></style>

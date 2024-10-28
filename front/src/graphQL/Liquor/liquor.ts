@@ -18,11 +18,13 @@ export interface Liquor extends CardLiquor {
   readonly imageUrl: string;
   readonly updatedAt: Date;
   readonly versionNo: number;
-  readonly categoryTrail: {
-    readonly id: number;
-    readonly name: string;
-  }[];
+  readonly categoryTrail: CategoryTrail;
 }
+
+export type CategoryTrail = {
+  readonly id: number;
+  readonly name: string;
+}[];
 
 export interface Tag {
   id: string;

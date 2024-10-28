@@ -2,9 +2,9 @@
   <CommonTag
     :text="tag.text"
     :is-close="!!user"
-    @close="isShowCloseDialog = true"
+    @close="isShowDeleteDialog = true"
   />
-  <YesNoDialog v-model="isShowCloseDialog" :on-yes="deleteTag">
+  <YesNoDialog v-model="isShowDeleteDialog" :on-yes="deleteTag">
     削除します。宜しいですか？
   </YesNoDialog>
 </template>
@@ -32,7 +32,7 @@ const { tag } = defineProps<{
   tag: Tag;
 }>();
 
-const isShowCloseDialog = ref<boolean>(false);
+const isShowDeleteDialog = ref<boolean>(false);
 
 async function deleteTag() {
   // ここに削除処理を書く

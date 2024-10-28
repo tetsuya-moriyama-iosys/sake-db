@@ -19,6 +19,11 @@ type DB struct {
 	DBName string
 }
 
+type Base struct {
+	Db         *DB
+	Collection *mongo.Collection
+}
+
 func NewMongoClient() (*mongo.Client, error) {
 	mongoURI := os.Getenv("MONGO_URI")
 	clientOptions := options.Client().ApplyURI(mongoURI)

@@ -10,6 +10,7 @@ import (
 	"backend/api/post/liquorPost"
 	"backend/db/repository/bookmarkRepository"
 	"backend/db/repository/categoriesRepository"
+	"backend/db/repository/flavorMapRepository"
 	"backend/db/repository/liquorRepository"
 	"backend/db/repository/userRepository"
 	"github.com/gin-gonic/gin"
@@ -20,14 +21,17 @@ func InitializeHandler() (*gin.Engine, error) {
 	// それぞれのnewインスタンスの生成ロジックを並べる
 	wire.Build(
 		BasicSet,
+		//REST APIのハンドラ
+		liquorPost.NewHandler,
+		categoryPost.NewHandler,
 		// リポジトリのインスタンス生成
 		categoriesRepository.NewCategoryRepository,
 		liquorRepository.NewLiquorsRepository,
 		userRepository.NewUsersRepository,
 		bookmarkRepository.NewBookMarkRepository,
-		//REST APIのハンドラ
-		liquorPost.NewHandler,
-		categoryPost.NewHandler,
+		flavorMapRepository.NewFlavorMapMasterRepository,
+		flavorMapRepository.NewFlavorMapRepository,
+		flavorMapRepository.NewFlavorToLiquorRepository,
 	)
 	return &gin.Engine{}, nil
 }
