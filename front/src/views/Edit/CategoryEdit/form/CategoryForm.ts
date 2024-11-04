@@ -48,7 +48,7 @@ export function generateInitialValues(category: Category | null): FormValues {
     [FormKeys.NAME]: category.name,
     [FormKeys.PARENT]: category.parent,
     [FormKeys.DESCRIPTION]: category.description,
-    [FormKeys.SELECTED_VERSION_NO]: category.versionNo,
+    [FormKeys.SELECTED_VERSION_NO]: null,
   };
 }
 

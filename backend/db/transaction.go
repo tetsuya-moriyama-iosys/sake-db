@@ -12,6 +12,7 @@ import (
 
 type TransactionFunc[R any] func(sc mongo.SessionContext) (R, error)
 
+// WithTransaction TODO:トランザクションはレプリカセットを使わないと効かないが、ローカルだと構築するのが厳しかったので MongoDB Atlas Databaseの利用を前提に考えることにした
 func WithTransaction[R any](ctx context.Context, client *mongo.Client, fn TransactionFunc[R]) (R, error) {
 	var res R
 	session, err := client.StartSession()

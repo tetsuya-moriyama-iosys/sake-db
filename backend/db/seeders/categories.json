@@ -4,7 +4,8 @@
   },
   "id": 1,
   "name": "蒸留酒",
-  "parent": null
+  "parent": null,
+  "version_no": 1
 },
 {
   "_id": {
@@ -12,7 +13,8 @@
   },
   "id": 2,
   "name": "醸造酒",
-  "parent": null
+  "parent": null,
+  "version_no": 1
 },
 {
   "_id": {
@@ -20,7 +22,8 @@
   },
   "id": 3,
   "name": "混成酒(リキュール)",
-  "parent": null
+  "parent": null,
+  "version_no": 1
 },
 {
   "_id": {
@@ -28,7 +31,9 @@
   },
   "id": 4,
   "name": "その他",
-  "parent": null
+  "parent": null,
+  "order": 999999,
+  "version_no": 1
 },
 {
   "_id": {
@@ -36,7 +41,8 @@
   },
   "name": "ウイスキー",
   "parent": 1,
-  "id": 11
+  "id": 11,
+  "version_no": 1
 },
 {
   "_id": {
@@ -44,7 +50,8 @@
   },
   "id": 12,
   "name": "ジン",
-  "parent": 1
+  "parent": 1,
+  "version_no": 1
 },
 {
   "_id": {
@@ -52,7 +59,8 @@
   },
   "id": 13,
   "name": "ラム",
-  "parent": 1
+  "parent": 1,
+  "version_no": 1
 },
 {
   "_id": {
@@ -60,7 +68,8 @@
   },
   "id": 14,
   "name": "ブランデー",
-  "parent": 1
+  "parent": 1,
+  "version_no": 1
 },
 {
   "_id": {
@@ -68,7 +77,8 @@
   },
   "id": 15,
   "name": "ウォッカ",
-  "parent": 1
+  "parent": 1,
+  "version_no": 1
 },
 {
   "_id": {
@@ -76,15 +86,8 @@
   },
   "id": 16,
   "name": "テキーラ",
-  "parent": 1
-},
-{
-  "_id": {
-    "$oid": "66af742f6c7449be3ca902cb"
-  },
-  "id": 17,
-  "name": "その他",
-  "parent": 1
+  "parent": 1,
+  "version_no": 1
 },
 {
   "_id": {
@@ -92,7 +95,8 @@
   },
   "id": 51,
   "name": "日本酒",
-  "parent": 2
+  "parent": 2,
+  "version_no": 1
 },
 {
   "_id": {
@@ -100,7 +104,8 @@
   },
   "id": 52,
   "name": "ビール",
-  "parent": 2
+  "parent": 2,
+  "version_no": 1
 },
 {
   "_id": {
@@ -108,7 +113,8 @@
   },
   "id": 53,
   "name": "ワイン",
-  "parent": 2
+  "parent": 2,
+  "version_no": 1
 },
 {
   "_id": {
@@ -116,7 +122,9 @@
   },
   "id": 54,
   "name": "その他",
-  "parent": 2
+  "parent": 2,
+  "order": 999999,
+  "version_no": 1
 },
 {
   "_id": {
@@ -124,7 +132,8 @@
   },
   "id": 101,
   "name": "スコッチウイスキー",
-  "parent": 11
+  "parent": 11,
+  "version_no": 1
 },
 {
   "_id": {
@@ -132,7 +141,8 @@
   },
   "id": 102,
   "name": "アイリッシュウイスキー",
-  "parent": 11
+  "parent": 11,
+  "version_no": 1
 },
 {
   "_id": {
@@ -140,7 +150,8 @@
   },
   "id": 103,
   "name": "アメリカンウイスキー",
-  "parent": 11
+  "parent": 11,
+  "version_no": 1
 },
 {
   "_id": {
@@ -148,7 +159,8 @@
   },
   "id": 104,
   "name": "カナディアンウイスキー",
-  "parent": 11
+  "parent": 11,
+  "version_no": 1
 },
 {
   "_id": {
@@ -156,7 +168,8 @@
   },
   "id": 105,
   "name": "ジャパニーズウイスキー",
-  "parent": 11
+  "parent": 11,
+  "version_no": 1
 },
 {
   "_id": {
@@ -164,7 +177,8 @@
   },
   "id": 106,
   "name": "スペイサイド",
-  "parent": 101
+  "parent": 101,
+  "version_no": 1
 },
 {
   "_id": {
@@ -172,7 +186,8 @@
   },
   "id": 107,
   "name": "ハイランド",
-  "parent": 101
+  "parent": 101,
+  "version_no": 1
 },
 {
   "_id": {
@@ -180,7 +195,8 @@
   },
   "id": 108,
   "name": "ローランド",
-  "parent": 101
+  "parent": 101,
+  "version_no": 1
 },
 {
   "_id": {
@@ -188,7 +204,8 @@
   },
   "id": 109,
   "name": "アイランズ",
-  "parent": 101
+  "parent": 101,
+  "version_no": 1
 },
 {
   "_id": {
@@ -196,7 +213,8 @@
   },
   "id": 110,
   "name": "アイラ",
-  "parent": 101
+  "parent": 101,
+  "version_no": 1
 },
 {
   "_id": {
@@ -204,5 +222,6 @@
   },
   "id": 111,
   "name": "キャンベルタウン",
-  "parent": 101
+  "parent": 101,
+  "version_no": 1
 }]

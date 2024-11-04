@@ -9,27 +9,30 @@ const (
 	CollectionName     = "categories"
 	LogsCollectionName = "categories_logs"
 	ID                 = "id"
-	CategoryId         = "category_id" //ログ用
 	Name               = "name"
 	ImageURL           = "image_url"
 	ImageBase64        = "image_base64"
 	Description        = "description"
 	Parent             = "parent"
 	VersionNo          = "version_no"
+	Order              = "order"
 	UpdatedAt          = "updated_at"
+	Authorized         = "authorized"
 )
 
 // Model 構造体の定義
 type Model struct {
-	ID          int       `json:"id" bson:"id"`
-	Name        string    `json:"name" bson:"name"`
-	Parent      *int      `json:"parent" bson:"parent"`
-	Description *string   `bson:"description"`
-	ImageURL    *string   `bson:"image_url"`
-	ImageBase64 *string   `bson:"image_base64"`
-	VersionNo   *int      `json:"versionNo" bson:"version_no"` //手動で追加したカテゴリはversionNoが存在しない可能性がある
-	Children    []*Model  `json:"children,omitempty" bson:"-"` // 子カテゴリはDBに保存されないため、bsonタグは不要
-	UpdatedAt   time.Time `bson:"updated_at"`
+	ID          int     `json:"id" bson:"id"`
+	Name        string  `json:"name" bson:"name"`
+	Parent      *int    `json:"parent" bson:"parent"`
+	Description *string `bson:"description"`
+	ImageURL    *string `bson:"image_url"`
+	ImageBase64 *string `bson:"image_base64"`
+	//Authorized  *bool      `bson:"authorized"`                  //カテゴリ移動不可フラグ
+	VersionNo *int      `json:"versionNo" bson:"version_no"` //手動で追加したカテゴリはversionNoが存在しない可能性がある
+	Children  []*Model  `json:"children,omitempty"`          // 子カテゴリはDBに保存されないため、bsonタグは不要
+	Order     *int      `bson:"order"`
+	UpdatedAt time.Time `bson:"updated_at"`
 }
 
 func (s *Model) ToGraphQL() *graphModel.Category {
@@ -51,6 +54,7 @@ func (s *Model) ToGraphQL() *graphModel.Category {
 		ImageBase64: s.ImageBase64,
 		VersionNo:   s.VersionNo,
 		UpdatedAt:   &s.UpdatedAt,
-		Children:    children, // 変換後の子カテゴリを設定
+		//Authorized:  s.Authorized,
+		Children: children, // 変換後の子カテゴリを設定
 	}
 }
