@@ -18,7 +18,7 @@ import (
 type RequestData struct {
 	Id                *int    `form:"id"`
 	Name              string  `form:"name"`
-	Parent            int     `form:"parent"`
+	Parent            *int    `form:"parent"`
 	Description       *string `form:"description"`
 	VersionNo         *int    `form:"version_no"`
 	SelectedVersionNo *int    `form:"selected_version_no"`
@@ -36,6 +36,11 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 	ctx := c.Request.Context()
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
+
+	//バリデーション
+	if request.Parent != nil && *request.Id == *request.Parent {
+		return nil, errors.New("指定された親カテゴリは不正です")
+	}
 
 	// 画像以外のフォームデータを構造体にバインド
 	if err := c.ShouldBind(&request); err != nil {
@@ -153,7 +158,7 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 	//挿入するドキュメントを作成
 	record := &categoriesRepository.Model{
 		ID:          id,
-		Parent:      &request.Parent,
+		Parent:      request.Parent,
 		Name:        request.Name,
 		Description: request.Description,
 		ImageURL:    newImageURL,
@@ -163,10 +168,18 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 	}
 
 	//トランザクション
+	//TODO:トランザクションはレプリカセットを使わないと効かないが、ローカルだと構築するのが厳しかったので MongoDB Atlas Databaseの利用を前提に考えることにした
 	_, err = db.WithTransaction(ctx, h.DB.Client(), func(sc mongo.SessionContext) (struct{}, error) {
 		zero := struct{}{}
 
-		// トランザクション内での操作1
+		//logsに追加(ログの更新がコケて新規/更新だけが実行される、というパターンの方が最悪なので、ログを優先的に更新する(本来はトランザクションですが...))
+		if !helper.IsEmpty(request.Id) {
+			err = h.CategoryRepo.InsertOneToLog(ctx, old)
+			if err != nil {
+				return zero, err
+			}
+		}
+
 		if old == nil {
 			//新規追加
 			err := h.CategoryRepo.InsertOne(ctx, record)
@@ -181,13 +194,6 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 			return zero, err
 		}
 
-		//logsに追加
-		if !helper.IsEmpty(&request.Id) {
-			err = h.CategoryRepo.InsertOneToLog(ctx, old)
-			if err != nil {
-				return zero, err
-			}
-		}
 		return zero, nil
 	})
 	if err != nil {

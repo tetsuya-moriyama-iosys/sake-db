@@ -39,9 +39,7 @@ func (r *CategoryRepository) InsertOneToLog(ctx context.Context, category *Model
 	if err != nil {
 		return err
 	}
-
-	//data["_id"] = primitive.NewObjectID()//←必要なかったら消す
-
+	
 	// ログコレクションに挿入
 	_, err = r.logsCollection.InsertOne(ctx, data)
 	if err != nil {

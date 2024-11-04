@@ -40,7 +40,7 @@ var IndexDefinitions = []IndexDefinition{
 	//ログ類(バージョン番号との複合キー)
 	{
 		CollectionName: categoriesRepository.LogsCollectionName,
-		IndexKeys:      bson.D{{categoriesRepository.CategoryId, 1}, {categoriesRepository.VersionNo, 1}},
+		IndexKeys:      bson.D{{categoriesRepository.ID, 1}, {categoriesRepository.VersionNo, 1}},
 	},
 	{
 		CollectionName: liquorRepository.LogsCollectionName,

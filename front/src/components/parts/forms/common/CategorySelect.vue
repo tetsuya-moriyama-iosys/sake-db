@@ -48,6 +48,7 @@ const props = defineProps<{
   label?: string;
   name: string;
   initialId?: number | null;
+  disabledId?: number;
 }>();
 
 //階層構造の記憶
@@ -70,7 +71,6 @@ watch(
     levels.value = [response]; // 最初の階層を設定
     initializeSelections(newVal, response); // 初期値で選択肢を初期化
     hiddenField.value = newVal?.toString(); // hiddenFieldにも設定
-    console.log('hiddenField.value:', hiddenField.value);
     //idが空値の場合、セレクトボックスの初期化が必要
     if (props.initialId == null) {
       selectedValues.value = [];

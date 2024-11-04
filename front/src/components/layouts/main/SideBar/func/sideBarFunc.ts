@@ -5,7 +5,6 @@ export function getDisplayCategoryIds(
   categories: Category[],
   targetId: number,
 ): number[] {
-  console.log('getDisplayCategoryIds発火:', categories);
   let result: number[] = [];
   // 再帰的に経路を探すヘルパー関数
   const findPath = (category: Category, path: number[]): number[] => {
