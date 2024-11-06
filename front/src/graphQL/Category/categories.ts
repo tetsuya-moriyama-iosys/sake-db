@@ -9,6 +9,7 @@ export interface Category {
   readonly imageUrl: string;
   readonly description: string;
   readonly versionNo: number;
+  readonly readonly: boolean;
   readonly createdAt: Date | null;
   readonly updatedAt: Date | null;
   readonly children: Category[] | null;
@@ -31,6 +32,7 @@ export const GET_DETAIL: DocumentNode = gql`
       imageBase64
       imageUrl
       description
+      readonly
       children {
         id
         name
@@ -63,6 +65,34 @@ export const GET_QUERY: DocumentNode = gql`
                 children {
                   id
                   name
+                  children {
+                    id
+                    name
+                    children {
+                      id
+                      name
+                      children {
+                        id
+                        name
+                        children {
+                          id
+                          name
+                          children {
+                            id
+                            name
+                            children {
+                              id
+                              name
+                              children {
+                                id
+                                name
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }

@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -13,7 +14,8 @@ import (
 )
 
 func main() {
-	helper.LoadEnv() //.envファイルを読み込み可能にする
+	helper.LoadEnv() // .envファイルを読み込み可能にする
+
 	// MongoDBのクライアントを作成
 	clientOptions := options.Client().ApplyURI(os.Getenv("MONGO_URI"))
 	client, err := mongo.Connect(context.Background(), clientOptions)
@@ -38,17 +40,24 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// デコードした構造体スライスをそのまま MongoDB に挿入する場合、Go では []interface{} に型変換が必要
-	documents := make([]interface{}, len(items))
-	for i, item := range items {
-		documents[i] = item
-	}
+	// デコードした各ドキュメントをアップサート
+	for _, item := range items {
+		filter := bson.M{"id": item.ID} // `id`が一致するかどうかでフィルター
+		update := bson.M{"$set": item}  // ドキュメント全体を上書き
 
-	// 挿入
-	result, err := collection.InsertMany(context.Background(), documents)
-	if err != nil {
-		log.Fatal(err)
-	}
+		// Upsertオプションを設定
+		options := options.Update().SetUpsert(true)
 
-	fmt.Printf("Inserted documents: %v\n", result.InsertedIDs)
+		// アップサートを実行
+		result, err := collection.UpdateOne(context.Background(), filter, update, options)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if result.MatchedCount > 0 {
+			fmt.Printf("Updated document with id: %v\n", item.ID)
+		} else {
+			fmt.Printf("Inserted new document with id: %v\n", item.ID)
+		}
+	}
 }

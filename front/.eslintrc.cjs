@@ -21,17 +21,16 @@ module.exports = {
     project: './tsconfig.eslint.json',
     extraFileExtensions: ['.vue'],
   },
-  plugins: ['vue', '@typescript-eslint', 'prettier',"simple-import-sort"],
+  plugins: ['vue', '@typescript-eslint', 'prettier', 'simple-import-sort'],
   rules: {
     'prettier/prettier': 'error',
     'no-unused-vars': 'error',
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    "simple-import-sort/imports": "error",
-    "simple-import-sort/exports": "error"
+    'simple-import-sort/imports': 'error',
   },
   overrides: [
     {
-      files: ['tailwind.config.js','postcss.config.js'],
+      files: ['tailwind.config.js', 'postcss.config.js'],
       rules: {
         '@typescript-eslint/no-var-requires': 'off',
       },

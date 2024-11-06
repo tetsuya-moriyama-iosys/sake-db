@@ -104,3 +104,21 @@ func GetCategoryTrail(ctx context.Context, targetId int, r *categoriesRepository
 
 	return &result, nil
 }
+
+// HasIdInTrail 指定されたidがtargetIdに至るまでの階層に存在するかチェック
+func HasIdInTrail(ctx context.Context, r *categoriesRepository.CategoryRepository, id int, targetId int) (bool, error) {
+	// targetIdまでのパンくずリストを取得
+	categoryTrail, err := GetCategoryTrail(ctx, targetId, r)
+	if err != nil {
+		return false, err
+	}
+
+	// 最後の要素を除いたパンくずリストを確認
+	for _, category := range *categoryTrail {
+		if category.ID == id {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}

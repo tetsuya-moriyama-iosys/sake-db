@@ -42,12 +42,12 @@ async function fetchData() {
     fetchPolicy: 'no-cache',
   });
   categoryList.value = [...response];
+  sidebarStore.setReloadFlgFalse();
 }
 
 // 読み込み時に情報をAPIから取得
 onMounted(async () => {
   void fetchData();
-  sidebarStore.setReloadFlgFalse();
 });
 
 watch(

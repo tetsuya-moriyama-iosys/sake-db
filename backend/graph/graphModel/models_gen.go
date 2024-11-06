@@ -58,6 +58,7 @@ type Category struct {
 	ImageURL    *string     `json:"imageUrl,omitempty"`
 	ImageBase64 *string     `json:"imageBase64,omitempty"`
 	VersionNo   *int        `json:"versionNo,omitempty"`
+	Readonly    bool        `json:"readonly"`
 	UpdatedAt   *time.Time  `json:"updatedAt,omitempty"`
 	Children    []*Category `json:"children,omitempty"`
 }

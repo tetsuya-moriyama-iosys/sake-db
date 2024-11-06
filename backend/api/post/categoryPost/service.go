@@ -4,6 +4,7 @@ import (
 	"backend/const/errorMsg"
 	"backend/db"
 	"backend/db/repository/categoriesRepository"
+	"backend/service/categoryService"
 	"backend/util/amazon/s3"
 	"backend/util/helper"
 	"context"
@@ -37,11 +38,6 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
-	//バリデーション
-	if request.Parent != nil && *request.Id == *request.Parent {
-		return nil, errors.New("指定された親カテゴリは不正です")
-	}
-
 	// 画像以外のフォームデータを構造体にバインド
 	if err := c.ShouldBind(&request); err != nil {
 		return nil, errors.New("invalid form data")
@@ -49,8 +45,16 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 
 	if request.Id != nil {
 		//更新時のみ行う処理
+		//移動先の
+		hasIdInTrail, err := categoryService.HasIdInTrail(ctx, &h.CategoryRepo, *request.Id, *request.Parent)
+		if err != nil {
+			return nil, err
+		}
+		if hasIdInTrail == true {
+			return nil, errors.New("自身または子カテゴリを親とすることはできません")
+		}
+
 		//logsに代入する現在のドキュメントを取得する
-		var err error
 		old, err = h.CategoryRepo.GetCategoryByID(ctx, *request.Id)
 		if err != nil {
 			return nil, err

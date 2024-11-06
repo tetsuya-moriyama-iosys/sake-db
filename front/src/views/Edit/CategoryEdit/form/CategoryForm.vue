@@ -1,11 +1,15 @@
 <template>
   <VForm @submit="onSubmit" ref="form" :validation-schema="validationSchema">
     親カテゴリ
-    <CategorySelect :name="FormKeys.PARENT" :initial-id="initialParentId" />
+    <CategorySelect
+      :name="FormKeys.PARENT"
+      :initial-id="initialParentId"
+      :readonly="readonly"
+    />
     <FormField :name="FormKeys.ID" type="hidden" />
     <FormField :name="FormKeys.VERSION_NO" type="hidden" />
     <FormField :name="FormKeys.SELECTED_VERSION_NO" type="hidden" />
-    <FormField :name="FormKeys.NAME" label="名前" />
+    <FormField :name="FormKeys.NAME" label="名前" :readonly="readonly" />
     <FormField :name="FormKeys.DESCRIPTION" label="説明" as="textarea" />
     <img
       v-if="initialData?.imageBase64"
@@ -53,6 +57,7 @@ import {
 const props = defineProps<{
   initialData: Category | null;
   versionNo: number | null;
+  readonly: boolean;
 }>();
 
 //必要な関数をインポート
