@@ -1,5 +1,6 @@
-import type { DocumentNode } from 'graphql/index';
 import { gql } from '@apollo/client/core';
+import type { DocumentNode } from 'graphql/index';
+
 import type { Category } from '@/graphQL/Category/categories';
 
 export interface HistoryResponse {
@@ -21,6 +22,7 @@ export const GET_LOGS_FOR_ROLLBACK: DocumentNode = gql`
         description
         imageBase64
         versionNo
+        readonly
         updatedAt
       }
       histories {

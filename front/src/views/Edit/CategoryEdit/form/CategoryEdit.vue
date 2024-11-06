@@ -6,6 +6,7 @@
       <CategoryForm
         :initial-data="initialValues"
         :version-no="historyData?.now.versionNo ?? null"
+        :readonly="historyData?.now.readonly ?? false"
       />
     </div>
     <div>
@@ -38,7 +39,18 @@ const route = useRoute(); // 現在のルートを取得
 const initialValues = ref<Category | null>(historyData?.now ?? null);
 
 const reflectLog = (log: Category) => {
-  initialValues.value = { ...log }; //過去のデータをそのまま初期値として代入する
+  if (historyData?.now.readonly) {
+    //↓es-lintの除外設定してるつもりなんですけど、時間ないので一旦保留 es-lintとtypescript-eslintが意図せず共存してる？
+    // eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
+    const { parent: _, name: __, ...rest } = log;
+    initialValues.value = {
+      parent: historyData.now.parent,
+      name: historyData.now.name,
+      ...rest,
+    };
+  } else {
+    initialValues.value = { ...log }; //過去のデータをそのまま初期値として代入する
+  }
 };
 </script>
 

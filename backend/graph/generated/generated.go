@@ -95,6 +95,7 @@ type ComplexityRoot struct {
 		ImageURL    func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Parent      func(childComplexity int) int
+		Readonly    func(childComplexity int) int
 		UpdatedAt   func(childComplexity int) int
 		VersionNo   func(childComplexity int) int
 	}
@@ -522,6 +523,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Category.Parent(childComplexity), true
+
+	case "Category.readonly":
+		if e.complexity.Category.Readonly == nil {
+			break
+		}
+
+		return e.complexity.Category.Readonly(childComplexity), true
 
 	case "Category.updatedAt":
 		if e.complexity.Category.UpdatedAt == nil {
@@ -1665,6 +1673,7 @@ extend type Mutation {
   imageUrl: String        # S3に保存された画像のURL
   imageBase64: String     # 縮小された画像のBase64エンコードデータ
   versionNo: Int
+  readonly:Boolean!
   updatedAt: DateTime #初期セットには存在しない可能性がある
   children: [Category!]
 }
@@ -3604,6 +3613,50 @@ func (ec *executionContext) fieldContext_Category_versionNo(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Category_readonly(ctx context.Context, field graphql.CollectedField, obj *graphModel.Category) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Category_readonly(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Readonly, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Category_readonly(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Category",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Category_updatedAt(ctx context.Context, field graphql.CollectedField, obj *graphModel.Category) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Category_updatedAt(ctx, field)
 	if err != nil {
@@ -3695,6 +3748,8 @@ func (ec *executionContext) fieldContext_Category_children(_ context.Context, fi
 				return ec.fieldContext_Category_imageBase64(ctx, field)
 			case "versionNo":
 				return ec.fieldContext_Category_versionNo(ctx, field)
+			case "readonly":
+				return ec.fieldContext_Category_readonly(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Category_updatedAt(ctx, field)
 			case "children":
@@ -3759,6 +3814,8 @@ func (ec *executionContext) fieldContext_CategoryHistory_now(_ context.Context, 
 				return ec.fieldContext_Category_imageBase64(ctx, field)
 			case "versionNo":
 				return ec.fieldContext_Category_versionNo(ctx, field)
+			case "readonly":
+				return ec.fieldContext_Category_readonly(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Category_updatedAt(ctx, field)
 			case "children":
@@ -3820,6 +3877,8 @@ func (ec *executionContext) fieldContext_CategoryHistory_histories(_ context.Con
 				return ec.fieldContext_Category_imageBase64(ctx, field)
 			case "versionNo":
 				return ec.fieldContext_Category_versionNo(ctx, field)
+			case "readonly":
+				return ec.fieldContext_Category_readonly(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Category_updatedAt(ctx, field)
 			case "children":
@@ -6628,6 +6687,8 @@ func (ec *executionContext) fieldContext_Query_category(ctx context.Context, fie
 				return ec.fieldContext_Category_imageBase64(ctx, field)
 			case "versionNo":
 				return ec.fieldContext_Category_versionNo(ctx, field)
+			case "readonly":
+				return ec.fieldContext_Category_readonly(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Category_updatedAt(ctx, field)
 			case "children":
@@ -6703,6 +6764,8 @@ func (ec *executionContext) fieldContext_Query_categories(_ context.Context, fie
 				return ec.fieldContext_Category_imageBase64(ctx, field)
 			case "versionNo":
 				return ec.fieldContext_Category_versionNo(ctx, field)
+			case "readonly":
+				return ec.fieldContext_Category_readonly(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Category_updatedAt(ctx, field)
 			case "children":
@@ -12106,6 +12169,11 @@ func (ec *executionContext) _Category(ctx context.Context, sel ast.SelectionSet,
 			out.Values[i] = ec._Category_imageBase64(ctx, field, obj)
 		case "versionNo":
 			out.Values[i] = ec._Category_versionNo(ctx, field, obj)
+		case "readonly":
+			out.Values[i] = ec._Category_readonly(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "updatedAt":
 			out.Values[i] = ec._Category_updatedAt(ctx, field, obj)
 		case "children":

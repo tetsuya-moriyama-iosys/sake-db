@@ -9,7 +9,6 @@ export const mixed: yup.LocaleObject['mixed'] = {
     (label ? label + 'には' : '') + `以下のものが入力できます: ${values}`,
   notOneOf: ({ label, values }) =>
     (label ? label + 'には' : '') + `以下のものは入力できません: ${values}`,
-  // From user's perspective, defined and default is essentially same.
   defined: ({ label }) => (label ? label + 'は' : '') + '必須です',
 };
 

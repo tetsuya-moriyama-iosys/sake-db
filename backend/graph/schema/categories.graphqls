@@ -6,6 +6,7 @@ type Category {
   imageUrl: String        # S3に保存された画像のURL
   imageBase64: String     # 縮小された画像のBase64エンコードデータ
   versionNo: Int
+  readonly:Boolean!
   updatedAt: DateTime #初期セットには存在しない可能性がある
   children: [Category!]
 }

@@ -1,3 +1,2 @@
-gqlgen:
-	go get -d github.com/99designs/gqlgen
-	go run github.com/99designs/gqlgen generate
+seeder:
+	go run ./seeder.go
