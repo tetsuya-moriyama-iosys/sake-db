@@ -1,11 +1,12 @@
-import type { APIType } from '@/type/api/APIType/APIType';
 import createURL from '@/funcs/util/core/createURL';
+import type { APIType } from '@/type/api/APIType/APIType';
 
 export interface PostRequest {
   id: string | null;
   category: number;
   name: string;
   description: string;
+  youtube: string;
   image: File | null;
   selected_version_no: number | null;
   version_no: number | null;

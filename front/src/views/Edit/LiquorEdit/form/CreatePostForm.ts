@@ -17,6 +17,7 @@ export const FormKeys = {
   CATEGORY: 'category', //メインカテゴリ
   NAME: 'name', //名前
   DESCRIPTION: 'description', //説明
+  YOUTUBE: 'youtube',
   IMAGE: 'image',
   VERSION_NO: 'version_no',
   SELECTED_VERSION_NO: 'selected_version_no',
@@ -32,6 +33,7 @@ const initialValues: FormValues = {
   [FormKeys.NAME]: '',
   [FormKeys.CATEGORY]: null,
   [FormKeys.DESCRIPTION]: '',
+  [FormKeys.YOUTUBE]: '',
   [FormKeys.IMAGE]: null,
   [FormKeys.SELECTED_VERSION_NO]: null,
   [FormKeys.VERSION_NO]: null,
@@ -54,5 +56,7 @@ export function generateInitialValues(
 export const validationSchema = {
   [FormKeys.CATEGORY]: number().required(),
   [FormKeys.NAME]: string().max(100).required(),
+  [FormKeys.DESCRIPTION]: string().max(5000),
   [FormKeys.IMAGE]: image().concat(fileSize(2)).nullable(),
+  [FormKeys.YOUTUBE]: string().url().nullable(),
 };

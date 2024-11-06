@@ -78,6 +78,7 @@ type ComplexityRoot struct {
 		UpdatedAt    func(childComplexity int) int
 		UserID       func(childComplexity int) int
 		UserName     func(childComplexity int) int
+		Youtube      func(childComplexity int) int
 	}
 
 	BookMarkListUser struct {
@@ -143,6 +144,7 @@ type ComplexityRoot struct {
 		Rate5Users    func(childComplexity int) int
 		UpdatedAt     func(childComplexity int) int
 		VersionNo     func(childComplexity int) int
+		Youtube       func(childComplexity int) int
 	}
 
 	LiquorHistory struct {
@@ -446,6 +448,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BoardPost.UserName(childComplexity), true
+
+	case "BoardPost.youtube":
+		if e.complexity.BoardPost.Youtube == nil {
+			break
+		}
+
+		return e.complexity.BoardPost.Youtube(childComplexity), true
 
 	case "BookMarkListUser.createdAt":
 		if e.complexity.BookMarkListUser.CreatedAt == nil {
@@ -754,6 +763,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Liquor.VersionNo(childComplexity), true
+
+	case "Liquor.youtube":
+		if e.complexity.Liquor.Youtube == nil {
+			break
+		}
+
+		return e.complexity.Liquor.Youtube(childComplexity), true
 
 	case "LiquorHistory.histories":
 		if e.complexity.LiquorHistory.Histories == nil {
@@ -1752,6 +1768,7 @@ type Liquor {
   description: String
   imageUrl: String        # S3に保存された画像のURL
   imageBase64: String     # 縮小された画像のBase64エンコードデータ
+  youtube:String
   updatedAt: DateTime!
   rate5Users: [ID!]!
   rate4Users: [ID!]!
@@ -1780,7 +1797,8 @@ type BoardPost{
   categoryName: String!
   liquorId:ID!
   liquorName:String!
-  text: String!
+  text: String! #descriptionで良かった気がするが、一旦このままで
+  youtube:String
   rate: Int #評価なしの場合もある
   updatedAt: DateTime!
 }
@@ -3050,6 +3068,47 @@ func (ec *executionContext) _BoardPost_text(ctx context.Context, field graphql.C
 }
 
 func (ec *executionContext) fieldContext_BoardPost_text(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BoardPost",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BoardPost_youtube(ctx context.Context, field graphql.CollectedField, obj *graphModel.BoardPost) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BoardPost_youtube(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Youtube, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BoardPost_youtube(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BoardPost",
 		Field:      field,
@@ -4820,6 +4879,47 @@ func (ec *executionContext) fieldContext_Liquor_imageBase64(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Liquor_youtube(ctx context.Context, field graphql.CollectedField, obj *graphModel.Liquor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Liquor_youtube(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Youtube, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Liquor_youtube(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Liquor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Liquor_updatedAt(ctx context.Context, field graphql.CollectedField, obj *graphModel.Liquor) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Liquor_updatedAt(ctx, field)
 	if err != nil {
@@ -5183,6 +5283,8 @@ func (ec *executionContext) fieldContext_LiquorHistory_now(_ context.Context, fi
 				return ec.fieldContext_Liquor_imageUrl(ctx, field)
 			case "imageBase64":
 				return ec.fieldContext_Liquor_imageBase64(ctx, field)
+			case "youtube":
+				return ec.fieldContext_Liquor_youtube(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Liquor_updatedAt(ctx, field)
 			case "rate5Users":
@@ -5256,6 +5358,8 @@ func (ec *executionContext) fieldContext_LiquorHistory_histories(_ context.Conte
 				return ec.fieldContext_Liquor_imageUrl(ctx, field)
 			case "imageBase64":
 				return ec.fieldContext_Liquor_imageBase64(ctx, field)
+			case "youtube":
+				return ec.fieldContext_Liquor_youtube(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Liquor_updatedAt(ctx, field)
 			case "rate5Users":
@@ -5417,6 +5521,8 @@ func (ec *executionContext) fieldContext_ListFromCategory_liquors(_ context.Cont
 				return ec.fieldContext_Liquor_imageUrl(ctx, field)
 			case "imageBase64":
 				return ec.fieldContext_Liquor_imageBase64(ctx, field)
+			case "youtube":
+				return ec.fieldContext_Liquor_youtube(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Liquor_updatedAt(ctx, field)
 			case "rate5Users":
@@ -7042,6 +7148,8 @@ func (ec *executionContext) fieldContext_Query_liquor(ctx context.Context, field
 				return ec.fieldContext_Liquor_imageUrl(ctx, field)
 			case "imageBase64":
 				return ec.fieldContext_Liquor_imageBase64(ctx, field)
+			case "youtube":
+				return ec.fieldContext_Liquor_youtube(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Liquor_updatedAt(ctx, field)
 			case "rate5Users":
@@ -7129,6 +7237,8 @@ func (ec *executionContext) fieldContext_Query_randomRecommendList(ctx context.C
 				return ec.fieldContext_Liquor_imageUrl(ctx, field)
 			case "imageBase64":
 				return ec.fieldContext_Liquor_imageBase64(ctx, field)
+			case "youtube":
+				return ec.fieldContext_Liquor_youtube(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Liquor_updatedAt(ctx, field)
 			case "rate5Users":
@@ -7334,6 +7444,8 @@ func (ec *executionContext) fieldContext_Query_board(ctx context.Context, field 
 				return ec.fieldContext_BoardPost_liquorName(ctx, field)
 			case "text":
 				return ec.fieldContext_BoardPost_text(ctx, field)
+			case "youtube":
+				return ec.fieldContext_BoardPost_youtube(ctx, field)
 			case "rate":
 				return ec.fieldContext_BoardPost_rate(ctx, field)
 			case "updatedAt":
@@ -7428,6 +7540,8 @@ func (ec *executionContext) fieldContext_Query_getMyBoard(ctx context.Context, f
 				return ec.fieldContext_BoardPost_liquorName(ctx, field)
 			case "text":
 				return ec.fieldContext_BoardPost_text(ctx, field)
+			case "youtube":
+				return ec.fieldContext_BoardPost_youtube(ctx, field)
 			case "rate":
 				return ec.fieldContext_BoardPost_rate(ctx, field)
 			case "updatedAt":
@@ -12057,6 +12171,8 @@ func (ec *executionContext) _BoardPost(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "youtube":
+			out.Values[i] = ec._BoardPost_youtube(ctx, field, obj)
 		case "rate":
 			out.Values[i] = ec._BoardPost_rate(ctx, field, obj)
 		case "updatedAt":
@@ -12448,6 +12564,8 @@ func (ec *executionContext) _Liquor(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec._Liquor_imageUrl(ctx, field, obj)
 		case "imageBase64":
 			out.Values[i] = ec._Liquor_imageBase64(ctx, field, obj)
+		case "youtube":
+			out.Values[i] = ec._Liquor_youtube(ctx, field, obj)
 		case "updatedAt":
 			out.Values[i] = ec._Liquor_updatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

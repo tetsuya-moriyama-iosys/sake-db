@@ -55,5 +55,6 @@ export function generateInitialValues(category: Category | null): FormValues {
 export const validationSchema = {
   [FormKeys.PARENT]: number().min(1).required().typeError('必須です'), // 型エラー用のカスタムメッセージ,
   [FormKeys.NAME]: string().max(100).required(),
+  [FormKeys.DESCRIPTION]: string().max(5000),
   [FormKeys.IMAGE]: image().concat(fileSize(2)).nullable(),
 };

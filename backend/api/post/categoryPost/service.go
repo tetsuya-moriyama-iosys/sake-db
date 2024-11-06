@@ -15,19 +15,6 @@ import (
 	"time"
 )
 
-// RequestData 画像以外の、ShouldBindでバインドするデータ
-type RequestData struct {
-	Id                *int    `form:"id"`
-	Name              string  `form:"name"`
-	Parent            *int    `form:"parent"`
-	Description       *string `form:"description"`
-	VersionNo         *int    `form:"version_no"`
-	SelectedVersionNo *int    `form:"selected_version_no"`
-}
-
-// Base64にリサイズする際の横幅
-var maxWidth uint = 200
-
 func (h *Handler) Post(c *gin.Context) (*int, error) {
 	var request RequestData
 	var imageBase64 *string
@@ -43,10 +30,14 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 		return nil, errors.New("invalid form data")
 	}
 
+	err := helper.Validate(request)
+	if err != nil {
+		return nil, err
+	}
+
 	if request.Id != nil {
 		//更新時のみ行う処理
-		//移動先の
-		hasIdInTrail, err := categoryService.HasIdInTrail(ctx, &h.CategoryRepo, *request.Id, *request.Parent)
+		hasIdInTrail, err := categoryService.HasIdInTrail(ctx, &h.CategoryRepo, *request.Id, request.Parent)
 		if err != nil {
 			return nil, err
 		}
@@ -162,7 +153,7 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 	//挿入するドキュメントを作成
 	record := &categoriesRepository.Model{
 		ID:          id,
-		Parent:      request.Parent,
+		Parent:      &request.Parent,
 		Name:        request.Name,
 		Description: request.Description,
 		ImageURL:    newImageURL,

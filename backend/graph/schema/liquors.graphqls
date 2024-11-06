@@ -14,6 +14,7 @@ type Liquor {
   description: String
   imageUrl: String        # S3に保存された画像のURL
   imageBase64: String     # 縮小された画像のBase64エンコードデータ
+  youtube:String
   updatedAt: DateTime!
   rate5Users: [ID!]!
   rate4Users: [ID!]!
@@ -42,7 +43,8 @@ type BoardPost{
   categoryName: String!
   liquorId:ID!
   liquorName:String!
-  text: String!
+  text: String! #descriptionで良かった気がするが、一旦このままで
+  youtube:String
   rate: Int #評価なしの場合もある
   updatedAt: DateTime!
 }

@@ -16,19 +16,6 @@ import (
 	"time"
 )
 
-// RequestData 画像以外の、ShouldBindでバインドするデータ
-type RequestData struct {
-	Id                *string `form:"id"`
-	Name              string  `form:"name"`
-	CategoryID        int     `form:"category"`
-	Description       *string `form:"description"`
-	VersionNo         *int    `form:"version_no"`
-	SelectedVersionNo *int    `form:"selected_version_no"`
-}
-
-// Base64にリサイズする際の横幅
-var maxWidth uint = 200
-
 func (h *Handler) Post(c *gin.Context) (*string, error) {
 	var request RequestData
 	var imageBase64 *string
@@ -44,7 +31,7 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 		random = rand.New(rand.NewSource(time.Now().UnixNano())).Float64()
 		_, err := h.LiquorsRepo.GetLiquorByRandomKey(ctx, random)
 		//特に見つからなければOK
-		if err == mongo.ErrNoDocuments {
+		if errors.Is(err, mongo.ErrNoDocuments) {
 			break
 		}
 		//それ以外の何らかのエラーがあれば終了
@@ -58,18 +45,28 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 	if err := c.ShouldBind(&request); err != nil {
 		return nil, errors.New("不正な値が送信されました")
 	}
+	err := helper.Validate(request)
+	if err != nil {
+		return nil, err
+	}
 
-	//TODO:更新時も、別IDに同名が存在するかどうかチェックした方がいいような気もする
-	if request.Id == nil {
-		//新規時のみ、名前の重複チェックを行う
-		l, err := h.LiquorsRepo.GetLiquorByName(ctx, request.Name)
-		if err != mongo.ErrNoDocuments {
-			//見つからないエラーは正常系だが、それ以外のエラーの場合
+	var id *primitive.ObjectID
+	if request.Id != nil {
+		tempId, err := primitive.ObjectIDFromHex(*request.Id)
+		if err != nil {
 			return nil, err
 		}
-		if l != nil {
-			return nil, errors.New("すでに存在するお酒です")
-		}
+		id = &tempId
+	}
+
+	//名前の重複チェックを行う
+	l, err := h.LiquorsRepo.GetLiquorByName(ctx, request.Name, id)
+	if !errors.Is(err, mongo.ErrNoDocuments) {
+		//見つからないエラーは正常系だが、それ以外のエラーの場合
+		return nil, err
+	}
+	if l != nil {
+		return nil, errors.New("すでに存在するお酒です")
 	}
 
 	if request.Id != nil {
@@ -154,13 +151,8 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 
 	//新バージョンNoを作成する
 	var newVersionNo int
-	var id primitive.ObjectID
-	if request.Id != nil {
+	if id != nil {
 		//更新の場合
-		id, err = primitive.ObjectIDFromHex(*request.Id)
-		if err != nil {
-			return nil, err
-		}
 		if request.VersionNo == nil {
 			//初期アセットの場合(version_noを入れていない)
 			newVersionNo = 1
@@ -169,7 +161,8 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 		}
 	} else {
 		//初回作成の場合
-		id = primitive.NewObjectID()
+		tempId := primitive.NewObjectID()
+		id = &tempId
 		newVersionNo = 1 // 初回作成の場合、VersionNoを1に設定
 	}
 
@@ -188,11 +181,12 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 
 	//挿入するドキュメントを作成
 	record := &liquorRepository.Model{
-		ID:           id,
+		ID:           *id,
 		CategoryID:   request.CategoryID,
 		CategoryName: category.Name,
 		Name:         request.Name,
 		Description:  request.Description,
+		Youtube:      request.Youtube,
 		ImageURL:     newImageURL,
 		ImageBase64:  newBase64,
 		UpdatedAt:    time.Now(),
