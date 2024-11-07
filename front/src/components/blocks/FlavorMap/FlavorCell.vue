@@ -1,6 +1,7 @@
 <template>
   <div
     class="grid-cell"
+    :class="isSelectable ? 'selectable' : ''"
     :style="{ backgroundColor: getBackgroundColor(props.cellData.rate) }"
   ></div>
 </template>
@@ -10,6 +11,7 @@ import type { FlavorCell } from '@/graphQL/Liquor/flavorMap';
 
 const props = defineProps<{
   isSelected: boolean;
+  isSelectable: boolean;
   cellData: FlavorCell;
 }>();
 
@@ -28,8 +30,10 @@ function getBackgroundColor(rate: number): string {
 div.grid-cell {
   width: calc(420px / 21);
   transition: background-color 0.3s; // 背景色の変化にトランジションを適用 (任意)
+  border: 1px solid #ddd; // 枠線の色と厚さ
+  box-sizing: border-box; // セル全体のサイズを維持
 
-  &:hover {
+  &.selectable:hover {
     background-color: #666666 !important; // styleより優先度を上げるためimportant
   }
 }

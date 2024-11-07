@@ -39,6 +39,7 @@ type BoardPost struct {
 	LiquorID     string    `json:"liquorId"`
 	LiquorName   string    `json:"liquorName"`
 	Text         string    `json:"text"`
+	Youtube      *string   `json:"youtube,omitempty"`
 	Rate         *int      `json:"rate,omitempty"`
 	UpdatedAt    time.Time `json:"updatedAt"`
 }
@@ -99,6 +100,7 @@ type Liquor struct {
 	Description   *string          `json:"description,omitempty"`
 	ImageURL      *string          `json:"imageUrl,omitempty"`
 	ImageBase64   *string          `json:"imageBase64,omitempty"`
+	Youtube       *string          `json:"youtube,omitempty"`
 	UpdatedAt     time.Time        `json:"updatedAt"`
 	Rate5Users    []string         `json:"rate5Users"`
 	Rate4Users    []string         `json:"rate4Users"`

@@ -4,9 +4,9 @@
 import * as yup from 'yup';
 import { number, string } from 'yup';
 
-import { fileSize } from '@/forms/customValidations/filesize';
-import { image } from '@/forms/customValidations/image';
 import type { Category } from '@/graphQL/Category/categories';
+import { fileSize } from '@/lib/yup/customValidations/filesize';
+import { image } from '@/lib/yup/customValidations/image';
 import yupLocaleJP from '@/lib/yup/yupLocaleJa';
 import type { CategoryRequest } from '@/type/api/APIType/post/CategoryForm';
 
@@ -55,5 +55,6 @@ export function generateInitialValues(category: Category | null): FormValues {
 export const validationSchema = {
   [FormKeys.PARENT]: number().min(1).required().typeError('必須です'), // 型エラー用のカスタムメッセージ,
   [FormKeys.NAME]: string().max(100).required(),
+  [FormKeys.DESCRIPTION]: string().max(5000),
   [FormKeys.IMAGE]: image().concat(fileSize(2)).nullable(),
 };

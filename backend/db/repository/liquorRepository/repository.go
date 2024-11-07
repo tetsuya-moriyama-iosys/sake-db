@@ -39,10 +39,18 @@ func (r *LiquorsRepository) GetLiquorById(ctx context.Context, id primitive.Obje
 
 	return &liquor, nil
 }
-func (r *LiquorsRepository) GetLiquorByName(ctx context.Context, name string) (*Model, error) {
-	// コレクションを取得
+func (r *LiquorsRepository) GetLiquorByName(ctx context.Context, name string, excludeId *primitive.ObjectID) (*Model, error) {
+	// クエリ条件を作成
+	filter := bson.M{"name": name}
+
+	// excludeIdがnilでない場合にのみ、_id条件を追加
+	if excludeId != nil {
+		filter["_id"] = bson.M{"$ne": *excludeId} // excludeIDと一致しない_idを除外
+	}
+
+	// クエリ実行
 	var liquor Model
-	if err := r.collection.FindOne(ctx, bson.M{Name: name}).Decode(&liquor); err != nil {
+	if err := r.collection.FindOne(ctx, filter).Decode(&liquor); err != nil {
 		return nil, err
 	}
 

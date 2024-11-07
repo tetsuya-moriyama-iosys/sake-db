@@ -12,6 +12,17 @@
     <div>
       {{ liquor.description }}
     </div>
+    <div>
+      <iframe
+        v-if="liquor.youtube"
+        width="560"
+        height="315"
+        :src="embedUrl ?? undefined"
+        title="YouTube video player"
+        allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+      ></iframe>
+    </div>
     <router-link :to="{ name: 'LiquorEdit', params: { id: liquor.id } }">
       <CommonButton>編集する</CommonButton></router-link
     >
@@ -23,6 +34,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+
 import AffiliateContainer from '@/components/blocks/common/amazon/AffiliateContainer.vue';
 import FlavorMap from '@/components/blocks/FlavorMap/FlavorMap.vue';
 import CommonButton from '@/components/parts/common/CommonButton/CommonButton.vue';
@@ -36,6 +49,17 @@ interface Props {
 }
 
 const { liquor } = defineProps<Props>();
+
+// YouTubeのURLをembed形式に変換するcomputedプロパティ
+const embedUrl = computed<string | null>(() => {
+  if (!liquor.youtube) return null;
+  const videoIdMatch = liquor.youtube.match(
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+  );
+  return videoIdMatch
+    ? `https://www.youtube.com/embed/${videoIdMatch[1]}`
+    : null;
+});
 </script>
 
 <style scoped>

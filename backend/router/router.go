@@ -22,6 +22,7 @@ func configureRoutes(r *gin.Engine, srv *handler.Server, handlers *handlers.Hand
 		// 正常なレスポンス
 		c.JSON(http.StatusOK, gin.H{"id": *id})
 	})
+
 	// カテゴリデータの投稿
 	r.POST("/category/post", func(c *gin.Context) {
 		id, err := handlers.CategoryHandler.Post(c)

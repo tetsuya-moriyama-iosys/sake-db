@@ -14,6 +14,7 @@ const (
 	CategoryName       = "category_name"
 	Name               = "name"
 	Description        = "description"
+	Youtube            = "youtube"
 	ImageURL           = "image_url"
 	ImageBase64        = "image_base64"
 	UpdatedAt          = "updated_at"
@@ -32,6 +33,7 @@ type Model struct {
 	CategoryName string             `bson:"category_name"`
 	Name         string             `bson:"name"`
 	Description  *string            `bson:"description"`
+	Youtube      *string            `bson:"youtube"`
 	ImageURL     *string            `bson:"image_url"`
 	ImageBase64  *string            `bson:"image_base64"`
 	Rate5Users   []string           `bson:"rate5_users"`
@@ -51,6 +53,7 @@ func (m *Model) ToGraphQL() *graphModel.Liquor {
 		CategoryName: m.CategoryName,
 		Name:         m.Name,
 		Description:  m.Description,
+		Youtube:      m.Youtube,
 		ImageURL:     m.ImageURL,
 		ImageBase64:  m.ImageBase64,
 		UpdatedAt:    m.UpdatedAt,
