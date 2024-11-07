@@ -6,6 +6,7 @@ import (
 	"backend/db/repository/liquorRepository"
 	"backend/util/amazon/s3"
 	"backend/util/helper"
+	"backend/util/validator"
 	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -45,7 +46,7 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 	if err := c.ShouldBind(&request); err != nil {
 		return nil, errors.New("不正な値が送信されました")
 	}
-	err := helper.Validate(request)
+	err := validator.Validate(request)
 	if err != nil {
 		return nil, err
 	}
@@ -185,8 +186,8 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 		CategoryID:   request.CategoryID,
 		CategoryName: category.Name,
 		Name:         request.Name,
-		Description:  request.Description,
-		Youtube:      request.Youtube,
+		Description:  &request.Description,
+		Youtube:      &request.Youtube,
 		ImageURL:     newImageURL,
 		ImageBase64:  newBase64,
 		UpdatedAt:    time.Now(),

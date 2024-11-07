@@ -4,9 +4,9 @@
 import * as yup from 'yup';
 import { number, string } from 'yup';
 
-import { fileSize } from '@/forms/customValidations/filesize';
-import { image } from '@/forms/customValidations/image';
 import type { Category } from '@/graphQL/Category/categories';
+import { fileSize } from '@/lib/yup/customValidations/filesize';
+import { image } from '@/lib/yup/customValidations/image';
 import yupLocaleJP from '@/lib/yup/yupLocaleJa';
 import type { CategoryRequest } from '@/type/api/APIType/post/CategoryForm';
 

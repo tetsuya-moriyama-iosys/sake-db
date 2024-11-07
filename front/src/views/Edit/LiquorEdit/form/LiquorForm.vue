@@ -10,6 +10,7 @@
     <FormField :name="FormKeys.SELECTED_VERSION_NO" type="hidden" />
     <FormField :name="FormKeys.NAME" label="名前" />
     <FormField :name="FormKeys.DESCRIPTION" label="説明" as="textarea" />
+    <FormField :name="FormKeys.YOUTUBE" label="youtubeのURL" />
     <UploadWithImage
       v-slot="{ setImage }"
       :name="FormKeys.IMAGE"

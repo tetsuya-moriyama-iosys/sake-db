@@ -7,6 +7,7 @@ import (
 	"backend/service/categoryService"
 	"backend/util/amazon/s3"
 	"backend/util/helper"
+	"backend/util/validator"
 	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -30,7 +31,7 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 		return nil, errors.New("invalid form data")
 	}
 
-	err := helper.Validate(request)
+	err := validator.Validate(request)
 	if err != nil {
 		return nil, err
 	}

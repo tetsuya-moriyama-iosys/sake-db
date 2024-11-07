@@ -46,6 +46,7 @@
                   )!
                 "
                 class="grid-cell"
+                :isSelectable="isLogin || votedCoordinates == null"
                 @click="
                   () => {
                     savedCoordinates = { x: xIndex - 10, y: 10 - yIndex };

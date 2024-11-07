@@ -16,6 +16,7 @@ export interface ListFromCategoryResponse {
 
 export interface Liquor extends CardLiquor {
   readonly imageUrl: string;
+  readonly youtube: string;
   readonly updatedAt: Date;
   readonly versionNo: number;
   readonly categoryTrail: CategoryTrail;
@@ -48,6 +49,7 @@ export const LIQUOR_DETAIL_GET: DocumentNode = gql`
         name
       }
       description
+      youtube
       imageBase64
       imageUrl
       updatedAt

@@ -4,9 +4,10 @@
 import * as yup from 'yup';
 import { number, string } from 'yup';
 
-import { fileSize } from '@/forms/customValidations/filesize';
-import { image } from '@/forms/customValidations/image';
 import type { LiquorForEdit } from '@/graphQL/Liquor/liquor';
+import { fileSize } from '@/lib/yup/customValidations/filesize';
+import { image } from '@/lib/yup/customValidations/image';
+import { youtube } from '@/lib/yup/customValidations/youtube';
 import yupLocaleJP from '@/lib/yup/yupLocaleJa';
 import type { PostRequest } from '@/type/api/APIType/post/PostForm';
 
@@ -58,5 +59,5 @@ export const validationSchema = {
   [FormKeys.NAME]: string().max(100).required(),
   [FormKeys.DESCRIPTION]: string().max(5000),
   [FormKeys.IMAGE]: image().concat(fileSize(2)).nullable(),
-  [FormKeys.YOUTUBE]: string().url().nullable(),
+  [FormKeys.YOUTUBE]: youtube().nullable(),
 };
