@@ -13,12 +13,14 @@
 
 <script setup lang="ts">
 import { Form, type SubmissionHandler } from 'vee-validate';
+import { useRouter } from 'vue-router';
 
 import FormField from '@/components/parts/forms/core/FormField.vue';
 import SubmitButton from '@/components/parts/forms/core/SubmitButton.vue';
 import { useMutation } from '@/funcs/composable/useQuery';
 import { useToast } from '@/funcs/composable/useToast';
-import { Register } from '@/graphQL/Auth/auth';
+import { Register, type RegisterResponse } from '@/graphQL/Auth/auth';
+import { useUserStore } from '@/stores/userStore';
 import {
   FormKeys,
   type FormValues,
@@ -27,8 +29,10 @@ import {
 } from '@/views/Auth/Register/form/RegisterForm';
 
 const toast = useToast();
-//TODO:自動ログインまで実装する際にジェネリクスも指定
-const { execute } = useMutation(Register, {
+const router = useRouter();
+const userStore = useUserStore();
+
+const { execute } = useMutation<RegisterResponse>(Register, {
   isUseSpinner: true,
 });
 
@@ -42,9 +46,11 @@ const onSubmit: SubmissionHandler = async (values: FormValues) => {
       email: values[FormKeys.MAIL],
       password: values[FormKeys.PASSWORD],
     },
-  }).then(() => {
-    //TODO:ログイン処理も同時に行う？
+  }).then((res: RegisterResponse) => {
     toast.showToast({ message: '登録が完了しました' });
+    //ログイン処理
+    userStore.setUserData(res.registerUser);
+    router.push({ name: 'Index' });
   });
 };
 </script>
