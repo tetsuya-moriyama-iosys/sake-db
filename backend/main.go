@@ -20,5 +20,5 @@ func main() {
 	}
 
 	log.Println("connect to http://localhost:8080/ for GraphQL playground")
-	log.Fatal(server.Run(":8080"))
+	log.Println(server.Run(":8080"))
 }

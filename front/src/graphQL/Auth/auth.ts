@@ -2,8 +2,14 @@ import { gql } from '@apollo/client/core';
 import type { DocumentNode } from 'graphql/index';
 
 //ログイン時に返ってくるデータ
+export interface RegisterResponse {
+  readonly registerUser: LoginResult;
+}
 export interface GetUserdataResponse {
   readonly getUser: AuthUserFull;
+}
+export interface LoginResponse {
+  readonly login: LoginResult;
 }
 
 //認証済みユーザー情報(要はパスワード以外のデータ)
@@ -17,9 +23,6 @@ export interface AuthUserFull extends AuthUser {
   profile: string;
 }
 
-export interface LoginResponse {
-  readonly login: LoginResult;
-}
 export interface ResetEmailExeResponse {
   readonly resetExe: LoginResult;
 }
@@ -36,9 +39,25 @@ export interface GetUserResponse {
 export const Register: DocumentNode = gql`
   mutation ($input: RegisterInput!) {
     registerUser(input: $input) {
-      id
-      name
-      email
+      token
+      user {
+        id
+        name
+        imageBase64
+      }
+    }
+  }
+`;
+
+export const LOGIN: DocumentNode = gql`
+  mutation ($input: LoginInput!) {
+    login(input: $input) {
+      token
+      user {
+        id
+        name
+        imageBase64
+      }
     }
   }
 `;
@@ -70,19 +89,6 @@ export const GET_MY_USERDATA_FULL: DocumentNode = gql`
       email
       profile
       imageBase64
-    }
-  }
-`;
-
-export const LOGIN: DocumentNode = gql`
-  mutation ($input: LoginInput!) {
-    login(input: $input) {
-      token
-      user {
-        id
-        name
-        imageBase64
-      }
     }
   }
 `;

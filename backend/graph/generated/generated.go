@@ -269,7 +269,7 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	RegisterUser(ctx context.Context, input graphModel.RegisterInput) (*graphModel.User, error)
+	RegisterUser(ctx context.Context, input graphModel.RegisterInput) (*graphModel.AuthPayload, error)
 	UpdateUser(ctx context.Context, input graphModel.RegisterInput) (bool, error)
 	Login(ctx context.Context, input graphModel.LoginInput) (*graphModel.AuthPayload, error)
 	ResetEmail(ctx context.Context, email string) (bool, error)
@@ -1631,7 +1631,7 @@ extend type Query {
 
 
 extend type Mutation {
-  registerUser(input: RegisterInput!): User!
+  registerUser(input: RegisterInput!): AuthPayload!
   updateUser(input: RegisterInput!): Boolean! @auth
   login(input: LoginInput!): AuthPayload!
   resetEmail(email:String!):Boolean!
@@ -5570,9 +5570,9 @@ func (ec *executionContext) _Mutation_registerUser(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*graphModel.User)
+	res := resTmp.(*graphModel.AuthPayload)
 	fc.Result = res
-	return ec.marshalNUser2ᚖbackendᚋgraphᚋgraphModelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNAuthPayload2ᚖbackendᚋgraphᚋgraphModelᚐAuthPayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_registerUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5583,18 +5583,12 @@ func (ec *executionContext) fieldContext_Mutation_registerUser(ctx context.Conte
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "name":
-				return ec.fieldContext_User_name(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			case "profile":
-				return ec.fieldContext_User_profile(ctx, field)
-			case "imageBase64":
-				return ec.fieldContext_User_imageBase64(ctx, field)
+			case "token":
+				return ec.fieldContext_AuthPayload_token(ctx, field)
+			case "user":
+				return ec.fieldContext_AuthPayload_user(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type AuthPayload", field.Name)
 		},
 	}
 	defer func() {

@@ -19,7 +19,7 @@ import (
 )
 
 // RegisterUser is the resolver for the registerUser field.
-func (r *mutationResolver) RegisterUser(ctx context.Context, input graphModel.RegisterInput) (*graphModel.User, error) {
+func (r *mutationResolver) RegisterUser(ctx context.Context, input graphModel.RegisterInput) (*graphModel.AuthPayload, error) {
 	if input.Password == nil {
 		return nil, errors.New("パスワードは必須です")
 	}
@@ -45,7 +45,16 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphModel.Re
 		//email重複もここに含まれる
 		return nil, errors.New("ユーザー登録に失敗しました。")
 	}
-	return newUser.ToGraphQL(), nil
+
+	//ログイン処理を流用する
+	u, err := r.Login(ctx, graphModel.LoginInput{
+		Email:    newUser.Email,
+		Password: *input.Password,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return u, nil
 }
 
 // UpdateUser is the resolver for the updateUser field.
