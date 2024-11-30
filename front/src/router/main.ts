@@ -2,6 +2,7 @@
  * メイン画面(データベース検索部分)のルーター
  */
 import Layout from '@/components/layouts/main/BaseLayout.vue';
+import AdminRouter from '@/router/admin';
 import AuthRouter from '@/router/auth';
 import { MyPageRouter } from '@/router/mypage';
 import { UserRouter } from '@/router/user';
@@ -21,6 +22,7 @@ const MainRouter = {
     AuthRouter,
     MyPageRouter,
     UserRouter,
+    AdminRouter,
     {
       path: '/',
       name: 'Index',

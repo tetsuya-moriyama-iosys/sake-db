@@ -1,3 +1,4 @@
 directive @auth on FIELD_DEFINITION
 directive @optionalAuth on FIELD_DEFINITION
+directive @adminAuth(role: String) on FIELD_DEFINITION
 

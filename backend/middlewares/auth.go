@@ -21,7 +21,7 @@ var JwtKey = []byte(os.Getenv("JWT_SECRET_KEY"))
 // ContextKey ユーザーIDを保存するためのコンテキストキー
 type ContextKey string
 
-const UserContextKey ContextKey = "user" //TODO:キーの内容が合ってるかどうかは後で確認すること
+const UserContextKey ContextKey = "user"
 
 // AuthenticateJWT JWTの認証ミドルウェア
 func AuthenticateJWT() gin.HandlerFunc {

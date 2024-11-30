@@ -7,6 +7,9 @@
         >
         <router-link :to="{ name: 'LiquorEdit' }">投稿する</router-link>
       </section>
+      <section v-if="getRoles().includes(Roles.Admin)">
+        <router-link :to="{ name: 'Admin' }">管理者ページ</router-link>
+      </section>
       <section>
         <AccountInfo />
       </section>
@@ -20,6 +23,10 @@
 <script setup lang="ts">
 import AccountInfo from '@/components/layouts/main/header/AccountInfo.vue';
 import MainMenu from '@/components/layouts/main/header/menu/MainMenu.vue';
+import { Roles } from '@/graphQL/Auth/auth';
+import { useUserStore } from '@/stores/userStore';
+
+const { getRoles } = useUserStore();
 </script>
 
 <style scoped>

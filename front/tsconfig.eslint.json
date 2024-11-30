@@ -5,10 +5,11 @@
     "env.d.ts",
     "src/**/*",
     "src/**/*.vue",
+    "codegen.ts",
+    "postcss.config.js",
+    "tailwind.config.js",
     "vite.config.ts",
     "vitest.config.ts",
-    "tailwind.config.js",
-    "postcss.config.js"
   ],
   "compilerOptions": {
     "types": ["node"]

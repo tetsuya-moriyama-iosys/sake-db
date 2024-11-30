@@ -37,14 +37,10 @@ func (r *UsersRepository) Register(ctx context.Context, user *Model) (*Model, er
 }
 
 func (r *UsersRepository) Update(ctx context.Context, user *Model) error {
-	// 更新のためのフィルタを定義（IDで検索）
-	filter := bson.M{"_id": user.ID}
-
 	// MongoDBにデータを挿入
-	re, err := r.collection.UpdateOne(ctx, filter, bson.M{
+	_, err := r.collection.UpdateOne(ctx, bson.M{"_id": user.ID}, bson.M{
 		"$set": user, // userオブジェクト内のフィールドをセット
 	})
-	log.Println(re)
 	if err != nil {
 		return err
 	}
@@ -102,11 +98,11 @@ func (r *UsersRepository) GetByPasswordToken(ctx context.Context, token string) 
 	return &user, nil
 }
 
-func (r *UsersRepository) PasswordReset(ctx context.Context, user Model, password []byte) error {
+func (r *UsersRepository) PasswordReset(ctx context.Context, user Model, newPasswordHashed []byte) error {
 	// パスワードを更新するクエリを実行
 	_, err := r.collection.UpdateOne(ctx, bson.M{"_id": user.ID}, bson.M{
 		"$set": bson.M{
-			Password:                 password,
+			Password:                 newPasswordHashed,
 			PasswordResetToken:       nil,
 			PasswordResetTokenExpire: nil,
 		},

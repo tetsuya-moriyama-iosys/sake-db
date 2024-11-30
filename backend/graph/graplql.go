@@ -9,13 +9,13 @@ import (
 )
 
 func NewGraphQLServer(resolver *resolver.Resolver) *handler.Server {
-	//srv := handler.New(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
 	// GraphQLサーバーをセットアップ
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{
 		Resolvers: resolver,
 		Directives: generated.DirectiveRoot{
 			Auth:         authDirective,         // @authディレクティブを適用
-			OptionalAuth: optionalAuthDirective, // @OptionalAuthディレクティブを適用
+			OptionalAuth: optionalAuthDirective, // @optionalAuthディレクティブを適用
+			AdminAuth:    adminDirective,        // @adminAuthディレクティブを適用
 		},
 	}))
 
