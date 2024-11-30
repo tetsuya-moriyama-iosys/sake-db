@@ -1,19 +1,12 @@
 import type { CodegenConfig } from '@graphql-codegen/cli';
 
 const config: CodegenConfig = {
-  overwrite: true,
-  schema: 'http://localhost:8080',
-  documents: 'src/**/*.vue',
+  schema: '../backend/graph/schema/*.graphqls',
+  documents: './src/graphQL/Admin/*.ts', //Admin配下でお試し適用している
   generates: {
-    'src/gql/': {
-      preset: 'client',
-      plugins: [
-        'typescript',
-        'typescript-operations',
-        'typescript-apollo-client-helpers',
-      ],
+    './src/graphQL/auto-generated.ts': {
+      plugins: ['typescript', 'typescript-operations', 'typed-document-node'],
     },
   },
 };
-
 export default config;
