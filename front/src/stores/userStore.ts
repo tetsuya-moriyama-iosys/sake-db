@@ -7,6 +7,7 @@ import {
   GET_USER,
   type GetUserResponse,
   type LoginResult,
+  type Role,
 } from '@/graphQL/Auth/auth';
 
 export const USER_STORE = 'user_store';
@@ -27,6 +28,7 @@ export const useUserStore = defineStore(USER_STORE, () => {
       id: response.user.id,
       name: response.user.name,
       imageBase64: response.user.imageBase64,
+      roles: response.user.roles,
     };
   }
 
@@ -63,6 +65,10 @@ export const useUserStore = defineStore(USER_STORE, () => {
     }
   }
 
+  function getRoles(): Role[] {
+    return user.value?.roles ?? [];
+  }
+
   function logout() {
     //ページ遷移はrouterを使って行うため、ストアで実行不可。あくまでも状態のみを変える。
     localStorage.removeItem(import.meta.env.VITE_JWT_TOKEN_NAME);
@@ -71,5 +77,5 @@ export const useUserStore = defineStore(USER_STORE, () => {
     user.value = null;
   }
 
-  return { isLogin, user, setUserData, logout, restoreUserData };
+  return { isLogin, user, setUserData, logout, getRoles, restoreUserData };
 });

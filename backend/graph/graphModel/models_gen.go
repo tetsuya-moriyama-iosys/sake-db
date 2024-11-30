@@ -180,11 +180,12 @@ type TagInput struct {
 }
 
 type User struct {
-	ID          string  `json:"id"`
-	Name        string  `json:"name"`
-	Email       string  `json:"email"`
-	Profile     *string `json:"profile,omitempty"`
-	ImageBase64 *string `json:"imageBase64,omitempty"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Email       string    `json:"email"`
+	Profile     *string   `json:"profile,omitempty"`
+	ImageBase64 *string   `json:"imageBase64,omitempty"`
+	Roles       []*string `json:"roles"`
 }
 
 type UserEvaluateList struct {

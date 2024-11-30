@@ -21,6 +21,7 @@ type Model struct {
 	ID                  primitive.ObjectID `bson:"_id"`
 	Name                string             `bson:"name"`
 	Email               string             `bson:"email"`
+	Roles               []*string          `bson:"roles"`
 	Password            []byte             `bson:"password"`
 	ImageBase64         *string            `bson:"image_base64"`
 	Profile             *string            `bson:"profile"`
@@ -35,5 +36,6 @@ func (m *Model) ToGraphQL() *graphModel.User {
 		Email:       m.Email,
 		ImageBase64: m.ImageBase64,
 		Profile:     m.Profile,
+		Roles:       m.Roles,
 	}
 }

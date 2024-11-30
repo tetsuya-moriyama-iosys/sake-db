@@ -1,0 +1,3 @@
+extend type Query {
+  checkAdmin: Boolean! @adminAuth(role: "admin")
+}

@@ -1,7 +1,10 @@
 package graph
 
 import (
+	"backend/db"
+	"backend/db/repository/userRepository"
 	"backend/middlewares"
+	"backend/service/userService"
 	"context"
 	"errors"
 	"fmt"
@@ -86,4 +89,50 @@ func optionalAuthDirective(ctx context.Context, _ interface{}, next graphql.Reso
 
 	// 認証に成功した場合、次のリゾルバを実行
 	return next(ctx)
+}
+
+// 管理権限認証のディレクティブ
+func adminDirective(ctx context.Context, _ interface{}, next graphql.Resolver, role *string) (interface{}, error) {
+	// ヘッダーからトークンを取得
+	tokenString, err := extractTokenFromHeader(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// トークンを検証し、ユーザーIDをcontextに保存
+	ctx, err = authenticateToken(ctx, tokenString)
+	if err != nil {
+		return nil, err
+	}
+
+	//追加で、権限を持っているか確認
+	client, err := db.NewMongoClient()
+	if err != nil {
+		return nil, err
+	}
+	r := userRepository.NewUsersRepository(db.NewDB(client))
+	err = checkRole(ctx, &r, role)
+	if err != nil {
+		return nil, err
+	}
+
+	// 認証に成功した場合、次のリゾルバを実行
+	return next(ctx)
+}
+
+// 認証したユーザーが権限を持っているか確認
+func checkRole(ctx context.Context, r *userRepository.UsersRepository, role *string) error {
+	loginUser, err := userService.GetUserData(ctx, *r)
+	if err != nil {
+		return err
+	}
+
+	// 手動でデリファレンスして比較
+	for _, v := range loginUser.Roles {
+		if v != nil && *v == *role {
+			//指定されていたロールがあった場合
+			return nil
+		}
+	}
+	return errors.New("権限エラー")
 }

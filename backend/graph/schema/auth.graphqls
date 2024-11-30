@@ -23,6 +23,7 @@ type User {
   email: String!
   profile: String
   imageBase64: String # 縮小された画像のBase64エンコードデータ
+  roles: [String]!
 }
 
 extend type Query {

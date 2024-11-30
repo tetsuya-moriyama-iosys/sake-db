@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client/core';
-import type { DocumentNode } from 'graphql/index';
+import type { DocumentNode } from 'graphql';
 
 //ログイン時に返ってくるデータ
 export interface RegisterResponse {
@@ -12,11 +12,17 @@ export interface LoginResponse {
   readonly login: LoginResult;
 }
 
+export const Roles = {
+  Admin: 'admin',
+} as const;
+export type Role = (typeof Roles)[keyof typeof Roles];
+
 //認証済みユーザー情報(要はパスワード以外のデータ)
 export interface AuthUser {
   id: string;
   name: string;
   imageBase64: string | undefined; //アイコン表示に必要
+  roles: Role[];
 }
 export interface AuthUserFull extends AuthUser {
   email: string;
@@ -35,31 +41,41 @@ export interface GetUserResponse {
   readonly getUser: AuthUser;
 }
 
-//TODO:トークンを取得してログインまで終わらせる
+export const AuthUserDataFragment = gql`
+  fragment AuthUserDataFragment on User {
+    id
+    name
+    imageBase64
+    roles
+  }
+`;
+
+export const AuthFragment = gql`
+  fragment AuthFragment on AuthPayload {
+    token
+    user {
+      ...AuthUserDataFragment
+    }
+  }
+  ${AuthUserDataFragment}
+`;
+
 export const Register: DocumentNode = gql`
   mutation ($input: RegisterInput!) {
     registerUser(input: $input) {
-      token
-      user {
-        id
-        name
-        imageBase64
-      }
+      ...AuthFragment
     }
   }
+  ${AuthFragment}
 `;
 
 export const LOGIN: DocumentNode = gql`
   mutation ($input: LoginInput!) {
     login(input: $input) {
-      token
-      user {
-        id
-        name
-        imageBase64
-      }
+      ...AuthFragment
     }
   }
+  ${AuthFragment}
 `;
 
 //memo:idはトークンから取るので、inputはRegisterと同値でかまわないが、ログイン判定を必要とするため呼び出すリゾルバが異なる
@@ -73,11 +89,10 @@ export const Update: DocumentNode = gql`
 export const GET_USER: DocumentNode = gql`
   query {
     getUser {
-      id
-      name
-      imageBase64
+      ...AuthUserDataFragment
     }
   }
+  ${AuthUserDataFragment}
 `;
 
 //自身のフルデータ
@@ -101,12 +116,8 @@ export const PASSWORD_RESET: DocumentNode = gql`
 export const PASSWORD_RESET_EXE: DocumentNode = gql`
   mutation ($token: String!, $password: String!) {
     resetExe(token: $token, password: $password) {
-      token
-      user {
-        id
-        name
-        imageBase64
-      }
+      ...AuthFragment
     }
   }
+  ${AuthFragment}
 `;

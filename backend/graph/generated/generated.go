@@ -45,6 +45,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	AdminAuth    func(ctx context.Context, obj interface{}, next graphql.Resolver, role *string) (res interface{}, err error)
 	Auth         func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 	OptionalAuth func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 }
@@ -176,6 +177,7 @@ type ComplexityRoot struct {
 		Board                  func(childComplexity int, liquorID string, page *int) int
 		Categories             func(childComplexity int) int
 		Category               func(childComplexity int, id int) int
+		CheckAdmin             func(childComplexity int) int
 		Data                   func(childComplexity int, name string, limit *int) int
 		GetBookMarkList        func(childComplexity int) int
 		GetBookMarkedList      func(childComplexity int, id string) int
@@ -229,6 +231,7 @@ type ComplexityRoot struct {
 		ImageBase64 func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Profile     func(childComplexity int) int
+		Roles       func(childComplexity int) int
 	}
 
 	UserEvaluateList struct {
@@ -282,6 +285,7 @@ type MutationResolver interface {
 	DeleteTag(ctx context.Context, id string) (bool, error)
 }
 type QueryResolver interface {
+	CheckAdmin(ctx context.Context) (bool, error)
 	Data(ctx context.Context, name string, limit *int) (*graphModel.AffiliateData, error)
 	GetUser(ctx context.Context) (*graphModel.User, error)
 	GetIsBookMarked(ctx context.Context, id string) (bool, error)
@@ -969,6 +973,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Category(childComplexity, args["id"].(int)), true
 
+	case "Query.checkAdmin":
+		if e.complexity.Query.CheckAdmin == nil {
+			break
+		}
+
+		return e.complexity.Query.CheckAdmin(childComplexity), true
+
 	case "Query.data":
 		if e.complexity.Query.Data == nil {
 			break
@@ -1305,6 +1316,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Profile(childComplexity), true
 
+	case "User.roles":
+		if e.complexity.User.Roles == nil {
+			break
+		}
+
+		return e.complexity.User.Roles(childComplexity), true
+
 	case "UserEvaluateList.noRateLiquors":
 		if e.complexity.UserEvaluateList.NoRateLiquors == nil {
 			break
@@ -1583,6 +1601,10 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
+	{Name: "../schema/admin.graphqls", Input: `extend type Query {
+  checkAdmin: Boolean! @adminAuth(role: "admin")
+}
+`, BuiltIn: false},
 	{Name: "../schema/amazon.graphqls", Input: `type AffiliateData {
   items: [AffiliateItem!]
   lowestPrice: Int
@@ -1623,6 +1645,7 @@ type User {
   email: String!
   profile: String
   imageBase64: String # 縮小された画像のBase64エンコードデータ
+  roles: [String]!
 }
 
 extend type Query {
@@ -1706,6 +1729,7 @@ extend type Query {
 }`, BuiltIn: false},
 	{Name: "../schema/directives.graphqls", Input: `directive @auth on FIELD_DEFINITION
 directive @optionalAuth on FIELD_DEFINITION
+directive @adminAuth(role: String) on FIELD_DEFINITION
 
 `, BuiltIn: false},
 	{Name: "../schema/flavorMaps.graphqls", Input: `scalar Coordinate
@@ -1886,6 +1910,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) dir_adminAuth_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["role"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["role"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_addBookMark_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -2727,6 +2766,8 @@ func (ec *executionContext) fieldContext_AuthPayload_user(_ context.Context, fie
 				return ec.fieldContext_User_profile(ctx, field)
 			case "imageBase64":
 				return ec.fieldContext_User_imageBase64(ctx, field)
+			case "roles":
+				return ec.fieldContext_User_roles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -6313,6 +6354,74 @@ func (ec *executionContext) fieldContext_Mutation_deleteTag(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_checkAdmin(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_checkAdmin(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().CheckAdmin(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalOString2ᚖstring(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.AdminAuth == nil {
+				return nil, errors.New("directive adminAuth is not implemented")
+			}
+			return ec.directives.AdminAuth(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_checkAdmin(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_data(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_data(ctx, field)
 	if err != nil {
@@ -6443,6 +6552,8 @@ func (ec *executionContext) fieldContext_Query_getUser(_ context.Context, field 
 				return ec.fieldContext_User_profile(ctx, field)
 			case "imageBase64":
 				return ec.fieldContext_User_imageBase64(ctx, field)
+			case "roles":
+				return ec.fieldContext_User_roles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -7668,6 +7779,8 @@ func (ec *executionContext) fieldContext_Query_getUserById(ctx context.Context, 
 				return ec.fieldContext_User_profile(ctx, field)
 			case "imageBase64":
 				return ec.fieldContext_User_imageBase64(ctx, field)
+			case "roles":
+				return ec.fieldContext_User_roles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -8810,6 +8923,50 @@ func (ec *executionContext) fieldContext_User_imageBase64(_ context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _User_roles(ctx context.Context, field graphql.CollectedField, obj *graphModel.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_roles(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Roles, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*string)
+	fc.Result = res
+	return ec.marshalNString2ᚕᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_roles(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _UserEvaluateList_recentComments(ctx context.Context, field graphql.CollectedField, obj *graphModel.UserEvaluateList) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserEvaluateList_recentComments(ctx, field)
 	if err != nil {
@@ -9733,6 +9890,8 @@ func (ec *executionContext) fieldContext_UserPageData_user(_ context.Context, fi
 				return ec.fieldContext_User_profile(ctx, field)
 			case "imageBase64":
 				return ec.fieldContext_User_imageBase64(ctx, field)
+			case "roles":
+				return ec.fieldContext_User_roles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -12843,6 +13002,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "checkAdmin":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_checkAdmin(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "data":
 			field := field
 
@@ -13530,6 +13711,11 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._User_profile(ctx, field, obj)
 		case "imageBase64":
 			out.Values[i] = ec._User_imageBase64(ctx, field, obj)
+		case "roles":
+			out.Values[i] = ec._User_roles(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -14653,6 +14839,32 @@ func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel
 		if e == graphql.Null {
 			return graphql.Null
 		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNString2ᚕᚖstring(ctx context.Context, v interface{}) ([]*string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOString2ᚖstring(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNString2ᚕᚖstring(ctx context.Context, sel ast.SelectionSet, v []*string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalOString2ᚖstring(ctx, sel, v[i])
 	}
 
 	return ret
