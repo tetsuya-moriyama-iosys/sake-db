@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.11.1",
+    "@auth0/auth0-vue": "^2.3.3",
     "@headlessui/vue": "^1.7.23",
     "@tanstack/vue-query": "^5.52.2",
     "@vee-validate/rules": "^4.13.2",
@@ -91,6 +92,6 @@
     "@rollup/rollup-linux-x64-gnu": "^4.19.0"
   },
   "lint-staged": {
-    "*.{js,vue,ts}":  "eslint --fix --ignore-pattern src/graphQL/auto-generated.ts"
+    "*.{js,vue,ts}": "eslint --fix --ignore-pattern src/graphQL/auto-generated.ts"
   }
 }
