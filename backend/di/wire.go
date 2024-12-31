@@ -6,6 +6,7 @@
 package di
 
 import (
+	"backend/api"
 	"backend/api/post/categoryPost"
 	"backend/api/post/liquorPost"
 	"backend/db/repository/bookmarkRepository"
@@ -24,6 +25,7 @@ func InitializeHandler() (*gin.Engine, error) {
 		//REST APIのハンドラ
 		liquorPost.NewHandler,
 		categoryPost.NewHandler,
+		api.NewUserHandler,
 		// リポジトリのインスタンス生成
 		categoriesRepository.NewCategoryRepository,
 		liquorRepository.NewLiquorsRepository,

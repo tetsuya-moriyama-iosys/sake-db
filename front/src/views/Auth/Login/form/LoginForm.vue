@@ -7,6 +7,7 @@
     <FormField :name="FormKeys.MAIL" label="メールアドレス" type="email" />
     <FormField :name="FormKeys.PASSWORD" label="パスワード" type="password" />
     <SubmitButton>ログイン</SubmitButton>
+    <XLogin />
   </Form>
   <router-link :to="{ name: 'PasswordReset' }">パスワードリセット</router-link>
 </template>
@@ -26,6 +27,7 @@ import {
   initialValues,
   validationSchema,
 } from '@/views/Auth/Login/form/LoginForm';
+import XLogin from '@/views/Auth/Login/XLogin.vue';
 
 const router = useRouter();
 const userStore = useUserStore();

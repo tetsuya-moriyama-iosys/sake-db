@@ -26,17 +26,10 @@ type Base struct {
 
 func NewMongoClient() (*mongo.Client, error) {
 	mongoURI := os.Getenv("MONGO_URI")
-	clientOptions := options.Client().ApplyURI(mongoURI)
-	client, err := mongo.NewClient(clientOptions)
-
-	if err != nil {
-		return nil, err
-	}
-
-	// Connect to MongoDB
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	err = client.Connect(ctx)
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
+
 	if err != nil {
 		return nil, err
 	}
