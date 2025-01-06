@@ -8,8 +8,6 @@ import (
 	"context"
 	"errors"
 	"github.com/99designs/gqlgen/graphql"
-	"net/http"
-	"strings"
 )
 
 // 必須認証のディレクティブ
@@ -55,7 +53,7 @@ func optionalAuthDirective(ctx context.Context, _ interface{}, next graphql.Reso
 // 管理権限認証のディレクティブ
 func adminDirective(ctx context.Context, _ interface{}, next graphql.Resolver, role *string) (interface{}, error) {
 	// ヘッダーからトークンを取得
-	tokenString, err := extractTokenFromHeader(ctx)
+	tokenString, err := middlewares.ExtractTokenFromHeader(ctx)
 	if err != nil {
 		return nil, err
 	}
