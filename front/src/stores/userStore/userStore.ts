@@ -1,14 +1,14 @@
 import { defineStore } from 'pinia';
 import { nextTick, ref } from 'vue';
 
-import useQuery from '@/funcs/composable/useQuery';
+import useQuery from '@/funcs/composable/useQuery/useQuery';
 import {
   type AuthUser,
   GET_USER,
   type GetUserResponse,
-  type LoginResult,
   type Role,
 } from '@/graphQL/Auth/auth';
+import { type AuthPayloadForUI } from '@/stores/userStore/type';
 
 export const USER_STORE = 'user_store';
 
@@ -19,17 +19,13 @@ export const useUserStore = defineStore(USER_STORE, () => {
 
   const isLogin = ref<boolean>(false);
   const user = ref<AuthUser | null>(null);
+  const accessToken = ref<string | null>(null);
 
-  function setUserData(response: LoginResult) {
-    localStorage.setItem(import.meta.env.VITE_JWT_TOKEN_NAME, response.token); //ローカルストレージにtokenをセット
+  //ログイン情報をストアにセットする
+  function setUserData(data: AuthPayloadForUI) {
+    accessToken.value = data.accessToken;
     isLogin.value = true; //ログイン状態をtrueにする
-
-    user.value = {
-      id: response.user.id,
-      name: response.user.name,
-      imageBase64: response.user.imageBase64,
-      roles: response.user.roles,
-    };
+    user.value = data.user; //ユーザー情報をセット
   }
 
   //画面リロード時・情報アップデート時などにユーザーデータを取得するために使用(情報を変えない限りキャッシュを使った方がいい)
@@ -53,12 +49,11 @@ export const useUserStore = defineStore(USER_STORE, () => {
           : {},
       );
       setUserData({
-        token: token, //ログイン時とインターフェースを合わせるために追加。//TODO: リフレッシュトークンの実装
+        accessToken: token, //ログイン時とインターフェースを合わせるために追加。
         user: response.getUser, // ユーザー情報をセット
       });
 
-      // nextTickでUIの更新を保証
-      await nextTick();
+      await nextTick(); // nextTickでUIの更新を保証
     } catch (error) {
       console.error('ユーザー情報の取得に失敗しました', error);
       logout(); // エラー時はログアウト処理

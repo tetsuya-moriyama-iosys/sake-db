@@ -22,7 +22,7 @@ export interface PostTagResponse {
 }
 
 export const FetchTags: DocumentNode = gql`
-  query ($liquorId: ID!) {
+  query getTags($liquorId: ID!) {
     getTags(liquorId: $liquorId) {
       id
       text
@@ -30,7 +30,7 @@ export const FetchTags: DocumentNode = gql`
   }
 `;
 export const PostTag: DocumentNode = gql`
-  mutation ($input: TagInput!) {
+  mutation postTag($input: TagInput!) {
     postTag(input: $input) {
       id
       text
@@ -39,7 +39,7 @@ export const PostTag: DocumentNode = gql`
 `;
 
 export const DeleteTag: DocumentNode = gql`
-  mutation ($id: ID!) {
+  mutation deleteTag($id: ID!) {
     deleteTag(id: $id)
   }
 `;

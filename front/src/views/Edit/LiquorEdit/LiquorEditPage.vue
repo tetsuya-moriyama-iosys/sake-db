@@ -6,7 +6,7 @@
 import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
-import useQuery from '@/funcs/composable/useQuery';
+import useQuery from '@/funcs/composable/useQuery/useQuery';
 import { isEmpty } from '@/funcs/util/isEmpty';
 import {
   GET_LOGS_FOR_ROLLBACK,

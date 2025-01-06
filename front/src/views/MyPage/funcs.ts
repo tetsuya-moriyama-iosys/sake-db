@@ -5,7 +5,7 @@
 import type { DocumentNode } from 'graphql/index';
 import { onMounted, type Ref, ref } from 'vue';
 
-import useQuery from '@/funcs/composable/useQuery';
+import useQuery from '@/funcs/composable/useQuery/useQuery';
 import {
   type AuthUserFull,
   GET_MY_USERDATA_FULL,

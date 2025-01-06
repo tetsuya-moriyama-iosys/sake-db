@@ -6,7 +6,7 @@
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
-import useQuery from '@/funcs/composable/useQuery';
+import useQuery from '@/funcs/composable/useQuery/useQuery';
 import { isEmpty } from '@/funcs/util/isEmpty';
 import {
   type CategoryHistoryData,

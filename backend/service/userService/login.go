@@ -3,22 +3,36 @@ package userService
 import (
 	"backend/db/repository/userRepository"
 	"backend/graph/graphModel"
-	"backend/middlewares"
 	"context"
 	"errors"
-	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
-	"time"
 )
 
 type UserWithToken struct {
-	User  *userRepository.Model
-	Token string
+	User        *userRepository.Model
+	AccessToken string
 }
 
-var ExpireTime = 3660
-
 func Login(ctx context.Context, input graphModel.LoginInput, r *userRepository.UsersRepository) (*UserWithToken, error) {
+	// ユーザーインスタンスを取得
+	user, err := authCheck(ctx, input, r)
+	if err != nil {
+		return nil, err
+	}
+
+	// JWTトークン生成
+	accessToken, err := generateTokens(ctx, user.ID)
+	if err != nil {
+		return nil, err
+	}
+	result := &UserWithToken{
+		User:        user,
+		AccessToken: *accessToken,
+	}
+	return result, nil
+}
+
+func authCheck(ctx context.Context, input graphModel.LoginInput, r *userRepository.UsersRepository) (*userRepository.Model, error) {
 	// ユーザーインスタンスを取得
 	user, err := r.GetByEmail(ctx, input.Email)
 	if err != nil {
@@ -30,31 +44,12 @@ func Login(ctx context.Context, input graphModel.LoginInput, r *userRepository.U
 	if err != nil {
 		return nil, errors.New("メールアドレスもしくはパスワードが間違っています。")
 	}
-
-	// JWTトークン生成
-	expirationTime := time.Now().Add(time.Duration(ExpireTime) * time.Minute)
-	claims := &middlewares.Claims{
-		Id: user.ID.Hex(),
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expirationTime),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(middlewares.JwtKey)
-	if err != nil {
-		return nil, err
-	}
-	result := &UserWithToken{
-		User:  user,
-		Token: tokenString,
-	}
-	return result, nil
+	return user, nil
 }
 
 func (u *UserWithToken) ToGraphQL() *graphModel.AuthPayload {
 	return &graphModel.AuthPayload{
-		User:  u.User.ToGraphQL(),
-		Token: u.Token,
+		User:        u.User.ToGraphQL(),
+		AccessToken: u.AccessToken,
 	}
 }

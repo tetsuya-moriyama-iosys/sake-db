@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import RadiusImage from '@/components/parts/common/RadiusImage.vue';
-import { useUserStore } from '@/stores/userStore';
+import { useUserStore } from '@/stores/userStore/userStore';
 
 const userStore = useUserStore();
 </script>

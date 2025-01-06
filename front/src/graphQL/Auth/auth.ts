@@ -8,9 +8,6 @@ export interface RegisterResponse {
 export interface GetUserdataResponse {
   readonly getUser: AuthUserFull;
 }
-export interface LoginResponse {
-  readonly login: LoginResult;
-}
 
 export const Roles = {
   Admin: 'admin',
@@ -21,7 +18,7 @@ export type Role = (typeof Roles)[keyof typeof Roles];
 export interface AuthUser {
   id: string;
   name: string;
-  imageBase64: string | undefined; //アイコン表示に必要
+  imageBase64: string | null; //アイコン表示に必要
   roles: Role[];
 }
 export interface AuthUserFull extends AuthUser {
@@ -32,8 +29,12 @@ export interface AuthUserFull extends AuthUser {
 export interface ResetEmailExeResponse {
   readonly resetExe: LoginResult;
 }
+
+/**
+ * @deprecated AuthPayloadを使う
+ */
 export interface LoginResult {
-  readonly token: string;
+  readonly accessToken: string;
   readonly user: AuthUser;
 }
 
@@ -52,7 +53,7 @@ export const AuthUserDataFragment = gql`
 
 export const AuthFragment = gql`
   fragment AuthFragment on AuthPayload {
-    token
+    accessToken
     user {
       ...AuthUserDataFragment
     }
@@ -61,7 +62,7 @@ export const AuthFragment = gql`
 `;
 
 export const Register: DocumentNode = gql`
-  mutation ($input: RegisterInput!) {
+  mutation registerUser($input: RegisterInput!) {
     registerUser(input: $input) {
       ...AuthFragment
     }
@@ -70,7 +71,7 @@ export const Register: DocumentNode = gql`
 `;
 
 export const LOGIN: DocumentNode = gql`
-  mutation ($input: LoginInput!) {
+  mutation login($input: LoginInput!) {
     login(input: $input) {
       ...AuthFragment
     }
@@ -80,14 +81,14 @@ export const LOGIN: DocumentNode = gql`
 
 //memo:idはトークンから取るので、inputはRegisterと同値でかまわないが、ログイン判定を必要とするため呼び出すリゾルバが異なる
 export const Update: DocumentNode = gql`
-  mutation ($input: RegisterInput!) {
+  mutation updateUser($input: RegisterInput!) {
     updateUser(input: $input)
   }
 `;
 
 //最低限のデータ(再ログイン)
 export const GET_USER: DocumentNode = gql`
-  query {
+  query getUser {
     getUser {
       ...AuthUserDataFragment
     }
@@ -97,7 +98,7 @@ export const GET_USER: DocumentNode = gql`
 
 //自身のフルデータ
 export const GET_MY_USERDATA_FULL: DocumentNode = gql`
-  query {
+  query getUserFull {
     getUser {
       id
       name
@@ -109,12 +110,12 @@ export const GET_MY_USERDATA_FULL: DocumentNode = gql`
 `;
 
 export const PASSWORD_RESET: DocumentNode = gql`
-  mutation ($email: String!) {
+  mutation resetEmail($email: String!) {
     resetEmail(email: $email)
   }
 `;
 export const PASSWORD_RESET_EXE: DocumentNode = gql`
-  mutation ($token: String!, $password: String!) {
+  mutation resetExe($token: String!, $password: String!) {
     resetExe(token: $token, password: $password) {
       ...AuthFragment
     }

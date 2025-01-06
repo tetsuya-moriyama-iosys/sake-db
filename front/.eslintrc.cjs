@@ -23,9 +23,20 @@ module.exports = {
   },
   plugins: ['vue', '@typescript-eslint', 'prettier', 'simple-import-sort'],
   rules: {
-    'prettier/prettier': 'error',
-    'no-unused-vars': 'error',
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    'prettier/prettier': [
+      'error',
+      {
+        endOfLine: 'auto',
+      },
+    ],
+    'no-unused-vars': [
+      'error',
+      { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+    ],
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+    ],
     'simple-import-sort/imports': 'error',
   },
   overrides: [

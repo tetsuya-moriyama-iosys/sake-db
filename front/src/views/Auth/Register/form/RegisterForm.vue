@@ -17,10 +17,12 @@ import { useRouter } from 'vue-router';
 
 import FormField from '@/components/parts/forms/core/FormField.vue';
 import SubmitButton from '@/components/parts/forms/core/SubmitButton.vue';
-import { useMutation } from '@/funcs/composable/useQuery';
+import { useMutation } from '@/funcs/composable/useQuery/useQuery';
 import { useToast } from '@/funcs/composable/useToast';
 import { Register, type RegisterResponse } from '@/graphQL/Auth/auth';
-import { useUserStore } from '@/stores/userStore';
+import type { RegisterUserMutation } from '@/graphQL/auto-generated';
+import { getAuthPayloadForUI } from '@/stores/userStore/type';
+import { useUserStore } from '@/stores/userStore/userStore';
 import {
   FormKeys,
   type FormValues,
@@ -32,7 +34,7 @@ const toast = useToast();
 const router = useRouter();
 const userStore = useUserStore();
 
-const { execute } = useMutation<RegisterResponse>(Register, {
+const { execute } = useMutation<RegisterUserMutation>(Register, {
   isUseSpinner: true,
 });
 
@@ -46,10 +48,10 @@ const onSubmit: SubmissionHandler = async (values: FormValues) => {
       email: values[FormKeys.MAIL],
       password: values[FormKeys.PASSWORD],
     },
-  }).then((res: RegisterResponse) => {
+  }).then((res: RegisterUserMutation) => {
     toast.showToast({ message: '登録が完了しました' });
     //ログイン処理
-    userStore.setUserData(res.registerUser);
+    userStore.setUserData(getAuthPayloadForUI(res.registerUser));
     router.push({ name: 'Index' });
   });
 };

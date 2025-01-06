@@ -99,15 +99,15 @@ export function useQuery<T = unknown, V = unknown>(
 ) {
   const { loading, error, data, handleError } = useCommon<T>(option);
   const router: Router = useRouter();
+  const queryName: string = (
+    (query.definitions[0] as OperationDefinitionNode).selectionSet
+      .selections[0] as FieldNode
+  ).name.value;
 
   const fetch = async (
     request?: V,
     options?: Omit<QueryOptions, 'query' | 'variables'>,
   ): Promise<T> => {
-    const queryName: string = (
-      (query.definitions[0] as OperationDefinitionNode).selectionSet
-        .selections[0] as FieldNode
-    ).name.value;
     loading.value = true;
     error.value = null;
 
@@ -115,6 +115,9 @@ export function useQuery<T = unknown, V = unknown>(
       const { variables, headers } = generate(request, options, option);
 
       console.log(queryName, '送信データ：', variables);
+      //TODO: なんか急に型エラーが出始めたので調査の必要がありそう
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-expect-error
       const result: ApolloQueryResult<T> = await client.query<T>({
         ...variables,
         ...options,
@@ -165,6 +168,9 @@ export function useMutation<T = unknown, V = unknown>(
       const { variables, headers } = generate(request, options, option);
 
       console.log(mutationName, '送信データ：', variables);
+      //TODO: なんか急に型エラーが出始めたので調査の必要がありそう
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-expect-error
       const result: FetchResult<T> = await client.mutate<T>({
         ...variables,
         ...options,

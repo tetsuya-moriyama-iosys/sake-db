@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client/core';
+import { gql } from '@apollo/client';
 import type { DocumentNode } from 'graphql/index';
 
 import type { AuthUser } from '@/graphQL/Auth/auth';
@@ -44,7 +44,7 @@ export interface UserLiquor {
 
 //ユーザーページ用のフルデータ
 export const GET_USERDATA_FULL: DocumentNode = gql`
-  query ($id: String!) {
+  query getUserByIdDetail($id: String!) {
     getUserByIdDetail(id: $id) {
       evaluateList {
         recentComments {

@@ -1,5 +1,6 @@
-import type { DocumentNode } from 'graphql/index';
 import { gql } from '@apollo/client/core';
+import type { DocumentNode } from 'graphql/index';
+
 import type { Liquor } from '@/graphQL/Liquor/liquor';
 
 export interface HistoryResponse {
@@ -12,7 +13,7 @@ export interface LiquorHistoryData {
 }
 
 export const GET_LOGS_FOR_ROLLBACK: DocumentNode = gql`
-  query ($id: String!) {
+  query liquorHistories($id: String!) {
     liquorHistories(id: $id) {
       now {
         id

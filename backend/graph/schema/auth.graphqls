@@ -13,7 +13,7 @@ input LoginInput {
 
 # ログイン時に返ってくるデータ
 type AuthPayload {
-  token: String!
+  accessToken: String!
   user: User!
 }
 
@@ -23,7 +23,7 @@ type User {
   email: String!
   profile: String
   imageBase64: String # 縮小された画像のBase64エンコードデータ
-  roles: [String]!
+  roles: [String!]
 }
 
 extend type Query {
@@ -35,6 +35,7 @@ extend type Mutation {
   registerUser(input: RegisterInput!): AuthPayload!
   updateUser(input: RegisterInput!): Boolean! @auth
   login(input: LoginInput!): AuthPayload!
+  refreshToken: AuthPayload!
   resetEmail(email:String!):Boolean!
   resetExe(token:String!,password:String!): AuthPayload! #一旦ログインさせる方針に
 }
