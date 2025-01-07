@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia';
 import { nextTick, ref } from 'vue';
 
+import client from '@/apolloClient';
 import useQuery from '@/funcs/composable/useQuery/useQuery';
 import {
   type AuthUser,
   GET_USER,
   type GetUserResponse,
+  REFRESH_TOKEN,
   type Role,
 } from '@/graphQL/Auth/auth';
 import { type AuthPayloadForUI } from '@/stores/userStore/type';
@@ -26,6 +28,10 @@ export const useUserStore = defineStore(USER_STORE, () => {
     accessToken.value = data.accessToken;
     isLogin.value = true; //ログイン状態をtrueにする
     user.value = data.user; //ユーザー情報をセット
+  }
+
+  function resetAccessToken(newToken: string) {
+    accessToken.value = newToken;
   }
 
   //画面リロード時・情報アップデート時などにユーザーデータを取得するために使用(情報を変えない限りキャッシュを使った方がいい)
@@ -72,5 +78,25 @@ export const useUserStore = defineStore(USER_STORE, () => {
     user.value = null;
   }
 
-  return { isLogin, user, setUserData, logout, getRoles, restoreUserData };
+  return {
+    isLogin,
+    user,
+    setUserData,
+    logout,
+    getRoles,
+    restoreUserData,
+    accessToken,
+    resetAccessToken,
+  };
 });
+
+export async function refreshToken() {
+  const { resetAccessToken } = useUserStore();
+  const result = await client.mutate({
+    mutation: REFRESH_TOKEN,
+    context: {
+      credentials: 'include', // クッキーを送信する
+    },
+  });
+  resetAccessToken(result.data.refreshToken.accessToken);
+}

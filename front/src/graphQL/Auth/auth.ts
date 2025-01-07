@@ -1,6 +1,8 @@
 import { gql } from '@apollo/client/core';
 import type { DocumentNode } from 'graphql';
 
+import type { AuthPayload } from '@/graphQL/auto-generated';
+
 //ログイン時に返ってくるデータ
 export interface RegisterResponse {
   readonly registerUser: LoginResult;
@@ -27,12 +29,9 @@ export interface AuthUserFull extends AuthUser {
 }
 
 export interface ResetEmailExeResponse {
-  readonly resetExe: LoginResult;
+  readonly resetExe: Omit<AuthPayload, '__typename'>;
 }
 
-/**
- * @deprecated AuthPayloadを使う
- */
 export interface LoginResult {
   readonly accessToken: string;
   readonly user: AuthUser;
@@ -121,4 +120,12 @@ export const PASSWORD_RESET_EXE: DocumentNode = gql`
     }
   }
   ${AuthFragment}
+`;
+
+export const REFRESH_TOKEN = gql`
+  mutation RefreshToken {
+    refreshToken {
+      accessToken
+    }
+  }
 `;

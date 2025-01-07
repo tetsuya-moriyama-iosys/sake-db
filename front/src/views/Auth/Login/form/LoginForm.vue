@@ -19,7 +19,7 @@ import FormField from '@/components/parts/forms/core/FormField.vue';
 import SubmitButton from '@/components/parts/forms/core/SubmitButton.vue';
 import { useMutation } from '@/funcs/composable/useQuery/useQuery';
 import { LOGIN } from '@/graphQL/Auth/auth';
-import type { login, LoginMutation, Mutation } from '@/graphQL/auto-generated';
+import type { LoginMutation } from '@/graphQL/auto-generated';
 import { getAuthPayloadForUI } from '@/stores/userStore/type';
 import { useUserStore } from '@/stores/userStore/userStore';
 import {

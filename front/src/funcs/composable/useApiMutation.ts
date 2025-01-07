@@ -3,6 +3,7 @@ import axios, { type AxiosResponse } from 'axios';
 import { unref } from 'vue';
 
 import { useToast } from '@/funcs/composable/useToast';
+import { debug } from '@/funcs/util/core/console';
 import type { APIType } from '@/type/api/APIType/APIType';
 
 export function useApiMutation<
@@ -13,7 +14,7 @@ export function useApiMutation<
   const mutationFn = async (
     data: Request,
   ): Promise<AxiosResponse<Response>> => {
-    console.log('リクエストdata:', data);
+    debug('リクエストdata:', data);
     return axios({
       url: apiType.url,
       method: apiType.method,
@@ -21,7 +22,7 @@ export function useApiMutation<
       data,
     })
       .then((response) => {
-        console.log('リクエスト成功 - レスポンス:', response.data);
+        debug('リクエスト成功 - レスポンス:', response.data);
         return response;
       })
       .catch((error) => {
