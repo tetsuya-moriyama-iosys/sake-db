@@ -148,6 +148,7 @@ type Mutation {
   registerUser(input: RegisterInput!): AuthPayload!
   updateUser(input: RegisterInput!): Boolean!
   login(input: LoginInput!): AuthPayload!
+  refreshToken: String!
   resetEmail(email: String!): Boolean!
   resetExe(token: String!, password: String!): AuthPayload!
   addBookMark(id: String!): Boolean!

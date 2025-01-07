@@ -35,7 +35,7 @@ extend type Mutation {
   registerUser(input: RegisterInput!): AuthPayload!
   updateUser(input: RegisterInput!): Boolean! @auth
   login(input: LoginInput!): AuthPayload!
-  refreshToken: AuthPayload!
+  refreshToken: String!
   resetEmail(email:String!):Boolean!
   resetExe(token:String!,password:String!): AuthPayload! #一旦ログインさせる方針に
 }

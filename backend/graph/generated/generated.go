@@ -166,6 +166,7 @@ type ComplexityRoot struct {
 		PostBoard      func(childComplexity int, input graphModel.BoardInput) int
 		PostFlavor     func(childComplexity int, input graphModel.PostFlavorMap) int
 		PostTag        func(childComplexity int, input graphModel.TagInput) int
+		RefreshToken   func(childComplexity int) int
 		RegisterUser   func(childComplexity int, input graphModel.RegisterInput) int
 		RemoveBookMark func(childComplexity int, id string) int
 		ResetEmail     func(childComplexity int, email string) int
@@ -275,6 +276,7 @@ type MutationResolver interface {
 	RegisterUser(ctx context.Context, input graphModel.RegisterInput) (*graphModel.AuthPayload, error)
 	UpdateUser(ctx context.Context, input graphModel.RegisterInput) (bool, error)
 	Login(ctx context.Context, input graphModel.LoginInput) (*graphModel.AuthPayload, error)
+	RefreshToken(ctx context.Context) (string, error)
 	ResetEmail(ctx context.Context, email string) (bool, error)
 	ResetExe(ctx context.Context, token string, password string) (*graphModel.AuthPayload, error)
 	AddBookMark(ctx context.Context, id string) (bool, error)
@@ -881,6 +883,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.PostTag(childComplexity, args["input"].(graphModel.TagInput)), true
+
+	case "Mutation.refreshToken":
+		if e.complexity.Mutation.RefreshToken == nil {
+			break
+		}
+
+		return e.complexity.Mutation.RefreshToken(childComplexity), true
 
 	case "Mutation.registerUser":
 		if e.complexity.Mutation.RegisterUser == nil {
@@ -1657,6 +1666,7 @@ extend type Mutation {
   registerUser(input: RegisterInput!): AuthPayload!
   updateUser(input: RegisterInput!): Boolean! @auth
   login(input: LoginInput!): AuthPayload!
+  refreshToken: String!
   resetEmail(email:String!):Boolean!
   resetExe(token:String!,password:String!): AuthPayload! #一旦ログインさせる方針に
 }
@@ -1851,7 +1861,7 @@ extend type Mutation{
 
 type Query
 
-# type Mutation`, BuiltIn: false},
+type Mutation`, BuiltIn: false},
 	{Name: "../schema/tags.graphqls", Input: `input TagInput{
   liquorId:ID!
   text:String!
@@ -6225,6 +6235,50 @@ func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, fie
 	if fc.Args, err = ec.field_Mutation_login_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_refreshToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_refreshToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RefreshToken(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_refreshToken(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
 	}
 	return fc, nil
 }
@@ -13371,6 +13425,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "login":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_login(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "refreshToken":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_refreshToken(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

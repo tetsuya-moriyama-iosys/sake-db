@@ -6,14 +6,12 @@ package resolver
 
 import (
 	"backend/db/repository/userRepository"
-	"backend/graph/generated"
 	"backend/graph/graphModel"
 	"backend/service/authService"
 	"backend/service/userService"
 	"backend/util/amazon/ses"
 	"context"
 	"errors"
-
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -112,6 +110,15 @@ func (r *mutationResolver) Login(ctx context.Context, input graphModel.LoginInpu
 	return user.ToGraphQL(), nil
 }
 
+// RefreshToken is the resolver for the refreshToken field.
+func (r *mutationResolver) RefreshToken(ctx context.Context) (string, error) {
+	token, err := userService.RefreshTokens(ctx)
+	if err != nil {
+		return "", err
+	}
+	return *token, nil
+}
+
 // ResetEmail is the resolver for the resetEmail field.
 func (r *mutationResolver) ResetEmail(ctx context.Context, email string) (bool, error) {
 	//トークンを生成しDBに格納する
@@ -160,8 +167,3 @@ func (r *queryResolver) GetUser(ctx context.Context) (*graphModel.User, error) {
 
 	return user.ToGraphQL(), nil
 }
-
-// Mutation returns generated.MutationResolver implementation.
-func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
-
-type mutationResolver struct{ *Resolver }

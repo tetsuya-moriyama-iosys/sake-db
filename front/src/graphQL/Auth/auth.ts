@@ -124,8 +124,6 @@ export const PASSWORD_RESET_EXE: DocumentNode = gql`
 
 export const REFRESH_TOKEN = gql`
   mutation RefreshToken {
-    refreshToken {
-      accessToken
-    }
+    refreshToken
   }
 `;

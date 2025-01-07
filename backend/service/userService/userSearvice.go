@@ -61,3 +61,7 @@ func IsLogin(ctx context.Context) bool {
 	//}
 	return true
 }
+
+func RefreshTokens(ctx context.Context) (*string, error) {
+	return refreshHandler(ctx)
+}
