@@ -9,7 +9,7 @@
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
-import useQuery from '@/funcs/composable/useQuery';
+import useQuery from '@/funcs/composable/useQuery/useQuery';
 import { AdminCheck } from '@/graphQL/Admin/admin';
 import type { AdminCheckQuery } from '@/graphQL/auto-generated';
 

@@ -13,7 +13,7 @@
     />
     <UploadWithImage
       :name="FormKeys.IMAGE"
-      :default="props.user.imageBase64"
+      :default="props.user.imageBase64 ?? undefined"
       @onCompressed="onCompressed"
     />
     <FormField :name="FormKeys.PROFILE" label="プロフィール" as="textarea" />
@@ -27,10 +27,11 @@ import { Form, type SubmissionHandler } from 'vee-validate';
 import UploadWithImage from '@/components/parts/forms/common/UploadWithImage.vue';
 import FormField from '@/components/parts/forms/core/FormField.vue';
 import SubmitButton from '@/components/parts/forms/core/SubmitButton.vue';
-import { useMutation } from '@/funcs/composable/useQuery';
+import { useMutation } from '@/funcs/composable/useQuery/useQuery';
 import { useToast } from '@/funcs/composable/useToast';
-import { type AuthUser, type AuthUserFull, Update } from '@/graphQL/Auth/auth';
-import { useUserStore } from '@/stores/userStore';
+import type { AuthUser, AuthUserFull } from '@/graphQL/Auth/types';
+import { Update } from '@/graphQL/MyPage/mypage';
+import { useUserStore } from '@/stores/userStore/userStore';
 import {
   FormKeys,
   type FormValues,
@@ -52,7 +53,7 @@ const { execute } = useMutation<AuthUser>(Update, {
   isAuth: true,
 });
 
-let base64ImageData: string | undefined = props.user.imageBase64;
+let base64ImageData: string | undefined = props.user.imageBase64 ?? undefined;
 
 function onCompressed(encodedStr: string | null): void {
   base64ImageData = encodedStr ?? undefined;

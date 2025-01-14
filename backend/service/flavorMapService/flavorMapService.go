@@ -5,8 +5,8 @@ import (
 	"backend/db/repository/flavorMapRepository"
 	"backend/db/repository/liquorRepository"
 	"backend/graph/schema/customModel"
+	"backend/middlewares/auth"
 	"backend/service/categoryService"
-	"backend/service/userService"
 	"backend/util/utilType"
 	"context"
 	"errors"
@@ -17,11 +17,7 @@ import (
 
 // PostFlavorMap 実際にポストする関数
 func PostFlavorMap(ctx context.Context, mstR *flavorMapRepository.FlavorMapMasterRepository, flR *flavorMapRepository.FlavorToLiquorRepository, fmR *flavorMapRepository.FlavorMapRepository, cr *categoriesRepository.CategoryRepository, lr *liquorRepository.LiquorsRepository, lId primitive.ObjectID, coordinates utilType.Coordinates) error {
-	var uId *primitive.ObjectID
-	uIdEntity, _ := userService.GetUserId(ctx)
-	if uIdEntity.IsZero() == false {
-		uId = &uIdEntity
-	}
+	uId := auth.GetIdNullable(ctx)
 
 	//マスタデータを取得する
 	mst, err := GetFlavorMasterData(ctx, mstR, lr, cr, lId)

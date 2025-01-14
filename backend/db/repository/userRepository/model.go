@@ -21,7 +21,7 @@ type Model struct {
 	ID                  primitive.ObjectID `bson:"_id"`
 	Name                string             `bson:"name"`
 	Email               string             `bson:"email"`
-	Roles               []*string          `bson:"roles"`
+	Roles               []string           `bson:"roles"`
 	Password            []byte             `bson:"password"`
 	ImageBase64         *string            `bson:"image_base64"`
 	Profile             *string            `bson:"profile"`

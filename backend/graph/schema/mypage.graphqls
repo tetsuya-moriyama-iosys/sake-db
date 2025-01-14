@@ -1,0 +1,7 @@
+extend type Query {
+    getMyData: User!  @auth
+}
+
+extend type Mutation {
+    updateUser(input: RegisterInput!): Boolean! @auth
+}

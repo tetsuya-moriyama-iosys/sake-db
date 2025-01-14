@@ -101,7 +101,7 @@ import { onMounted, ref } from 'vue';
 
 import FlavorCell from '@/components/blocks/FlavorMap/FlavorCell.vue';
 import YesNoDialog from '@/components/parts/common/CommonDialog/Variations/YesNoDialog.vue';
-import { useMutation, useQuery } from '@/funcs/composable/useQuery';
+import { useMutation, useQuery } from '@/funcs/composable/useQuery/useQuery';
 import { useToast } from '@/funcs/composable/useToast';
 import {
   type Coordinates,
@@ -115,7 +115,7 @@ import {
 } from '@/graphQL/Liquor/flavorMap';
 import type { Liquor } from '@/graphQL/Liquor/liquor';
 import { guestFlavorMapStore } from '@/stores/guestFlavorMapStore';
-import { useUserStore } from '@/stores/userStore';
+import { useUserStore } from '@/stores/userStore/userStore';
 
 interface Props {
   liquor: Liquor;

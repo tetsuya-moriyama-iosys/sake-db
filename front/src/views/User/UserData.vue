@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import RadiusImage from '@/components/parts/common/RadiusImage.vue';
 import type { UserDetail } from '@/graphQL/User/user';
-import { useUserStore } from '@/stores/userStore';
+import { useUserStore } from '@/stores/userStore/userStore';
 import BookMarkButton from '@/views/User/BookMarkButton.vue';
 import BookmarkedList from '@/views/User/BookmarkedList.vue';
 import UserPosts from '@/views/User/UserPosts.vue';

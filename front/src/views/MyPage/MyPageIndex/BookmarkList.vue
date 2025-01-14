@@ -23,7 +23,7 @@ import { onMounted, ref } from 'vue';
 import UserList from '@/components/blocks/common/userPage/UserList.vue';
 import CommonButton from '@/components/parts/common/CommonButton/CommonButton.vue';
 import BookMarkLogics from '@/components/slots/BookMarkLogics.vue';
-import useQuery from '@/funcs/composable/useQuery';
+import useQuery from '@/funcs/composable/useQuery/useQuery';
 import {
   type Bookmark,
   type GetBookmarkListResponse,

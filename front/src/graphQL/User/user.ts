@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client/core';
+import { gql } from '@apollo/client';
 import type { DocumentNode } from 'graphql/index';
 
-import type { AuthUser } from '@/graphQL/Auth/auth';
+import type { User } from '@/graphQL/auto-generated';
 
 //ユーザーのフルデータ
 export interface GetUserDetailResponse {
@@ -11,12 +11,7 @@ export interface GetUserDetailResponse {
 //ユーザー情報と評価情報が入っているインターフェース
 export interface UserDetail {
   readonly evaluateList: EvaluateList;
-  readonly user: User;
-}
-
-//外部に公開可能なユーザー情報
-export interface User extends Omit<AuthUser, 'email'> {
-  readonly profile: string;
+  readonly user: Omit<User, '__typename' | 'email'>;
 }
 
 //評価履歴のデータベース
@@ -44,7 +39,7 @@ export interface UserLiquor {
 
 //ユーザーページ用のフルデータ
 export const GET_USERDATA_FULL: DocumentNode = gql`
-  query ($id: String!) {
+  query getUserByIdDetail($id: String!) {
     getUserByIdDetail(id: $id) {
       evaluateList {
         recentComments {

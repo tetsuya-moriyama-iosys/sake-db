@@ -37,7 +37,7 @@ import { ErrorMessage, useField } from 'vee-validate';
 import { computed, type ComputedRef, ref, watch } from 'vue';
 
 import FormField from '@/components/parts/forms/core/FormField.vue';
-import useQuery from '@/funcs/composable/useQuery';
+import useQuery from '@/funcs/composable/useQuery/useQuery';
 import {
   type Categories,
   type Category,

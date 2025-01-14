@@ -24,7 +24,7 @@ export interface CategoryResponse<T> {
 }
 
 export const GET_DETAIL: DocumentNode = gql`
-  query ($id: Int!) {
+  query category($id: Int!) {
     category(id: $id) {
       id
       name
@@ -41,9 +41,9 @@ export const GET_DETAIL: DocumentNode = gql`
   }
 `;
 
-//TODO:もうちょっといい方法がないか考えたいが、一旦保留
+//TODO:もうちょっといい方法がないか考えたいが、一旦保留(フラグメントとか使えばもうちょっとマシになるかも)
 export const GET_QUERY: DocumentNode = gql`
-  query {
+  query categories {
     categories {
       id
       name

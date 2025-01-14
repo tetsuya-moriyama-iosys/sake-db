@@ -13,7 +13,7 @@ export interface CategoryHistoryData {
 }
 
 export const GET_LOGS_FOR_ROLLBACK: DocumentNode = gql`
-  query ($id: Int!) {
+  query histories($id: Int!) {
     histories(id: $id) {
       now {
         id

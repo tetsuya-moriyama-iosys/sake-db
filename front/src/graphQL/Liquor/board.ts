@@ -1,5 +1,5 @@
-import type { DocumentNode } from 'graphql/index';
 import { gql } from '@apollo/client/core';
+import type { DocumentNode } from 'graphql/index';
 
 export interface BoardResponse {
   readonly board: Post[] | null;
@@ -19,12 +19,12 @@ export interface Post extends PostCore {
   readonly updatedAt: Date;
 }
 export const Post: DocumentNode = gql`
-  mutation ($input: BoardInput!) {
+  mutation postBoard($input: BoardInput!) {
     postBoard(input: $input)
   }
 `;
 export const GetMyPostByLiquorId: DocumentNode = gql`
-  query ($id: String!) {
+  query getMyBoard($id: String!) {
     getMyBoard(liquorId: $id) {
       text
       rate
@@ -33,7 +33,7 @@ export const GetMyPostByLiquorId: DocumentNode = gql`
 `;
 
 export const GET_BOARD: DocumentNode = gql`
-  query ($liquorId: String!) {
+  query board($liquorId: String!) {
     board(liquorId: $liquorId) {
       userId
       userName

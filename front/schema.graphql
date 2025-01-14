@@ -1,0 +1,279 @@
+directive @adminAuth(role: String) on FIELD_DEFINITION
+
+directive @auth on FIELD_DEFINITION
+
+"""
+The @defer directive may be specified on a fragment spread to imply
+de-prioritization, that causes the fragment to be omitted in the initial
+response, and delivered as a subsequent response afterward. A query with @defer
+directive will cause the request to potentially return multiple responses, where
+non-deferred data is delivered in the initial response and data deferred
+delivered in a subsequent response. @include and @skip take precedence over @defer.
+"""
+directive @defer(if: Boolean = true, label: String) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @optionalAuth on FIELD_DEFINITION
+
+"""
+The @specifiedBy built-in directive is used within the type system definition
+language to provide a scalar specification URL for specifying the behavior of
+custom scalar types.
+"""
+directive @specifiedBy(url: String!) on SCALAR
+
+type AffiliateData {
+  items: [AffiliateItem!]
+  lowestPrice: Int
+}
+
+type AffiliateItem {
+  name: String!
+  price: Int
+  URL: String!
+  imageURL: String
+}
+
+type AuthPayload {
+  accessToken: String!
+  user: User!
+}
+
+input BoardInput {
+  liquorID: String!
+  text: String!
+  rate: Int
+}
+
+type BoardPost {
+  id: ID!
+  userId: ID
+  userName: String
+  categoryId: Int!
+  categoryName: String!
+  liquorId: ID!
+  liquorName: String!
+  text: String!
+  youtube: String
+  rate: Int
+  updatedAt: DateTime!
+}
+
+type BookMarkListUser {
+  userId: ID!
+  name: String!
+  imageBase64: String
+  createdAt: DateTime!
+}
+
+type Category {
+  id: Int!
+  name: String!
+  parent: Int
+  description: String
+  imageUrl: String
+  imageBase64: String
+  versionNo: Int
+  readonly: Boolean!
+  updatedAt: DateTime
+  children: [Category!]
+}
+
+type CategoryHistory {
+  now: Category!
+  histories: [Category]
+}
+
+type CategoryTrail {
+  id: Int!
+  name: String!
+}
+
+scalar Coordinate
+
+scalar DateTime
+
+type FlavorCellData {
+  x: Coordinate!
+  y: Coordinate!
+  rate: Float!
+  userAmount: Int!
+  guestAmount: Int!
+}
+
+type FlavorMapData {
+  categoryId: Int!
+  xNames: [String!]!
+  yNames: [String!]!
+  userFullAmount: Int!
+  guestFullAmount: Int!
+  mapData: [FlavorCellData!]!
+}
+
+type Liquor {
+  id: String!
+  categoryId: Int!
+  categoryName: String!
+  categoryTrail: [CategoryTrail!]
+  name: String!
+  description: String
+  imageUrl: String
+  imageBase64: String
+  youtube: String
+  updatedAt: DateTime!
+  rate5Users: [ID!]!
+  rate4Users: [ID!]!
+  rate3Users: [ID!]!
+  rate2Users: [ID!]!
+  rate1Users: [ID!]!
+  versionNo: Int!
+}
+
+type LiquorHistory {
+  now: Liquor!
+  histories: [Liquor]
+}
+
+type ListFromCategory {
+  categoryName: String!
+  categoryDescription: String
+  liquors: [Liquor]!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  registerUser(input: RegisterInput!): AuthPayload!
+  login(input: LoginInput!): AuthPayload!
+  refreshToken: String!
+  loginWithRefreshToken: AuthPayload!
+  logout: Boolean!
+  resetEmail(email: String!): Boolean!
+  resetExe(token: String!, password: String!): AuthPayload!
+  addBookMark(id: String!): Boolean!
+  removeBookMark(id: String!): Boolean!
+  postFlavor(input: PostFlavorMap!): Boolean!
+  postBoard(input: BoardInput!): Boolean!
+  updateUser(input: RegisterInput!): Boolean!
+  postTag(input: TagInput!): Tag!
+  deleteTag(id: ID!): Boolean!
+}
+
+input PostFlavorMap {
+  liquorId: ID!
+  x: Coordinate!
+  y: Coordinate!
+}
+
+type Query {
+  checkAdmin: Boolean!
+  data(name: String!, limit: Int): AffiliateData!
+  getIsBookMarked(id: String!): Boolean!
+  getRecommendLiquorList: [Recommend!]!
+  getBookMarkList: [BookMarkListUser!]
+  getBookMarkedList(id: ID!): [BookMarkListUser!]
+  category(id: Int!): Category!
+  categories: [Category!]!
+  histories(id: Int!): CategoryHistory
+  getFlavorMap(liquorId: ID!): FlavorMapData
+  getVoted(liquorId: ID!): VotedData
+  liquor(id: String!): Liquor!
+  randomRecommendList(limit: Int!): [Liquor!]!
+  listFromCategory(categoryId: Int!): ListFromCategory!
+  liquorHistories(id: String!): LiquorHistory
+  board(liquorId: String!, page: Int): [BoardPost!]
+  getMyBoard(liquorId: String!): BoardPost
+  getMyData: User!
+  getTags(liquorId: ID!): [Tag!]!
+  getUserById(id: String!): User!
+  getUserByIdDetail(id: String!): UserPageData!
+}
+
+type Recommend {
+  rate: Int!
+  comment: String!
+  liquor: RecommendLiquor!
+  user: RecommendUser!
+  updatedAt: DateTime!
+}
+
+type RecommendLiquor {
+  id: ID!
+  name: String!
+  categoryId: Int!
+  categoryName: String!
+  imageBase64: String
+  description: String!
+}
+
+type RecommendUser {
+  id: ID!
+  name: String!
+  imageBase64: String
+}
+
+input RegisterInput {
+  name: String!
+  email: String!
+  password: String
+  profile: String
+  imageBase64: String
+}
+
+type Tag {
+  id: ID!
+  text: String!
+}
+
+input TagInput {
+  liquorId: ID!
+  text: String!
+}
+
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  profile: String
+  imageBase64: String
+  roles: [String!]
+}
+
+type UserEvaluateList {
+  recentComments: [UserLiquor!]
+  rate5Liquors: [UserLiquor!]
+  rate4Liquors: [UserLiquor!]
+  rate3Liquors: [UserLiquor!]
+  rate2Liquors: [UserLiquor!]
+  rate1Liquors: [UserLiquor!]
+  noRateLiquors: [UserLiquor!]
+}
+
+type UserLiquor {
+  id: ID!
+  liquorId: ID!
+  name: String!
+  categoryId: Int!
+  categoryName: String!
+  imageBase64: String
+  comment: String
+  rate: Int
+  updatedAt: DateTime!
+}
+
+type UserPageData {
+  evaluateList: UserEvaluateList!
+  user: User!
+}
+
+type VotedData {
+  liquorId: ID!
+  userId: ID!
+  categoryId: Int!
+  x: Coordinate!
+  y: Coordinate!
+  updatedAt: DateTime!
+}
+

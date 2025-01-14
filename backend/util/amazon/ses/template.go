@@ -12,7 +12,7 @@ type passwordReset struct {
 
 // generatePwRstStr はパスワードリセットメール本文のテンプレートです
 func generatePwRstStr() string {
-	return "URLは " + os.Getenv("FRONT_URI") + "/auth/password/reset/{{ .Token }} です"
+	return "URLは " + os.Getenv("FRONT_URI") + "/auth/password/reset/{{ .AccessToken }} です"
 }
 
 func pwRstTemp(cfg *passwordReset) (string, error) {

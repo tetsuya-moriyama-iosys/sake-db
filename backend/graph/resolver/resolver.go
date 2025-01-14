@@ -6,6 +6,7 @@ import (
 	"backend/db/repository/flavorMapRepository"
 	"backend/db/repository/liquorRepository"
 	"backend/db/repository/userRepository"
+	"backend/service/authService/tokenConfig"
 	"context"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -21,6 +22,7 @@ type Resolver struct {
 	FlavorMapRepo    flavorMapRepository.FlavorMapRepository
 	FlavorMapMstRepo flavorMapRepository.FlavorMapMasterRepository
 	FlavorLiqRepo    flavorMapRepository.FlavorToLiquorRepository
+	UserTokenConfig  tokenConfig.TokenConfig
 }
 
 func NewResolver(db *mongo.Database,
@@ -31,6 +33,7 @@ func NewResolver(db *mongo.Database,
 	flavorMapRepo flavorMapRepository.FlavorMapRepository,
 	flavorMapMstRepo flavorMapRepository.FlavorMapMasterRepository,
 	flavorLiqRepo flavorMapRepository.FlavorToLiquorRepository,
+	userTokenConfig *tokenConfig.TokenConfig,
 ) *Resolver {
 	return &Resolver{
 		DB:               db,
@@ -41,6 +44,7 @@ func NewResolver(db *mongo.Database,
 		FlavorMapRepo:    flavorMapRepo,
 		FlavorMapMstRepo: flavorMapMstRepo,
 		FlavorLiqRepo:    flavorLiqRepo,
+		UserTokenConfig:  *userTokenConfig,
 	}
 }
 

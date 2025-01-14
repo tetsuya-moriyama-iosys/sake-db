@@ -5,18 +5,19 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
+import { useUserStore } from '@/stores/userStore/userStore';
 import LoginForm from '@/views/Auth/Login/form/LoginForm.vue';
 
-// const { isLogin } = useLogin();
-// const router = useRouter();
+const { isLogin } = useUserStore();
+const router = useRouter();
 
 //すでにログイン済の場合、ユーザーページへリダイレクト
 onMounted(() => {
-  // TODO:IDがないらしいので、取得or保存する処理が必要
-  // if (isLogin.value) {
-  //   router.push({ name: 'UserIndex' });
-  // }
+  if (isLogin) {
+    router.push({ name: 'UserIndex' });
+  }
 });
 </script>
 

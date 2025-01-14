@@ -1,5 +1,6 @@
 import type { DocumentNode } from '@apollo/client/core';
 import { gql } from '@apollo/client/core';
+
 import type { Liquor } from '@/graphQL/Index/random';
 
 export interface RecommendLiquorList {
@@ -22,7 +23,7 @@ export interface User {
 
 //ブックマークを加味したおすすめリスト
 export const RECOMMEND_LIST_FROM_BOOKMARK: DocumentNode = gql`
-  query {
+  query getRecommendLiquorList {
     getRecommendLiquorList {
       rate
       comment
