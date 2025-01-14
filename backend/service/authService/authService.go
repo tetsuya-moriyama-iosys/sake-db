@@ -2,49 +2,79 @@ package authService
 
 import (
 	"backend/db/repository/userRepository"
+	"backend/graph/graphModel"
+	"backend/middlewares/auth"
+	"backend/service/authService/tokenConfig"
 	"context"
-	"fmt"
-	"golang.org/x/crypto/bcrypt"
-	"math/rand"
+	"github.com/golang-jwt/jwt/v4"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"net/http"
 	"time"
 )
 
-// GeneratePasswordResetToken トークンを生成し、DBに格納する
-func GeneratePasswordResetToken(ctx context.Context, r userRepository.UsersRepository, email string) (string, error) {
-	ran := rand.New(rand.NewSource(time.Now().UnixNano())) // 生成器を生成
-	// ランダムな32バイトのスライスを作成
-	tokenBytes := make([]byte, 32)
-
-	// 生成器からバイトをランダムに埋める
-	for i := range tokenBytes {
-		tokenBytes[i] = byte(ran.Intn(256)) // 0~255の範囲でバイトを生成
-	}
-
-	//stringに変換する
-	token := fmt.Sprintf("%x", tokenBytes)
-
-	//DBにトークンを格納する
-	err := r.SetPasswordToken(ctx, email, token)
+func Login(ctx context.Context, writer *http.ResponseWriter, input graphModel.LoginInput, r *userRepository.UsersRepository, tokenConfig tokenConfig.TokenConfig) (*UserWithToken, error) {
+	// ユーザーインスタンスを取得
+	user, err := getUserByInput(ctx, input, r)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	// base64でエンコードしてトークンを文字列に変換
-	return token, nil
+	// JWTトークン生成
+	accessToken, err := GenerateTokens(writer, user.ID, tokenConfig)
+	if err != nil {
+		return nil, err
+	}
+	return generateUserWithToken(user, *accessToken), nil
 }
 
-func PasswordResetExe(ctx context.Context, r userRepository.UsersRepository, token string, password string) (*userRepository.Model, error) {
-	user, err := r.GetByPasswordToken(ctx, token)
+// RefreshTokens アクセストークンが切れたため、リフレッシュトークンを使いトークンを再生成
+func RefreshTokens(req *http.Request, writer *http.ResponseWriter, tokenConfig tokenConfig.TokenConfig) (*string, error) {
+	return refreshHandler(req, writer, tokenConfig)
+}
+
+// LoginWithRefreshToken リフレッシュトークンを用いてログインする
+func LoginWithRefreshToken(ctx context.Context, req *http.Request, writer *http.ResponseWriter, tokenConfig tokenConfig.TokenConfig, r *userRepository.UsersRepository) (*UserWithToken, error) {
+	claims, err := parseRefreshToken(req, tokenConfig)
 	if err != nil {
 		return nil, err
 	}
-	//パスワードをハッシュする
-	var newPassword []byte
-	newPassword, err = bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+
+	// ユーザーインスタンスを取得
+	return loginById(ctx, claims.Id, writer, tokenConfig, r)
+}
+
+// GenerateTokens トークンを生成
+func GenerateTokens(writer *http.ResponseWriter, id primitive.ObjectID, tokenConfig tokenConfig.TokenConfig) (*string, error) {
+	// アクセストークン
+	accessClaims := auth.Claims{
+		Id: id,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenConfig.AccessExpire)),
+		},
+	}
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
+	accessString, err := accessToken.SignedString(tokenConfig.AccessSecretKey)
 	if err != nil {
 		return nil, err
 	}
-	//パスワードリセットを実行する
-	err = r.PasswordReset(ctx, *user, newPassword)
-	return user, err
+
+	// リフレッシュトークン
+	err = resetRefreshToken(writer, id, tokenConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return &accessString, nil
+}
+
+func DeleteRefreshToken(writer *http.ResponseWriter) error {
+	//クッキーを消去
+	http.SetCookie(*writer, &http.Cookie{
+		Name:     refreshTokenName,
+		Value:    "",
+		Expires:  time.Unix(0, 0), // 過去の時刻に設定
+		MaxAge:   -1,              // 即座に削除
+		HttpOnly: true,
+	})
+	return nil
 }

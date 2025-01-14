@@ -2,51 +2,60 @@ import { defineStore } from 'pinia';
 import { nextTick, ref } from 'vue';
 
 import client from '@/apolloClient';
-import useQuery from '@/funcs/composable/useQuery/useQuery';
+import { useMutation } from '@/funcs/composable/useQuery/useQuery';
+import { errorDebug } from '@/funcs/util/core/console';
 import {
-  type AuthUser,
-  GET_USER,
-  type GetUserResponse,
+  LOGIN_WITH_REFRESH_TOKEN,
+  LOGOUT,
   REFRESH_TOKEN,
-  type Role,
 } from '@/graphQL/Auth/auth';
-import { type AuthPayloadForUI } from '@/stores/userStore/type';
+import { type AuthUser, type Role } from '@/graphQL/Auth/types';
+import type {
+  LoginWithRefreshTokenMutation,
+  LogoutMutation,
+} from '@/graphQL/auto-generated';
+import {
+  type AuthPayloadForUI,
+  getAuthPayloadForUI,
+} from '@/stores/userStore/type';
 
 export const USER_STORE = 'user_store';
 
 export const useUserStore = defineStore(USER_STORE, () => {
-  const { fetch } = useQuery<GetUserResponse>(GET_USER, {
+  const { execute: refreshTokenExecute } =
+    useMutation<LoginWithRefreshTokenMutation>(LOGIN_WITH_REFRESH_TOKEN, {
+      isAuth: true,
+    });
+  const { execute: logoutExecute } = useMutation<LogoutMutation>(LOGOUT, {
     isAuth: true,
   });
 
   const isLogin = ref<boolean>(false);
   const user = ref<AuthUser | null>(null);
-  const accessToken = ref<string | null>(null);
+  const accessTokenRef = ref<string | null>(null);
 
   //ログイン情報をストアにセットする
   function setUserData(data: AuthPayloadForUI) {
-    accessToken.value = data.accessToken;
+    accessToken.reset(data.accessToken);
     isLogin.value = true; //ログイン状態をtrueにする
     user.value = data.user; //ユーザー情報をセット
   }
 
-  function resetAccessToken(newToken: string) {
-    accessToken.value = newToken;
-  }
+  const accessToken = {
+    get: (): string | null => {
+      return accessTokenRef.value;
+    },
+    reset: (newToken: string) => {
+      accessTokenRef.value = newToken;
+    },
+  } as const;
 
   //画面リロード時・情報アップデート時などにユーザーデータを取得するために使用(情報を変えない限りキャッシュを使った方がいい)
   async function restoreUserData(option?: { isReFetch?: boolean }) {
-    const token: string | null = localStorage.getItem(
-      import.meta.env.VITE_JWT_TOKEN_NAME,
-    );
-
-    // トークンがない場合は終了
-    if (token == null) {
-      return;
-    }
+    console.log('restore userStore');
     try {
       // APIからユーザー情報を取得(ユーザー情報)
-      const response: GetUserResponse = await fetch(
+      const { loginWithRefreshToken: payload } = await refreshTokenExecute(
         undefined,
         option?.isReFetch === true
           ? {
@@ -54,15 +63,13 @@ export const useUserStore = defineStore(USER_STORE, () => {
             }
           : {},
       );
-      setUserData({
-        accessToken: token, //ログイン時とインターフェースを合わせるために追加。
-        user: response.getUser, // ユーザー情報をセット
-      });
+      // ユーザーデータをストアに格納する
+      setUserData(getAuthPayloadForUI(payload));
 
       await nextTick(); // nextTickでUIの更新を保証
     } catch (error) {
-      console.error('ユーザー情報の取得に失敗しました', error);
-      logout(); // エラー時はログアウト処理
+      errorDebug('ユーザー情報の取得に失敗しました', error); // トーストは必要ない
+      void logout(); // エラー時はログアウト処理
     }
   }
 
@@ -70,9 +77,9 @@ export const useUserStore = defineStore(USER_STORE, () => {
     return user.value?.roles ?? [];
   }
 
-  function logout() {
+  async function logout() {
     //ページ遷移はrouterを使って行うため、ストアで実行不可。あくまでも状態のみを変える。
-    localStorage.removeItem(import.meta.env.VITE_JWT_TOKEN_NAME);
+    await logoutExecute(undefined);
     //ストア情報のクリア
     isLogin.value = false;
     user.value = null;
@@ -86,17 +93,19 @@ export const useUserStore = defineStore(USER_STORE, () => {
     getRoles,
     restoreUserData,
     accessToken,
-    resetAccessToken,
   };
 });
 
 export async function refreshToken() {
-  const { resetAccessToken } = useUserStore();
+  const {
+    accessToken: { reset },
+  } = useUserStore();
   const result = await client.mutate({
     mutation: REFRESH_TOKEN,
     context: {
       credentials: 'include', // クッキーを送信する
     },
   });
-  resetAccessToken(result.data.refreshToken.accessToken);
+  // リフレッシュトークンから取得したアクセストークンをセット
+  reset(result.data.refreshToken.accessToken);
 }

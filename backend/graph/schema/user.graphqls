@@ -1,3 +1,12 @@
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  profile: String
+  imageBase64: String # 縮小された画像のBase64エンコードデータ
+  roles: [String!]
+}
+
 type UserPageData{
   evaluateList:UserEvaluateList!
   user:User!

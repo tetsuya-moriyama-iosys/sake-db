@@ -7,7 +7,7 @@ import {
   type PluginApi,
   useLoading,
 } from 'vue-loading-overlay';
-import { type Router, useRouter } from 'vue-router';
+import { type Router } from 'vue-router';
 
 import type { QueryOption } from '@/funcs/composable/useQuery/useQuery';
 import { useToast } from '@/funcs/composable/useToast';
@@ -53,6 +53,7 @@ export function getCommon<T>(operation: DocumentNode, option?: QueryOption) {
   });
 
   const handleError = (err: Error) => {
+    console.log('handleError: ', err);
     errorDebug('エラー：', err.message);
     toast.errorToast((err.message as string) || '不明なエラー');
   };
@@ -75,8 +76,9 @@ export function generate<V = unknown>(
   if (customOptions?.isAuth) {
     // ストアにアクセスしてアクセストークンを取得
     const { accessToken } = useUserStore();
-    if (accessToken) {
-      headers['Authorization'] = `Bearer ${accessToken}`;
+    const token = accessToken.get();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
   }
 
@@ -95,14 +97,15 @@ interface ChallengeOption<T> {
   operationName: string;
   data: Ref<T | undefined, T | undefined>;
   loading: Ref<boolean>;
+  router: Router; //injectがsetup内でしか呼び出せないので、引数で渡す(グローバルオブジェクトを直接インポートしても可能らしいが、やめておく)
 }
 export async function challenge<T = unknown>({
   run,
   operationName,
   data,
   loading,
+  router,
 }: ChallengeOption<T>): Promise<T> {
-  const router: Router = useRouter();
   loading.value = true;
 
   try {
@@ -110,6 +113,7 @@ export async function challenge<T = unknown>({
     data.value = response;
     return response;
   } catch (err: unknown) {
+    console.log('エラー返却：', err);
     if ((err as Error).message == 'token expired') {
       await refreshToken(); //アクセストークン期限切れの場合、リフレッシュトークンを再取得
 

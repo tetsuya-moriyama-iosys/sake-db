@@ -23,7 +23,7 @@
 <script setup lang="ts">
 import AccountInfo from '@/components/layouts/main/header/AccountInfo.vue';
 import MainMenu from '@/components/layouts/main/header/menu/MainMenu.vue';
-import { Roles } from '@/graphQL/Auth/auth';
+import { Roles } from '@/graphQL/Auth/types';
 import { useUserStore } from '@/stores/userStore/userStore';
 
 const { getRoles } = useUserStore();

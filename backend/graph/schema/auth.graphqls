@@ -17,25 +17,13 @@ type AuthPayload {
   user: User!
 }
 
-type User {
-  id: ID!
-  name: String!
-  email: String!
-  profile: String
-  imageBase64: String # 縮小された画像のBase64エンコードデータ
-  roles: [String!]
-}
-
-extend type Query {
-  getUser: User! @auth
-}
-
 
 extend type Mutation {
   registerUser(input: RegisterInput!): AuthPayload!
-  updateUser(input: RegisterInput!): Boolean! @auth
   login(input: LoginInput!): AuthPayload!
   refreshToken: String!
+  loginWithRefreshToken: AuthPayload!
+  logout: Boolean! @auth # TODO: リフレッシュトークンの削除
   resetEmail(email:String!):Boolean!
   resetExe(token:String!,password:String!): AuthPayload! #一旦ログインさせる方針に
 }

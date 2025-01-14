@@ -14,4 +14,15 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  server: {
+    port: 5173, // フロントエンドのポート
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080', // バックエンドのポート
+        changeOrigin: true, // クロスオリジンヘッダーを正しく設定
+        secure: false, // HTTPSでない場合はfalseに
+        cookieDomainRewrite: 'localhost', // クッキーのドメインをローカルホストに書き換え
+      },
+    },
+  },
 });

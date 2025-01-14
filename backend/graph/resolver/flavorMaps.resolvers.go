@@ -6,12 +6,10 @@ package resolver
 
 import (
 	"backend/graph/graphModel"
+	"backend/middlewares/auth"
 	"backend/service/flavorMapService"
-	"backend/service/userService"
 	"backend/util/utilType"
 	"context"
-	"errors"
-
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -50,9 +48,9 @@ func (r *queryResolver) GetFlavorMap(ctx context.Context, liquorID string) (*gra
 
 // GetVoted is the resolver for the getVoted field.
 func (r *queryResolver) GetVoted(ctx context.Context, liquorID string) (*graphModel.VotedData, error) {
-	uId, err := userService.GetUserId(ctx)
+	uId, err := auth.GetId(ctx)
 	if err != nil {
-		return nil, errors.New("unauthorized")
+		return nil, err
 	}
 	lId, err := primitive.ObjectIDFromHex(liquorID)
 	if err != nil {

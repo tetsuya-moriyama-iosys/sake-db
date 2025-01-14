@@ -48,6 +48,8 @@ func configureRoutes(r *gin.Engine, srv *handler.Server, handlers *handlers.Hand
 		}()
 		// Ginのコンテキストからリクエストを取り出し、GraphQLの`context`にセット
 		ctx := context.WithValue(c.Request.Context(), "http.Request", c.Request)
+		ctx = context.WithValue(ctx, "http.ResponseWriter", c.Writer) //クッキー用
+		ctx = context.WithValue(ctx, "handlers", handlers)
 
 		// GraphQLサーバーにリクエストを渡す
 		srv.ServeHTTP(c.Writer, c.Request.WithContext(ctx))

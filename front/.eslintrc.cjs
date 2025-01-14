@@ -46,5 +46,11 @@ module.exports = {
         '@typescript-eslint/no-var-requires': 'off',
       },
     },
+    {
+      files: ['src/graphQL/auto-generated.ts'],
+      rules: {
+        all: 'off',
+      },
+    },
   ],
 };

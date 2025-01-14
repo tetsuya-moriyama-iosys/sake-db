@@ -7,8 +7,8 @@ package resolver
 import (
 	"backend/db/repository/bookmarkRepository"
 	"backend/graph/graphModel"
+	"backend/middlewares/auth"
 	"backend/service/bookmarkService"
-	"backend/service/userService"
 	"context"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -61,18 +61,21 @@ func (r *queryResolver) GetIsBookMarked(ctx context.Context, id string) (bool, e
 
 // GetRecommendLiquorList is the resolver for the getRecommendLiquorList field.
 func (r *queryResolver) GetRecommendLiquorList(ctx context.Context) ([]*graphModel.Recommend, error) {
-	uId, err := userService.GetUserId(ctx)
+	uId, err := auth.GetId(ctx)
 	if err != nil {
 		return nil, err
 	}
 	list, err := r.BookmarkRepo.GetRecommendLiquors(ctx, uId, nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return list.ToGraphQL(), nil
 }
 
 // GetBookMarkList is the resolver for the getBookMarkList field.
 func (r *queryResolver) GetBookMarkList(ctx context.Context) ([]*graphModel.BookMarkListUser, error) {
-	uId, err := userService.GetUserId(ctx)
+	uId, err := auth.GetId(ctx)
 	if err != nil {
 		return nil, err
 	}

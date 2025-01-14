@@ -1,3 +1,4 @@
+import { stripTypeName } from '@/funcs/util/stripTypeName';
 import type { Role } from '@/graphQL/Auth/auth';
 import type {
   LoginMutation,
@@ -19,7 +20,7 @@ export function getAuthPayloadForUI(
   payload: RegisterUserMutation['registerUser'] | LoginMutation['login'],
 ): AuthPayloadForUI {
   const { accessToken, user } = payload;
-  const { __typename, ...rest } = user;
+  const rest = stripTypeName(user);
   return {
     accessToken,
     user: {

@@ -10,6 +10,7 @@ import type {
   QueryOptions,
 } from '@apollo/client/core/watchQueryOptions';
 import { type DocumentNode } from 'graphql';
+import { useRouter } from 'vue-router';
 
 import client from '@/apolloClient';
 import {
@@ -28,6 +29,7 @@ export function useQuery<T = unknown, V = unknown>(
   query: DocumentNode,
   option?: QueryOption,
 ) {
+  const router = useRouter();
   const { operationName, loading, data, handleError } = getCommon<T>(
     query,
     option,
@@ -65,6 +67,7 @@ export function useQuery<T = unknown, V = unknown>(
         operationName: operationName,
         data,
         loading,
+        router,
       });
     } catch (e) {
       handleError(e as Error);
@@ -75,45 +78,47 @@ export function useQuery<T = unknown, V = unknown>(
   return { fetch, loading, data };
 }
 
-export function useMutation<T = unknown, V = unknown>(
+export function useMutation<Response = unknown, V = unknown>(
   mutation: DocumentNode,
   option?: QueryOption,
 ) {
-  const { operationName, loading, data, handleError } = getCommon<T>(
+  const router = useRouter();
+  const { operationName, loading, data, handleError } = getCommon<Response>(
     mutation,
     option,
   );
 
   async function run(
     request: V,
-    options?: Omit<MutationOptions<T>, 'mutation'>,
-  ): Promise<T> {
+    options?: Omit<MutationOptions<Response>, 'mutation'>,
+  ): Promise<Response> {
     const { variables, headers } = generate(request, options, option);
 
     debug(operationName, '送信データ：', variables);
-    const result = (await client.mutate<T>({
+    const result = (await client.mutate<Response>({
       ...variables,
       ...options,
       mutation,
       context: {
         headers, // ヘッダーをセット
       },
-    })) as FetchResult<T>; // MaybeMaskedを剥がす
+    })) as FetchResult<Response>; // MaybeMaskedを剥がす
     debug(operationName, 'レスポンス：', result.data);
 
-    return result.data as T; //ライブラリのジェネリクスがundefinedも含んでいるのでキャスト。返す場合は大元のジェネリクスの方で指定する。
+    return result.data as Response; //ライブラリのジェネリクスがundefinedも含んでいるのでキャスト。返す場合は大元のジェネリクスの方で指定する。
   }
 
   async function execute(
     request: V,
-    options?: Omit<MutationOptions<T>, 'mutation'>,
-  ): Promise<T> {
+    options?: Omit<MutationOptions<Response>, 'mutation'>,
+  ): Promise<Response> {
     try {
-      return challenge<T>({
+      return challenge<Response>({
         run: () => run(request, options),
         operationName: operationName,
         data,
         loading,
+        router,
       });
     } catch (e) {
       handleError(e as Error);

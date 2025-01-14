@@ -8,16 +8,18 @@ import (
 	"backend/db/repository/userRepository"
 	"backend/graph/graphModel"
 	"backend/service/authService"
-	"backend/service/userService"
 	"backend/util/amazon/ses"
 	"context"
 	"errors"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 )
 
 // RegisterUser is the resolver for the registerUser field.
 func (r *mutationResolver) RegisterUser(ctx context.Context, input graphModel.RegisterInput) (*graphModel.AuthPayload, error) {
+	//TODO: なんかロジックが大きいのでサービス層に分離すべきな気がする
 	if input.Password == nil {
 		return nil, errors.New("パスワードは必須です")
 	}
@@ -40,7 +42,13 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphModel.Re
 	//登録して、挿入したデータを受け取る
 	newUser, err := r.UserRepo.Register(ctx, &user)
 	if err != nil {
-		//email重複もここに含まれる
+		// MongoDBエラーかつ重複エラーかを判定
+		var mongoErr mongo.WriteException
+		if errors.As(err, &mongoErr) {
+			if len(mongoErr.WriteErrors) > 0 && mongoErr.WriteErrors[0].Code == 11000 {
+				return nil, errors.New("このメールアドレスは既に登録されています。")
+			}
+		}
 		return nil, errors.New("ユーザー登録に失敗しました。")
 	}
 
@@ -55,54 +63,9 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphModel.Re
 	return u, nil
 }
 
-// UpdateUser is the resolver for the updateUser field.
-func (r *mutationResolver) UpdateUser(ctx context.Context, input graphModel.RegisterInput) (bool, error) {
-	loginUser, err := userService.GetUserData(ctx, r.UserRepo) //未ログイン状態ならuserIDはnilになる
-	if err != nil {
-		return false, err
-	}
-	id := loginUser.ID
-	oldUser, err := r.UserRepo.GetById(ctx, id)
-	if err != nil {
-		return false, err
-	}
-
-	//新しいパスワードを生成する(入力が空であれば前の値を代入する)
-	var newPassword []byte
-
-	if input.Password != nil && len(*input.Password) != 0 { //空文字もnilと同等に扱う
-		if len(*input.Password) < 8 {
-			return false, errors.New("パスワードが短いです")
-		}
-		//パスワードをハッシュする
-		newPassword, err = bcrypt.GenerateFromPassword([]byte(*input.Password), bcrypt.DefaultCost)
-		if err != nil {
-			return false, err
-		}
-	} else {
-		newPassword = oldUser.Password
-	}
-	//ユーザー構造体の定義
-	user := &userRepository.Model{
-		ID:          oldUser.ID,
-		Name:        input.Name,
-		Email:       input.Email,
-		Password:    newPassword,
-		ImageBase64: input.ImageBase64,
-		Profile:     input.Profile,
-	}
-
-	err = r.UserRepo.Update(ctx, user)
-	if err != nil {
-		return false, nil
-	}
-
-	return true, nil
-}
-
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input graphModel.LoginInput) (*graphModel.AuthPayload, error) {
-	user, err := userService.Login(ctx, input, &r.UserRepo)
+	user, err := authService.Login(ctx, getResponseWriter(ctx), input, &r.UserRepo, r.UserTokenConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -110,13 +73,27 @@ func (r *mutationResolver) Login(ctx context.Context, input graphModel.LoginInpu
 	return user.ToGraphQL(), nil
 }
 
-// RefreshToken is the resolver for the refreshToken field.
+// RefreshToken 単にリフレッシュトークンの更新をするAPI(Vueストアにユーザーデータが存在しており、アクセストークンが切れた導線)
 func (r *mutationResolver) RefreshToken(ctx context.Context) (string, error) {
-	token, err := userService.RefreshTokens(ctx)
+	token, err := authService.RefreshTokens(getHttpRequest(ctx), getResponseWriter(ctx), r.UserTokenConfig)
 	if err != nil {
 		return "", err
 	}
 	return *token, nil
+}
+
+// LoginWithRefreshToken こちらはリフレッシュトークンを用いてログインするAPI(リロードなどでユーザーデータも同時取得する導線・実質再ログイン)
+func (r *mutationResolver) LoginWithRefreshToken(ctx context.Context) (*graphModel.AuthPayload, error) {
+	user, err := authService.LoginWithRefreshToken(ctx, getHttpRequest(ctx), getResponseWriter(ctx), r.UserTokenConfig, &r.UserRepo)
+	if err != nil {
+		return nil, err
+	}
+	return user.ToGraphQL(), nil
+}
+
+// Logout is the resolver for the logout field.
+func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
+	return true, authService.DeleteRefreshToken(getResponseWriter(ctx))
 }
 
 // ResetEmail is the resolver for the resetEmail field.
@@ -150,20 +127,4 @@ func (r *mutationResolver) ResetExe(ctx context.Context, token string, password 
 		return nil, err
 	}
 	return lUser, nil
-}
-
-// GetUser is the resolver for the getUser field.
-func (r *queryResolver) GetUser(ctx context.Context) (*graphModel.User, error) {
-	userID, err := userService.GetUserId(ctx)
-	if err != nil {
-		return nil, errors.New("unauthorized")
-	}
-
-	// ユーザー情報をデータベースから取得する処理
-	user, err := r.UserRepo.GetById(ctx, userID)
-	if err != nil {
-		return nil, err
-	}
-
-	return user.ToGraphQL(), nil
 }

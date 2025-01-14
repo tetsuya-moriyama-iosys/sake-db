@@ -146,15 +146,17 @@ input LoginInput {
 
 type Mutation {
   registerUser(input: RegisterInput!): AuthPayload!
-  updateUser(input: RegisterInput!): Boolean!
   login(input: LoginInput!): AuthPayload!
   refreshToken: String!
+  loginWithRefreshToken: AuthPayload!
+  logout: Boolean!
   resetEmail(email: String!): Boolean!
   resetExe(token: String!, password: String!): AuthPayload!
   addBookMark(id: String!): Boolean!
   removeBookMark(id: String!): Boolean!
   postFlavor(input: PostFlavorMap!): Boolean!
   postBoard(input: BoardInput!): Boolean!
+  updateUser(input: RegisterInput!): Boolean!
   postTag(input: TagInput!): Tag!
   deleteTag(id: ID!): Boolean!
 }
@@ -168,7 +170,6 @@ input PostFlavorMap {
 type Query {
   checkAdmin: Boolean!
   data(name: String!, limit: Int): AffiliateData!
-  getUser: User!
   getIsBookMarked(id: String!): Boolean!
   getRecommendLiquorList: [Recommend!]!
   getBookMarkList: [BookMarkListUser!]
@@ -184,6 +185,7 @@ type Query {
   liquorHistories(id: String!): LiquorHistory
   board(liquorId: String!, page: Int): [BoardPost!]
   getMyBoard(liquorId: String!): BoardPost
+  getMyData: User!
   getTags(liquorId: ID!): [Tag!]!
   getUserById(id: String!): User!
   getUserByIdDetail(id: String!): UserPageData!

@@ -7,7 +7,7 @@ package resolver
 import (
 	"backend/db/repository/liquorRepository"
 	"backend/graph/graphModel"
-	"backend/service/userService"
+	"backend/middlewares/auth"
 	"context"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,7 +15,7 @@ import (
 
 // PostTag is the resolver for the postTag field.
 func (r *mutationResolver) PostTag(ctx context.Context, input graphModel.TagInput) (*graphModel.Tag, error) {
-	uId, err := userService.GetUserId(ctx)
+	uId, err := auth.GetId(ctx)
 	if err != nil {
 		return nil, err
 	}

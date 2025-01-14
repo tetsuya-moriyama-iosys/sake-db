@@ -8,6 +8,7 @@ import (
 	"backend/db"
 	"backend/db/repository/liquorRepository"
 	"backend/graph/graphModel"
+	"backend/middlewares/auth"
 	"backend/service/categoryService"
 	"backend/service/userService"
 	"context"
@@ -206,12 +207,12 @@ func (r *queryResolver) GetMyBoard(ctx context.Context, liquorID string) (*graph
 	if err != nil {
 		return nil, err
 	}
-	uid, err := userService.GetUserId(ctx)
+	uId, err := auth.GetId(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	board, err := r.LiquorRepo.BoardGetByUserAndLiquor(ctx, id, uid)
+	board, err := r.LiquorRepo.BoardGetByUserAndLiquor(ctx, id, uId)
 	if err != nil {
 		// 結果が0件の場合、nilを返す
 		if err == mongo.ErrNoDocuments {
