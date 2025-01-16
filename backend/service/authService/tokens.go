@@ -3,6 +3,7 @@ package authService
 import (
 	"backend/middlewares/auth"
 	"backend/service/authService/tokenConfig"
+	"backend/util/helper"
 	"errors"
 	"github.com/golang-jwt/jwt/v4"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -14,6 +15,8 @@ var refreshTokenName = "refresh_token"
 
 func parseRefreshToken(req *http.Request, tokenConfig tokenConfig.TokenConfig) (*auth.Claims, error) {
 	// クッキーを取得
+	cookies := req.Cookies()
+	helper.D(cookies)
 	cookie, err := req.Cookie(refreshTokenName)
 	if err != nil {
 		return nil, errors.New("refresh token not found")
@@ -51,7 +54,7 @@ func refreshHandler(req *http.Request, writer *http.ResponseWriter, tokenConfig 
 }
 
 // リフレッシュトークンを再発行する
-func resetRefreshToken(writer *http.ResponseWriter, id primitive.ObjectID, tokenConfig tokenConfig.TokenConfig) error {
+func resetRefreshToken(writer http.ResponseWriter, id primitive.ObjectID, tokenConfig tokenConfig.TokenConfig) error {
 	// リフレッシュトークン
 	refreshClaims := auth.Claims{
 		Id: id,
@@ -65,14 +68,14 @@ func resetRefreshToken(writer *http.ResponseWriter, id primitive.ObjectID, token
 		return errors.New("invalid or expired refresh token")
 	}
 
-	http.SetCookie(*writer, &http.Cookie{
+	http.SetCookie(writer, &http.Cookie{
 		Name:     refreshTokenName,
 		Value:    refreshString,
 		Expires:  time.Now().Add(tokenConfig.RefreshExpire),
 		Path:     "/",
 		Secure:   false, // TODO: trueにする
 		HttpOnly: false, //TODO: trueにする ブラウザでの確認用にfalseにしている
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteNoneMode,
 	})
 
 	return nil

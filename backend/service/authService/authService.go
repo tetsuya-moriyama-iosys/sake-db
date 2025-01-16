@@ -59,7 +59,7 @@ func GenerateTokens(writer *http.ResponseWriter, id primitive.ObjectID, tokenCon
 	}
 
 	// リフレッシュトークン
-	err = resetRefreshToken(writer, id, tokenConfig)
+	err = resetRefreshToken(*writer, id, tokenConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -67,9 +67,9 @@ func GenerateTokens(writer *http.ResponseWriter, id primitive.ObjectID, tokenCon
 	return &accessString, nil
 }
 
-func DeleteRefreshToken(writer *http.ResponseWriter) error {
+func DeleteRefreshToken(writer http.ResponseWriter) error {
 	//クッキーを消去
-	http.SetCookie(*writer, &http.Cookie{
+	http.SetCookie(writer, &http.Cookie{
 		Name:     refreshTokenName,
 		Value:    "",
 		Expires:  time.Unix(0, 0), // 過去の時刻に設定

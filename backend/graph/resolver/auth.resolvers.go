@@ -93,7 +93,7 @@ func (r *mutationResolver) LoginWithRefreshToken(ctx context.Context) (*graphMod
 
 // Logout is the resolver for the logout field.
 func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
-	return true, authService.DeleteRefreshToken(getResponseWriter(ctx))
+	return true, authService.DeleteRefreshToken(*getResponseWriter(ctx))
 }
 
 // ResetEmail is the resolver for the resetEmail field.
