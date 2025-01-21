@@ -16,12 +16,12 @@ func Router(srv *handler.Server, handlers *handlers.Handlers) *gin.Engine {
 	helper.LoadEnv()
 
 	// フロントエンドのURIを取得
-	frontURI := getFrontURI()
+	//frontURI := getFrontURI()
 
 	r := gin.Default()
 
 	// CORS設定
-	r.Use(corsMiddleware(frontURI))
+	//r.Use(corsMiddleware(frontURI))
 
 	/// ルート設定
 	configureRoutes(r, srv, handlers)
