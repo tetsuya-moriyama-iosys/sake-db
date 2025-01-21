@@ -2,7 +2,6 @@ import { fileURLToPath, URL } from 'node:url';
 
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
-import { constants } from 'crypto';
 import dotenv from 'dotenv';
 import { defineConfig } from 'vite';
 import vueDevTools from 'vite-plugin-vue-devtools';
@@ -18,11 +17,31 @@ export default defineConfig({
     },
   },
   server: {
-    https: {
-      key: process.env.VITE_SSL_KEY_PATH,
-      cert: process.env.VITE_SSL_CERT_PATH,
-      secureOptions: constants.SSL_OP_NO_TLSv1 | constants.SSL_OP_NO_TLSv1_1,
+    host: true, // 外部からのアクセスを許可
+    port: 5173, // デフォルトの開発サーバーポート
+    strictPort: true,
+    watch: {
+      usePolling: true,
     },
-    port: 5173,
+    hmr: {
+      host: 'localhost',
+      protocol: 'ws', // HTTPS を使用しない場合は `ws`
+      port: 5173,
+    },
+    // proxy: {
+    //   '/api': {
+    //     target: 'https://localhost',
+    //     changeOrigin: true,
+    //     secure: true,
+    //   },
+    // },
   },
+  // server: {
+  //   https: {
+  //     key: process.env.VITE_SSL_KEY_PATH,
+  //     cert: process.env.VITE_SSL_CERT_PATH,
+  //     secureOptions: constants.SSL_OP_NO_TLSv1 | constants.SSL_OP_NO_TLSv1_1,
+  //   },
+  //   port: 5173,
+  // },
 });

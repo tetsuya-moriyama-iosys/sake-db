@@ -26,18 +26,10 @@ func Router(srv *handler.Server, handlers *handlers.Handlers) *gin.Engine {
 	/// ルート設定
 	configureRoutes(r, srv, handlers)
 
-	// 環境変数からパスを取得
-	certPath := os.Getenv("SSL_CERT_PATH")
-	keyPath := os.Getenv("SSL_KEY_PATH")
-
-	if certPath == "" || keyPath == "" {
-		log.Fatal("SSL_CERT_PATH or SSL_KEY_PATH is not set")
-	}
-
 	// HTTPSサーバーの起動
-	if err := r.RunTLS(":8080", certPath, keyPath); err != nil {
-		log.Fatalf("Failed to start server: %s", err)
-	}
+	//if err := r.RunTLS(":8080", certPath, keyPath); err != nil {
+	//	log.Fatalf("Failed to start server: %s", err)
+	//}
 
 	return r
 }
@@ -58,7 +50,7 @@ func corsMiddleware(frontURI string) gin.HandlerFunc {
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept"},
 		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
+		AllowCredentials: true, // クッキーを有効にする
 		MaxAge:           12 * time.Hour,
 	}
 	return cors.New(config)
