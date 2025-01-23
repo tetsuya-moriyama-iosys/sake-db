@@ -33,7 +33,7 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphModel.Re
 	user := userRepository.Model{
 		ID:          primitive.NewObjectID(),
 		Name:        input.Name,
-		Email:       input.Email,
+		Email:       &input.Email,
 		Password:    hashedPassword,
 		ImageBase64: input.ImageBase64,
 		Profile:     input.Profile,
@@ -48,7 +48,7 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphModel.Re
 
 	//ログイン処理を流用する
 	u, err := r.Login(ctx, graphModel.LoginInput{
-		Email:    newUser.Email,
+		Email:    *newUser.Email,
 		Password: *input.Password,
 	})
 	if err != nil {
@@ -88,7 +88,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input graphModel.Regi
 	user := &userRepository.Model{
 		ID:          oldUser.ID,
 		Name:        input.Name,
-		Email:       input.Email,
+		Email:       &input.Email,
 		Password:    newPassword,
 		ImageBase64: input.ImageBase64,
 		Profile:     input.Profile,
@@ -136,7 +136,7 @@ func (r *mutationResolver) ResetExe(ctx context.Context, token string, password 
 	}
 	//ログイン処理も同時にする(トークン発行が必要)
 	lUser, err := r.Login(ctx, graphModel.LoginInput{
-		Email:    user.Email,
+		Email:    *user.Email,
 		Password: password,
 	})
 	if err != nil {

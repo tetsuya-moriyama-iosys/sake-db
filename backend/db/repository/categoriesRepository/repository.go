@@ -58,7 +58,7 @@ func (r *CategoryRepository) GetCategoryByID(ctx context.Context, id int) (*Mode
 	var result Model
 	err := r.collection.FindOne(ctx, bson.M{"id": id}).Decode(&result)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
+		if errors.Is(err, mongo.ErrNoDocuments) {
 			return nil, errors.New("category not found")
 		}
 		return nil, err

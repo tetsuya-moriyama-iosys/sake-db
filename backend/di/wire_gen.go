@@ -7,6 +7,7 @@
 package di
 
 import (
+	"backend/api"
 	"backend/api/post/categoryPost"
 	"backend/api/post/liquorPost"
 	"backend/db"
@@ -46,8 +47,9 @@ func InitializeHandler() (*gin.Engine, error) {
 		return nil, err
 	}
 	handler := liquorPost.NewHandler(database, s3S3, categoryRepository, liquorsRepository)
-	categoryPostHandler := categoryPost.NewHandler(database, s3S3, categoryRepository, liquorsRepository)
-	handlersHandlers := handlers.NewHandlers(handler, categoryPostHandler)
+	categoryPostHandler := categoryPost.NewHandler(database, s3S3, categoryRepository)
+	userHandler := api.NewUserHandler(database, usersRepository)
+	handlersHandlers := handlers.NewHandlers(handler, categoryPostHandler, userHandler)
 	engine := router.Router(server, handlersHandlers)
 	return engine, nil
 }

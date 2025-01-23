@@ -29,3 +29,13 @@ func ImageToBase64(img image.Image, option *Base64Option) (*string, error) {
 
 	return imageBase64, nil
 }
+
+func GenerateBase64Option(h int, w int) *Base64Option {
+	height := uint(h)
+	width := uint(w)
+	option := Base64Option{
+		MaxHeight: &height,
+		MaxWidth:  &width,
+	}
+	return &option
+}

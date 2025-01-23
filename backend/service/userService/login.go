@@ -26,11 +26,25 @@ func Login(ctx context.Context, input graphModel.LoginInput, r *userRepository.U
 	}
 
 	// パスワード検証
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
+	err = bcrypt.CompareHashAndPassword(user.Password, []byte(input.Password))
 	if err != nil {
 		return nil, errors.New("メールアドレスもしくはパスワードが間違っています。")
 	}
 
+	// JWTトークン生成
+	tokenString, err := GetJWTToken(user)
+	if err != nil {
+		return nil, err
+	}
+	result := &UserWithToken{
+		User:  user,
+		Token: tokenString,
+	}
+	return result, nil
+}
+
+// GetJWTToken 指定されたユーザーのJWTトークンを発行する
+func GetJWTToken(user *userRepository.Model) (string, error) {
 	// JWTトークン生成
 	expirationTime := time.Now().Add(time.Duration(ExpireTime) * time.Minute)
 	claims := &middlewares.Claims{
@@ -42,14 +56,7 @@ func Login(ctx context.Context, input graphModel.LoginInput, r *userRepository.U
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(middlewares.JwtKey)
-	if err != nil {
-		return nil, err
-	}
-	result := &UserWithToken{
-		User:  user,
-		Token: tokenString,
-	}
-	return result, nil
+	return tokenString, err
 }
 
 func (u *UserWithToken) ToGraphQL() *graphModel.AuthPayload {

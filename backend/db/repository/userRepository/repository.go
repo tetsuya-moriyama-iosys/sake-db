@@ -60,9 +60,9 @@ func (r *UsersRepository) GetByEmail(ctx context.Context, email string) (*Model,
 
 func (r *UsersRepository) GetById(ctx context.Context, id primitive.ObjectID) (*Model, error) {
 	// コレクションを取得
-	var liquor Model
-	if err := r.collection.FindOne(ctx, bson.M{Id: id}).Decode(&liquor); err != nil {
-		if err == mongo.ErrNoDocuments {
+	var user Model
+	if err := r.collection.FindOne(ctx, bson.M{Id: id}).Decode(&user); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
 			// ドキュメントが見つからない場合、nilを返す（エラーにはしない）
 			return nil, nil
 		}
@@ -70,7 +70,20 @@ func (r *UsersRepository) GetById(ctx context.Context, id primitive.ObjectID) (*
 		return nil, err
 	}
 
-	return &liquor, nil
+	return &user, nil
+}
+
+func (r *UsersRepository) GetByTwitterId(ctx context.Context, id string) (*Model, error) {
+	// コレクションを取得
+	var user Model
+	if err := r.collection.FindOne(ctx, bson.M{TwitterId: id}).Decode(&user); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			// ドキュメントが見つからない場合、nilを返す（エラーにはしない）
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &user, nil
 }
 
 func (r *UsersRepository) SetPasswordToken(ctx context.Context, email string, token string) error {
