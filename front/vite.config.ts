@@ -18,11 +18,20 @@ export default defineConfig({
     },
   },
   server: {
-    https: {
-      key: process.env.VITE_SSL_KEY_PATH,
-      cert: process.env.VITE_SSL_CERT_PATH,
-      secureOptions: constants.SSL_OP_NO_TLSv1 | constants.SSL_OP_NO_TLSv1_1,
+    proxy: {
+      '/api': {
+        target: 'https://localhost',
+        changeOrigin: true,
+        secure: true,
+      },
     },
-    port: 5173,
   },
+  // server: {
+  //   https: {
+  //     key: process.env.VITE_SSL_KEY_PATH,
+  //     cert: process.env.VITE_SSL_CERT_PATH,
+  //     secureOptions: constants.SSL_OP_NO_TLSv1 | constants.SSL_OP_NO_TLSv1_1,
+  //   },
+  //   port: 5173,
+  // },
 });

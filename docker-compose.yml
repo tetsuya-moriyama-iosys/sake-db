@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   front:
     build:
@@ -44,6 +42,19 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
     volumes:
       - mongo-data:/data/db
+
+  proxy:
+    image: nginx:alpine
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./proxy:/etc/nginx/conf.d
+      - ./.ssl:/etc/ssl/certs
+      - ./.ssl:/etc/ssl/private
+    depends_on:
+      - front
+      - backend
 
 volumes:
   mongo-data:
