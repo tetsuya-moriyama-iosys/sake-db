@@ -14,5 +14,6 @@ COPY . .
 EXPOSE 3000
 
 # submithunnderの型エラーは無視すべきなので
-RUN npm run type-check || true
-RUN npm run build
+#RUN npm run type-check || true
+#RUN npm run build
+ENTRYPOINT ["/app/entrypoint.sh"]
