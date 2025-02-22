@@ -13,11 +13,11 @@ import { ref } from 'vue';
 
 import YesNoDialog from '@/components/parts/common/CommonDialog/Variations/YesNoDialog.vue';
 import CommonTag from '@/components/parts/common/CommonTag/CommonTag.vue';
-import { useMutation } from '@/funcs/composable/useQuery';
+import { useMutation } from '@/funcs/composable/useQuery/useQuery';
 import { useToast } from '@/funcs/composable/useToast';
 import type { Tag } from '@/graphQL/Liquor/liquor';
 import { DeleteTag } from '@/graphQL/Liquor/tags';
-import { useUserStore } from '@/stores/userStore';
+import { useUserStore } from '@/stores/userStore/userStore';
 const { user } = useUserStore();
 const toast = useToast();
 const { execute } = useMutation(DeleteTag, {

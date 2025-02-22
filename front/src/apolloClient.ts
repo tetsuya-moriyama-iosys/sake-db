@@ -1,8 +1,9 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client/core';
 
 const client = new ApolloClient({
-  uri: 'http://localhost:8080/query', // GraphQLサーバーのURL
+  uri: import.meta.env.VITE_API_URL + '/query', // GraphQLサーバーのURL
   cache: new InMemoryCache(),
+  dataMasking: false,
 });
 
 export default client;

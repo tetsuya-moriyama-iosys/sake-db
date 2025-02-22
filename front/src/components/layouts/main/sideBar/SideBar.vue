@@ -23,7 +23,7 @@ import { computed, type ComputedRef, onMounted, ref, watch } from 'vue';
 
 import CategoryParent from '@/components/layouts/main/sideBar/CategoryParent.vue';
 import { getDisplayCategoryIds } from '@/components/layouts/main/sideBar/func/sideBarFunc';
-import useQuery from '@/funcs/composable/useQuery';
+import useQuery from '@/funcs/composable/useQuery/useQuery';
 import {
   type Categories,
   type Category,

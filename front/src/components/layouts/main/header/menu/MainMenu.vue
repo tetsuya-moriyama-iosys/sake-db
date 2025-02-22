@@ -35,7 +35,7 @@
 import { Menu, MenuButton, MenuItems } from '@headlessui/vue';
 
 import { useToast } from '@/funcs/composable/useToast';
-import { useUserStore } from '@/stores/userStore';
+import { useUserStore } from '@/stores/userStore/userStore';
 
 import MenuItem from './MenuItem.vue';
 

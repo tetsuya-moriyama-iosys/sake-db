@@ -14,6 +14,7 @@ import (
 	"backend/db/repository/flavorMapRepository"
 	"backend/db/repository/liquorRepository"
 	"backend/db/repository/userRepository"
+	"backend/service/authService/tokenConfig"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 )
@@ -21,6 +22,7 @@ import (
 func InitializeHandler() (*gin.Engine, error) {
 	// それぞれのnewインスタンスの生成ロジックを並べる
 	wire.Build(
+		tokenConfig.NewTokenConfig,
 		BasicSet,
 		//REST APIのハンドラ
 		liquorPost.NewHandler,

@@ -13,7 +13,7 @@
 import { onMounted, ref } from 'vue';
 
 import UserList from '@/components/blocks/common/userPage/UserList.vue';
-import useQuery from '@/funcs/composable/useQuery';
+import useQuery from '@/funcs/composable/useQuery/useQuery';
 import {
   type Bookmark,
   BOOKMARKED_LIST,

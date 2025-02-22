@@ -20,6 +20,7 @@ import (
 	"backend/graph"
 	"backend/graph/resolver"
 	"backend/router"
+	"backend/service/authService/tokenConfig"
 	"backend/util/amazon/s3"
 	"github.com/gin-gonic/gin"
 )
@@ -40,7 +41,8 @@ func InitializeHandler() (*gin.Engine, error) {
 	flavorMapRepositoryFlavorMapRepository := flavorMapRepository.NewFlavorMapRepository(dbDB)
 	flavorMapMasterRepository := flavorMapRepository.NewFlavorMapMasterRepository(dbDB)
 	flavorToLiquorRepository := flavorMapRepository.NewFlavorToLiquorRepository(dbDB)
-	resolverResolver := resolver.NewResolver(database, categoryRepository, liquorsRepository, usersRepository, bookMarkRepository, flavorMapRepositoryFlavorMapRepository, flavorMapMasterRepository, flavorToLiquorRepository)
+	tokenConfigTokenConfig := tokenConfig.NewTokenConfig()
+	resolverResolver := resolver.NewResolver(database, categoryRepository, liquorsRepository, usersRepository, bookMarkRepository, flavorMapRepositoryFlavorMapRepository, flavorMapMasterRepository, flavorToLiquorRepository, tokenConfigTokenConfig)
 	server := graph.NewGraphQLServer(resolverResolver)
 	s3S3, err := s3.NewS3Client()
 	if err != nil {
@@ -49,7 +51,7 @@ func InitializeHandler() (*gin.Engine, error) {
 	handler := liquorPost.NewHandler(database, s3S3, categoryRepository, liquorsRepository)
 	categoryPostHandler := categoryPost.NewHandler(database, s3S3, categoryRepository)
 	userHandler := api.NewUserHandler(database, usersRepository)
-	handlersHandlers := handlers.NewHandlers(handler, categoryPostHandler, userHandler)
+	handlersHandlers := handlers.NewHandlers(handler, categoryPostHandler, tokenConfigTokenConfig)
 	engine := router.Router(server, handlersHandlers)
 	return engine, nil
 }

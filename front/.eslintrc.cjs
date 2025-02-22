@@ -29,8 +29,14 @@ module.exports = {
         endOfLine: 'auto',
       },
     ],
-    'no-unused-vars': 'error',
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    'no-unused-vars': [
+      'error',
+      { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+    ],
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+    ],
     'simple-import-sort/imports': 'error',
   },
   overrides: [
@@ -38,6 +44,12 @@ module.exports = {
       files: ['tailwind.config.js', 'postcss.config.js'],
       rules: {
         '@typescript-eslint/no-var-requires': 'off',
+      },
+    },
+    {
+      files: ['src/graphQL/auto-generated.ts'],
+      rules: {
+        all: 'off',
       },
     },
   ],

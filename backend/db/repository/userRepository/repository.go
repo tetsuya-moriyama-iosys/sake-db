@@ -24,7 +24,7 @@ func NewUsersRepository(db *db.DB) UsersRepository {
 }
 
 func (r *UsersRepository) Register(ctx context.Context, user *Model) (*Model, error) {
-	// MongoDBにデータを挿入(emailが重複していたらエラーを返すはず)
+	// MongoDBにデータを挿入
 	result, err := r.collection.InsertOne(ctx, user)
 	if err != nil {
 		return nil, err
