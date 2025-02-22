@@ -14,8 +14,6 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue';
-
 import RadiusImage from '@/components/parts/common/RadiusImage.vue';
 import { useUserStore } from '@/stores/userStore/userStore';
 

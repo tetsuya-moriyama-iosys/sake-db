@@ -1,4 +1,3 @@
-import { stripTypeName } from '@/funcs/util/stripTypeName';
 import type { GetMyDataFullQuery } from '@/graphQL/auto-generated';
 
 export const Roles = {

@@ -2,34 +2,16 @@ package router
 
 import (
 	"backend/di/handlers"
+	"context"
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
+	"log"
+	"net/http"
 )
 
 // ルートの設定
-func configureRoutes(r *gin.Engine, srv *handler.Server, handlers *handlers.Handlers) {
-	// 酒データの投稿
-	r.POST("/post", func(c *gin.Context) {
-		id, err := handlers.LiquorHandler.Post(c)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-		// 正常なレスポンス
-		c.JSON(http.StatusOK, gin.H{"id": *id})
-	})
-
-	// カテゴリデータの投稿
-	r.POST("/category/post", func(c *gin.Context) {
-		id, err := handlers.CategoryHandler.Post(c)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-		// 正常なレスポンス
-		c.JSON(http.StatusOK, gin.H{"id": *id})
-	})
-
+func graphRoutes(r *gin.Engine, srv *handler.Server, handlers *handlers.Handlers) {
 	// GraphQLインターフェース
 	r.POST("/query", func(c *gin.Context) {
 		defer func() {
@@ -44,8 +26,6 @@ func configureRoutes(r *gin.Engine, srv *handler.Server, handlers *handlers.Hand
 		}()
 		// Ginのコンテキストからリクエストを取り出し、GraphQLの`context`にセット
 		ctx := context.WithValue(c.Request.Context(), "http.Request", c.Request)
-		ctx = context.WithValue(ctx, "http.ResponseWriter", c.Writer) //クッキー用
-		ctx = context.WithValue(ctx, "handlers", handlers)
 
 		// GraphQLサーバーにリクエストを渡す
 		srv.ServeHTTP(c.Writer, c.Request.WithContext(ctx))
@@ -53,8 +33,4 @@ func configureRoutes(r *gin.Engine, srv *handler.Server, handlers *handlers.Hand
 	r.GET("/query", func(c *gin.Context) {
 		playground.Handler("GraphQL", "/query").ServeHTTP(c.Writer, c.Request)
 	})
-    // TODO: add_ssoにあったもの
-	apiRoutes(r, srv, handlers)
-	oauthRoutes(r, srv, handlers)
-	graphRoutes(r, srv, handlers)
 }
