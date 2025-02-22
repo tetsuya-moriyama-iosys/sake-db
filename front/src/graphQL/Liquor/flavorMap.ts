@@ -32,7 +32,7 @@ export type Coordinates = {
 };
 
 export const GetFlavorMap: DocumentNode = gql`
-  query ($liquorId: ID!) {
+  query getFlavorMap($liquorId: ID!) {
     getFlavorMap(liquorId: $liquorId) {
       categoryId
       xNames
@@ -51,13 +51,13 @@ export const GetFlavorMap: DocumentNode = gql`
 `;
 
 export const PostFlavorMap: DocumentNode = gql`
-  mutation ($input: PostFlavorMap!) {
+  mutation postFlavor($input: PostFlavorMap!) {
     postFlavor(input: $input)
   }
 `;
 
 export const GetVoted: DocumentNode = gql`
-  query ($liquorId: ID!) {
+  query getVoted($liquorId: ID!) {
     getVoted(liquorId: $liquorId) {
       x
       y

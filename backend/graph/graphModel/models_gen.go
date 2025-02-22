@@ -20,8 +20,8 @@ type AffiliateItem struct {
 }
 
 type AuthPayload struct {
-	Token string `json:"token"`
-	User  *User  `json:"user"`
+	AccessToken string `json:"accessToken"`
+	User        *User  `json:"user"`
 }
 
 type BoardInput struct {
@@ -180,12 +180,12 @@ type TagInput struct {
 }
 
 type User struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Email       string    `json:"email"`
-	Profile     *string   `json:"profile,omitempty"`
-	ImageBase64 *string   `json:"imageBase64,omitempty"`
-	Roles       []*string `json:"roles"`
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	Email       string   `json:"email"`
+	Profile     *string  `json:"profile,omitempty"`
+	ImageBase64 *string  `json:"imageBase64,omitempty"`
+	Roles       []string `json:"roles,omitempty"`
 }
 
 type UserEvaluateList struct {

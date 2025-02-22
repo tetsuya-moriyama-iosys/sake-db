@@ -19,7 +19,7 @@ import { onMounted, ref } from 'vue';
 
 import CardContainer from '@/components/parts/common/CardContainer.vue';
 import { DEFAULT_GET_LIMIT } from '@/const/indexConsts';
-import useQuery from '@/funcs/composable/useQuery';
+import useQuery from '@/funcs/composable/useQuery/useQuery';
 import {
   type Recommend,
   RECOMMEND_LIST_FROM_BOOKMARK,

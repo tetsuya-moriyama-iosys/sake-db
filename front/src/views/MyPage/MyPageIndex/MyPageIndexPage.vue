@@ -3,10 +3,10 @@
 </template>
 
 <script setup lang="ts">
-import { getUserDetail } from '@/views/MyPage/funcs';
+import { useUserDetail } from '@/views/MyPage/funcs';
 import MyPageIndex from '@/views/MyPage/MyPageIndex/MyPageIndex.vue';
 
-const { user } = getUserDetail();
+const { user } = useUserDetail();
 </script>
 
 <style scoped></style>

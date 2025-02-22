@@ -16,10 +16,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 
-import useQuery from '@/funcs/composable/useQuery';
+import useQuery from '@/funcs/composable/useQuery/useQuery';
 import type { Tag } from '@/graphQL/Liquor/liquor';
 import { FetchTags, type GetTagsResponse } from '@/graphQL/Liquor/tags';
-import { useUserStore } from '@/stores/userStore';
+import { useUserStore } from '@/stores/userStore/userStore';
 import LiquorTag from '@/views/Discovery/Details/Liquor/tag/LiquorTag.vue';
 import TagInput from '@/views/Discovery/Details/Liquor/tag/TagInput.vue';
 

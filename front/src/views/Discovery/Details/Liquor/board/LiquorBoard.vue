@@ -6,7 +6,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 
-import useQuery from '@/funcs/composable/useQuery';
+import useQuery from '@/funcs/composable/useQuery/useQuery';
 import {
   type BoardResponse,
   GET_BOARD,

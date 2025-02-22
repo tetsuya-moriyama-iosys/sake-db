@@ -4,13 +4,14 @@ import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import dotenv from 'dotenv';
 import { defineConfig } from 'vite';
+import graphql from 'vite-plugin-graphql-loader';
 import vueDevTools from 'vite-plugin-vue-devtools';
 
 dotenv.config(); // .env ファイルをロード
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue(), vueJsx(), vueDevTools()],
+  plugins: [vue(), vueJsx(), vueDevTools(), graphql()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -28,20 +29,13 @@ export default defineConfig({
       protocol: 'ws', // HTTPS を使用しない場合は `ws`
       port: 5173,
     },
-    // proxy: {
-    //   '/api': {
-    //     target: 'https://localhost',
-    //     changeOrigin: true,
-    //     secure: true,
-    //   },
-    // },
+    proxy: {
+      '/api': {
+        target: 'https://localhost', // リバースプロキシ
+        changeOrigin: true, // クロスオリジンヘッダーを正しく設定
+        secure: false, // HTTPSでない場合はfalseに
+        //cookieDomainRewrite: 'localhost', // クッキーのドメインをローカルホストに書き換え
+      },
+    },
   },
-  // server: {
-  //   https: {
-  //     key: process.env.VITE_SSL_KEY_PATH,
-  //     cert: process.env.VITE_SSL_CERT_PATH,
-  //     secureOptions: constants.SSL_OP_NO_TLSv1 | constants.SSL_OP_NO_TLSv1_1,
-  //   },
-  //   port: 5173,
-  // },
 });

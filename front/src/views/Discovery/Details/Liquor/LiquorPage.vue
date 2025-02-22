@@ -7,7 +7,7 @@
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
-import useQuery from '@/funcs/composable/useQuery';
+import useQuery from '@/funcs/composable/useQuery/useQuery';
 import {
   type Liquor,
   LIQUOR_DETAIL_GET,

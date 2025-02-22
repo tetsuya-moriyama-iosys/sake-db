@@ -25,7 +25,7 @@ export interface RemoveResponse {
 }
 
 export const LIST: DocumentNode = gql`
-  query {
+  query getBookMarkList {
     getBookMarkList {
       userId
       name
@@ -37,7 +37,7 @@ export const LIST: DocumentNode = gql`
 
 //被ブックマークのリスト
 export const BOOKMARKED_LIST: DocumentNode = gql`
-  query ($id: ID!) {
+  query getBookMarkedList($id: ID!) {
     getBookMarkedList(id: $id) {
       userId
       name
@@ -48,18 +48,18 @@ export const BOOKMARKED_LIST: DocumentNode = gql`
 `;
 
 export const CHECK: DocumentNode = gql`
-  query ($id: String!) {
+  query getIsBookMarked($id: String!) {
     getIsBookMarked(id: $id)
   }
 `;
 
 export const ADD: DocumentNode = gql`
-  mutation ($id: String!) {
+  mutation addBookMark($id: String!) {
     addBookMark(id: $id)
   }
 `;
 export const REMOVE: DocumentNode = gql`
-  mutation ($id: String!) {
+  mutation removeBookMark($id: String!) {
     removeBookMark(id: $id)
   }
 `;

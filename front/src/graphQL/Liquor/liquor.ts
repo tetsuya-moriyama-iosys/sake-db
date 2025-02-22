@@ -38,7 +38,7 @@ export type LiquorForEdit = Omit<
 >;
 
 export const LIQUOR_DETAIL_GET: DocumentNode = gql`
-  query ($id: String!) {
+  query liquor($id: String!) {
     liquor(id: $id) {
       id
       name
@@ -59,7 +59,7 @@ export const LIQUOR_DETAIL_GET: DocumentNode = gql`
 `;
 
 export const LIQUOR_LIST_FROM_CATEGORY: DocumentNode = gql`
-  query ($id: Int!) {
+  query listFromCategory($id: Int!) {
     listFromCategory(categoryId: $id) {
       categoryName
       categoryDescription

@@ -16,7 +16,7 @@ import { string } from 'yup';
 
 import FormField from '@/components/parts/forms/core/FormField.vue';
 import SubmitButton from '@/components/parts/forms/core/SubmitButton.vue';
-import { useMutation } from '@/funcs/composable/useQuery';
+import { useMutation } from '@/funcs/composable/useQuery/useQuery';
 import { useToast } from '@/funcs/composable/useToast';
 import { PASSWORD_RESET } from '@/graphQL/Auth/auth';
 import { ToastType } from '@/plugins/toast';

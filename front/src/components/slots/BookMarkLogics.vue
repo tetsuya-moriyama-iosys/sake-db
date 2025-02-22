@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 
-import { useMutation, useQuery } from '@/funcs/composable/useQuery';
+import { useMutation, useQuery } from '@/funcs/composable/useQuery/useQuery';
 import {
   ADD,
   type AddResponse,
@@ -14,7 +14,7 @@ import {
   REMOVE,
   type RemoveResponse,
 } from '@/graphQL/Bookmark/bookmark';
-import { useUserStore } from '@/stores/userStore';
+import { useUserStore } from '@/stores/userStore/userStore';
 
 const userStore = useUserStore();
 const isBookmarked = ref<boolean>(false);

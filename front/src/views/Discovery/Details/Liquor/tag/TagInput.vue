@@ -35,7 +35,7 @@ import CommonButton from '@/components/parts/common/CommonButton/CommonButton.vu
 import CommonDialog from '@/components/parts/common/CommonDialog/CommonDialog.vue';
 import FormField from '@/components/parts/forms/core/FormField.vue';
 import SubmitButton from '@/components/parts/forms/core/SubmitButton.vue';
-import { useMutation } from '@/funcs/composable/useQuery';
+import { useMutation } from '@/funcs/composable/useQuery/useQuery';
 import { useToast } from '@/funcs/composable/useToast';
 import {
   PostTag,

@@ -15,7 +15,7 @@ import { onMounted, ref } from 'vue';
 
 import AffiliateCard from '@/components/blocks/common/amazon/AffiliateCard.vue';
 import CardContainer from '@/components/parts/common/CardContainer.vue';
-import useQuery from '@/funcs/composable/useQuery';
+import useQuery from '@/funcs/composable/useQuery/useQuery';
 import {
   type AffiliateData,
   type AffiliateResponse,
