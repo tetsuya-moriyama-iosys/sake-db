@@ -31,10 +31,10 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:8080', // バックエンドのポート
+        target: 'https://localhost', // リバースプロキシ
         changeOrigin: true, // クロスオリジンヘッダーを正しく設定
         secure: false, // HTTPSでない場合はfalseに
-        cookieDomainRewrite: 'localhost', // クッキーのドメインをローカルホストに書き換え
+        //cookieDomainRewrite: 'localhost', // クッキーのドメインをローカルホストに書き換え
       },
     },
   },

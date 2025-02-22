@@ -1,5 +1,5 @@
 # front/.devcontainer/Dockerfile
-FROM node:latest AS builder
+FROM node:23.8.0-slim AS builder
 
 WORKDIR /app
 
