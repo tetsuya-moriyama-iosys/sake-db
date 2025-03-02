@@ -23,7 +23,7 @@ extend type Mutation {
   login(input: LoginInput!): AuthPayload!
   refreshToken: String!
   loginWithRefreshToken: AuthPayload!
-  logout: Boolean! @auth # TODO: リフレッシュトークンの削除
+  logout: Boolean! @auth
   resetEmail(email:String!):Boolean!
   resetExe(token:String!,password:String!): AuthPayload! #一旦ログインさせる方針に
 }

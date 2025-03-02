@@ -16,6 +16,7 @@
     "fetch-schema": "get-graphql-schema http://localhost:8080/query > schema.graphql"
   },
   "dependencies": {
+    "@auth0/auth0-vue": "^2.3.3",
     "@apollo/client": "^3.12.4",
     "@headlessui/vue": "^1.7.23",
     "@tanstack/vue-query": "^5.52.2",

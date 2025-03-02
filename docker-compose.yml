@@ -16,14 +16,17 @@ services:
     build:
       context: ./backend
       dockerfile: .devcontainer/Dockerfile
-    ports:
-      - "8080:8080"
+    # overrideされないっぽいので一旦コメントアウト
+    # ports:
+    #   - "8080:8080"
+    #   - "40000:40000"
     environment:
       - MONGODB_HOST=mongo
       - MONGODB_PORT=27017
       - MONGODB_DBNAME=${MONGODB_DBNAME}
       - MONGODB_USER=${MONGODB_USER}
       - MONGODB_PASSWORD=${MONGODB_PASSWORD}
+      - NGINX_BACKEND_URL=${NGINX_BACKEND_URL}
     depends_on:
       - mongo
     volumes:
@@ -53,6 +56,6 @@ services:
     depends_on:
       - front
       - backend
-
+    
 volumes:
   mongo-data:

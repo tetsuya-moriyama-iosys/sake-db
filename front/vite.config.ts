@@ -18,7 +18,7 @@ export default defineConfig({
     },
   },
   server: {
-    host: true, // 外部からのアクセスを許可
+    host: true, // Docker から front にアクセス可能にする
     port: 5173, // デフォルトの開発サーバーポート
     strictPort: true,
     watch: {
@@ -33,7 +33,7 @@ export default defineConfig({
       '/api': {
         target: 'https://localhost', // リバースプロキシ
         changeOrigin: true, // クロスオリジンヘッダーを正しく設定
-        secure: false, // HTTPSでない場合はfalseに
+        secure: false, // Nginxの内部通信はHTTPのため false のままでOK
         //cookieDomainRewrite: 'localhost', // クッキーのドメインをローカルホストに書き換え
       },
     },

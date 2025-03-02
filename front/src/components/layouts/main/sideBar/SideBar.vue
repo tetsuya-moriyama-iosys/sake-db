@@ -21,8 +21,8 @@
 <script setup lang="ts">
 import { computed, type ComputedRef, onMounted, ref, watch } from 'vue';
 
-import CategoryParent from '@/components/layouts/main/SideBar/CategoryParent.vue';
-import { getDisplayCategoryIds } from '@/components/layouts/main/SideBar/func/sideBarFunc';
+import CategoryParent from '@/components/layouts/main/sideBar/CategoryParent.vue';
+import { getDisplayCategoryIds } from '@/components/layouts/main/sideBar/func/sideBarFunc';
 import useQuery from '@/funcs/composable/useQuery/useQuery';
 import {
   type Categories,
