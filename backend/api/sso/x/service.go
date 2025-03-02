@@ -2,7 +2,8 @@ package x
 
 import (
 	"backend/db/repository/userRepository"
-	"backend/service/userService"
+	"backend/di/handlers"
+	"backend/service/authService"
 	"backend/util/helper"
 	"encoding/json"
 	"errors"
@@ -39,7 +40,7 @@ func getUserData(c *gin.Context) (*TwitterUser, error) {
 	return &userInfo, nil
 }
 
-func createNewUser(c *gin.Context, repo userRepository.UsersRepository, xUser *TwitterUser) (*userRepository.Model, error) {
+func createNewUser(c *gin.Context, h *handlers.Handlers, xUser *TwitterUser) (*userRepository.Model, error) {
 	//画像データを取得する
 	img, err := helper.FetchImageFromURL(xUser.Image)
 	if err != nil {
@@ -54,28 +55,25 @@ func createNewUser(c *gin.Context, repo userRepository.UsersRepository, xUser *T
 		ID:          primitive.NewObjectID(),
 		Name:        xUser.Name,
 		Email:       nil,
-		Password:    []byte(helper.RandomStr(8)),
+		Password:    []byte(helper.RandomStr(8)), // 暫定で入れておく(が、ハッシュ化してないので無意味な値)
 		TwitterId:   &xUser.ID,
 		ImageBase64: base64,
 	}
-	newUser, err := repo.Register(c, user)
+	newUser, err := h.UserHandler.UserRepo.Register(c, user)
 	if err != nil {
 		return nil, err
 	}
 	return newUser, nil
 }
 
-func createUserAndLogin(c *gin.Context, repo userRepository.UsersRepository, xUser *TwitterUser) (*userService.UserWithToken, error) {
-	newUser, err := createNewUser(c, repo, xUser)
+func createUserAndLogin(c *gin.Context, h *handlers.Handlers, xUser *TwitterUser) (*authService.UserWithToken, error) {
+	newUser, err := createNewUser(c, h, xUser)
 	if err != nil {
 		return nil, err
 	}
-	//JWTトークンを発行
-	token, err := userService.GetJWTToken(newUser)
-
-	result := &userService.UserWithToken{
-		User:  newUser,
-		Token: token,
+	res, err := authService.LoginByUser(newUser, c.Writer, *h.TokenConfig)
+	if err != nil {
+		return nil, err
 	}
-	return result, nil
+	return res, nil
 }

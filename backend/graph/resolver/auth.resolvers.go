@@ -33,7 +33,7 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphModel.Re
 	user := userRepository.Model{
 		ID:          primitive.NewObjectID(),
 		Name:        input.Name,
-		Email:       input.Email,
+		Email:       &input.Email,
 		Password:    hashedPassword,
 		ImageBase64: input.ImageBase64,
 		Profile:     input.Profile,
@@ -54,7 +54,7 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphModel.Re
 
 	//ログイン処理を流用する
 	u, err := r.Login(ctx, graphModel.LoginInput{
-		Email:    newUser.Email,
+		Email:    *newUser.Email,
 		Password: *input.Password,
 	})
 	if err != nil {
@@ -64,53 +64,53 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphModel.Re
 }
 
 // UpdateUser is the resolver for the updateUser field.
-func (r *mutationResolver) UpdateUser(ctx context.Context, input graphModel.RegisterInput) (bool, error) {
-	loginUser, err := userService.GetUserData(ctx, r.UserRepo) //未ログイン状態ならuserIDはnilになる
-	if err != nil {
-		return false, err
-	}
-	id := loginUser.ID
-	oldUser, err := r.UserRepo.GetById(ctx, id)
-	if err != nil {
-		return false, err
-	}
-
-	//新しいパスワードを生成する(入力が空であれば前の値を代入する)
-	var newPassword []byte
-
-	if input.Password != nil && len(*input.Password) != 0 { //空文字もnilと同等に扱う
-		if len(*input.Password) < 8 {
-			return false, errors.New("パスワードが短いです")
-		}
-		//パスワードをハッシュする
-		newPassword, err = bcrypt.GenerateFromPassword([]byte(*input.Password), bcrypt.DefaultCost)
-		if err != nil {
-			return false, err
-		}
-	} else {
-		newPassword = oldUser.Password
-	}
-	//ユーザー構造体の定義
-	user := &userRepository.Model{
-		ID:          oldUser.ID,
-		Name:        input.Name,
-		Email:       input.Email,
-		Password:    newPassword,
-		ImageBase64: input.ImageBase64,
-		Profile:     input.Profile,
-	}
-
-	err = r.UserRepo.Update(ctx, user)
-	if err != nil {
-		return false, nil
-	}
-
-	return true, nil
-}
+//func (r *mutationResolver) UpdateUser(ctx context.Context, input graphModel.RegisterInput) (bool, error) {
+//	loginUser, err := userService.GetUserData(ctx, r.UserRepo) //未ログイン状態ならuserIDはnilになる
+//	if err != nil {
+//		return false, err
+//	}
+//	id := loginUser.ID
+//	oldUser, err := r.UserRepo.GetById(ctx, id)
+//	if err != nil {
+//		return false, err
+//	}
+//
+//	//新しいパスワードを生成する(入力が空であれば前の値を代入する)
+//	var newPassword []byte
+//
+//	if input.Password != nil && len(*input.Password) != 0 { //空文字もnilと同等に扱う
+//		if len(*input.Password) < 8 {
+//			return false, errors.New("パスワードが短いです")
+//		}
+//		//パスワードをハッシュする
+//		newPassword, err = bcrypt.GenerateFromPassword([]byte(*input.Password), bcrypt.DefaultCost)
+//		if err != nil {
+//			return false, err
+//		}
+//	} else {
+//		newPassword = oldUser.Password
+//	}
+//	//ユーザー構造体の定義
+//	user := &userRepository.Model{
+//		ID:          oldUser.ID,
+//		Name:        input.Name,
+//		Email:       input.Email,
+//		Password:    newPassword,
+//		ImageBase64: input.ImageBase64,
+//		Profile:     input.Profile,
+//	}
+//
+//	err = r.UserRepo.Update(ctx, user)
+//	if err != nil {
+//		return false, nil
+//	}
+//
+//	return true, nil
+//}
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input graphModel.LoginInput) (*graphModel.AuthPayload, error) {
-	user, err := authService.Login(ctx, getResponseWriter(ctx), input, &r.UserRepo, r.UserTokenConfig)
+	user, err := authService.LoginWithInput(ctx, getResponseWriter(ctx), input, &r.UserRepo, r.UserTokenConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +138,7 @@ func (r *mutationResolver) LoginWithRefreshToken(ctx context.Context) (*graphMod
 
 // Logout is the resolver for the logout field.
 func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
-	return true, authService.DeleteRefreshToken(*getResponseWriter(ctx))
+	return true, authService.DeleteRefreshToken(getResponseWriter(ctx))
 }
 
 // ResetEmail is the resolver for the resetEmail field.
@@ -165,7 +165,7 @@ func (r *mutationResolver) ResetExe(ctx context.Context, token string, password 
 	}
 	//ログイン処理も同時にする(トークン発行が必要)
 	lUser, err := r.Login(ctx, graphModel.LoginInput{
-		Email:    user.Email,
+		Email:    *user.Email,
 		Password: password,
 	})
 	if err != nil {

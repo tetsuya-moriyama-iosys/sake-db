@@ -38,7 +38,7 @@ func parseRefreshToken(req *http.Request, tokenConfig tokenConfig.TokenConfig) (
 }
 
 // リフレッシュトークンを使用してアクセストークンを再生成
-func refreshHandler(req *http.Request, writer *http.ResponseWriter, tokenConfig tokenConfig.TokenConfig) (*string, error) {
+func refreshHandler(req *http.Request, writer http.ResponseWriter, tokenConfig tokenConfig.TokenConfig) (*string, error) {
 	claims, err := parseRefreshToken(req, tokenConfig)
 	if err != nil {
 		return nil, errors.New("invalid claims")

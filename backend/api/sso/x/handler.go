@@ -2,11 +2,12 @@ package x
 
 import (
 	"backend/di/handlers"
-	"backend/service/userService"
+	"backend/service/authService"
 	"crypto/rand"
 	"encoding/base64"
 	"github.com/gin-gonic/gin"
 	"log"
+	"net/http"
 )
 
 // oauthStateString用にランダムな文字列を生成
@@ -30,7 +31,7 @@ func GenerateAuthURL() (*string, error) {
 	return url, nil
 }
 
-func Login(h *handlers.Handlers, c *gin.Context) (*userService.UserWithToken, error) {
+func Login(c *gin.Context, h *handlers.Handlers, writer http.ResponseWriter) (*authService.UserWithToken, error) {
 	//未ログインパターン(既ログインでも後勝ちでJWT発行する)
 	//①新規ユーザー・未ログイン
 	//②未ログインで、twitter連携済の既存ユーザー
@@ -56,17 +57,14 @@ func Login(h *handlers.Handlers, c *gin.Context) (*userService.UserWithToken, er
 	}
 	if user != nil {
 		// 存在すれば、ログイン
-		token, err := userService.GetJWTToken(user)
+		res, err := authService.LoginByUser(user, writer, *h.TokenConfig)
 		if err != nil {
 			return nil, err
 		}
-		return &userService.UserWithToken{
-			User:  user,
-			Token: token,
-		}, nil
+		return res, nil
 	}
 	// 存在しなければ、ユーザーを作成してログイン
-	newUser, err := createUserAndLogin(c, h.UserHandler.UserRepo, xUser)
+	newUser, err := createUserAndLogin(c, h, xUser)
 	if err != nil {
 		return nil, err
 	}

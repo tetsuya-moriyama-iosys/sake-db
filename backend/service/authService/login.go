@@ -30,6 +30,16 @@ func (u *UserWithToken) ToGraphQL() *graphModel.AuthPayload {
 	}
 }
 
+func LoginWithInput(ctx context.Context, writer http.ResponseWriter, input graphModel.LoginInput, r *userRepository.UsersRepository, tokenConfig tokenConfig.TokenConfig) (*UserWithToken, error) {
+	// ユーザーインスタンスを取得
+	user, err := getUserByInput(ctx, input, r)
+	if err != nil {
+		return nil, err
+	}
+
+	return LoginByUser(user, writer, tokenConfig)
+}
+
 func getUserByInput(ctx context.Context, input graphModel.LoginInput, r *userRepository.UsersRepository) (*userRepository.Model, error) {
 	// ユーザーインスタンスを取得
 	user, err := r.GetByEmail(ctx, input.Email)
@@ -45,12 +55,17 @@ func getUserByInput(ctx context.Context, input graphModel.LoginInput, r *userRep
 	return user, nil
 }
 
-func loginById(ctx context.Context, id primitive.ObjectID, writer *http.ResponseWriter, tokenConfig tokenConfig.TokenConfig, r *userRepository.UsersRepository) (*UserWithToken, error) {
+func loginById(ctx context.Context, id primitive.ObjectID, writer http.ResponseWriter, tokenConfig tokenConfig.TokenConfig, r *userRepository.UsersRepository) (*UserWithToken, error) {
 	// ユーザーインスタンスを取得
 	user, err := r.GetById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
+	//UserWithTokenを生成し返す
+	return LoginByUser(user, writer, tokenConfig)
+}
+
+func LoginByUser(user *userRepository.Model, writer http.ResponseWriter, tokenConfig tokenConfig.TokenConfig) (*UserWithToken, error) {
 	// JWTトークン生成
 	accessToken, err := GenerateTokens(writer, user.ID, tokenConfig)
 	if err != nil {

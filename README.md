@@ -1,5 +1,8 @@
 # sake-db
 
+開発用メモ
+docker-compose --env-file .env.development up -d
+
 画面・データは完全なるモックです。
 ## トップページ(ランダムに取得)
 

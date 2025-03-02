@@ -45,7 +45,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input graphModel.Regi
 	user := &userRepository.Model{
 		ID:          oldUser.ID,
 		Name:        input.Name,
-		Email:       input.Email,
+		Email:       &input.Email,
 		Password:    newPassword,
 		ImageBase64: input.ImageBase64,
 		Profile:     input.Profile,

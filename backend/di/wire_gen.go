@@ -51,7 +51,7 @@ func InitializeHandler() (*gin.Engine, error) {
 	handler := liquorPost.NewHandler(database, s3S3, categoryRepository, liquorsRepository)
 	categoryPostHandler := categoryPost.NewHandler(database, s3S3, categoryRepository)
 	userHandler := api.NewUserHandler(database, usersRepository)
-	handlersHandlers := handlers.NewHandlers(handler, categoryPostHandler, tokenConfigTokenConfig)
+	handlersHandlers := handlers.NewHandlers(handler, categoryPostHandler, tokenConfigTokenConfig, userHandler)
 	engine := router.Router(server, handlersHandlers)
 	return engine, nil
 }

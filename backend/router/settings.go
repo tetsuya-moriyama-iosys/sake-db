@@ -15,21 +15,13 @@ func Router(srv *handler.Server, handlers *handlers.Handlers) *gin.Engine {
 	// .envファイルを読み込みます
 	helper.LoadEnv()
 
-	// フロントエンドのURIを取得
-	frontURI := getFrontURI()
-
 	r := gin.Default()
 
 	// CORS設定
-	r.Use(corsMiddleware(frontURI))
+	//r.Use(corsMiddleware(getFrontURI()))
 
 	/// ルート設定
 	configureRoutes(r, srv, handlers)
-
-	// HTTPSサーバーの起動
-	//if err := r.RunTLS(":8080", certPath, keyPath); err != nil {
-	//	log.Fatalf("Failed to start server: %s", err)
-	//}
 
 	return r
 }

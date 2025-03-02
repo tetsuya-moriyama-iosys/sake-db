@@ -53,7 +53,7 @@ export function getCommon<T>(operation: DocumentNode, option?: QueryOption) {
   });
 
   const handleError = (err: Error) => {
-    console.log('handleError: ', err);
+    errorDebug('handleError: ', err);
     errorDebug('エラー：', err.message);
     toast.errorToast((err.message as string) || '不明なエラー');
   };
@@ -113,7 +113,7 @@ export async function challenge<T = unknown>({
     data.value = response;
     return response;
   } catch (err: unknown) {
-    console.log('エラー返却：', err);
+    errorDebug('エラー返却：', err);
     if ((err as Error).message == 'token expired') {
       await refreshToken(); //アクセストークン期限切れの場合、リフレッシュトークンを再取得
 

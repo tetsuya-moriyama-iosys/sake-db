@@ -8,6 +8,7 @@
     <FormField :name="FormKeys.MAIL" label="メールアドレス" type="email" />
     <FormField :name="FormKeys.PASSWORD" label="パスワード" type="password" />
     <SubmitButton>登録</SubmitButton>
+    <XLogin />
   </Form>
 </template>
 
@@ -23,6 +24,7 @@ import { Register } from '@/graphQL/Auth/auth';
 import type { RegisterUserMutation } from '@/graphQL/auto-generated';
 import { getAuthPayloadForUI } from '@/stores/userStore/type';
 import { useUserStore } from '@/stores/userStore/userStore';
+import XLogin from '@/views/Auth/Login/XLogin.vue';
 import {
   FormKeys,
   type FormValues,

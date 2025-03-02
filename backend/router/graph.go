@@ -12,7 +12,6 @@ import (
 
 // ルートの設定
 func graphRoutes(r *gin.Engine, srv *handler.Server, handlers *handlers.Handlers) {
-	// GraphQLインターフェース
 	r.POST("/query", func(c *gin.Context) {
 		defer func() {
 			if r := recover(); r != nil {
@@ -26,6 +25,8 @@ func graphRoutes(r *gin.Engine, srv *handler.Server, handlers *handlers.Handlers
 		}()
 		// Ginのコンテキストからリクエストを取り出し、GraphQLの`context`にセット
 		ctx := context.WithValue(c.Request.Context(), "http.Request", c.Request)
+		ctx = context.WithValue(ctx, "http.ResponseWriter", c.Writer) //クッキー用
+		ctx = context.WithValue(ctx, "handlers", handlers)
 
 		// GraphQLサーバーにリクエストを渡す
 		srv.ServeHTTP(c.Writer, c.Request.WithContext(ctx))

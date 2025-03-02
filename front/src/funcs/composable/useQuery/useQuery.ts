@@ -41,7 +41,7 @@ export function useQuery<T = unknown, V = unknown>(
   ): Promise<T> {
     const { variables, headers } = generate(request, options, option);
 
-    console.log(operationName, '送信データ：', variables);
+    debug(operationName, '送信データ：', variables);
     //ここで例外が投げられるとfetchでキャッチする
     const result = (await client.query<T>({
       ...variables,

@@ -16,13 +16,13 @@ func getHttpRequest(c context.Context) *http.Request {
 	return req
 }
 
-func getResponseWriter(c context.Context) *http.ResponseWriter {
+func getResponseWriter(c context.Context) http.ResponseWriter {
 	// context.Contextからhttp.ResponseWriterを取得
 	writer, ok := c.Value("http.ResponseWriter").(http.ResponseWriter)
 	if !ok {
 		panic("http.ResponseWriterがcontextに存在しません")
 	}
-	return &writer
+	return writer
 }
 
 func getHandler(c context.Context) *handlers.Handlers {
