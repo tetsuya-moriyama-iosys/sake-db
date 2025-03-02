@@ -129,11 +129,11 @@ func (r *mutationResolver) RefreshToken(ctx context.Context) (string, error) {
 
 // LoginWithRefreshToken こちらはリフレッシュトークンを用いてログインするAPI(リロードなどでユーザーデータも同時取得する導線・実質再ログイン)
 func (r *mutationResolver) LoginWithRefreshToken(ctx context.Context) (*graphModel.AuthPayload, error) {
-	user, err := authService.LoginWithRefreshToken(ctx, getHttpRequest(ctx), getResponseWriter(ctx), r.UserTokenConfig, &r.UserRepo)
+	userWithToken, err := authService.LoginWithRefreshToken(ctx, getHttpRequest(ctx), getResponseWriter(ctx), r.UserTokenConfig, &r.UserRepo)
 	if err != nil {
 		return nil, err
 	}
-	return user.ToGraphQL(), nil
+	return userWithToken.ToGraphQL(), nil
 }
 
 // Logout is the resolver for the logout field.

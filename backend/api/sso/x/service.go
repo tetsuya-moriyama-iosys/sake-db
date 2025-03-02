@@ -7,9 +7,12 @@ import (
 	"backend/util/helper"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/oauth2"
+	"io"
+	"net/http"
 )
 
 func getUserData(c *gin.Context) (*TwitterUser, error) {
@@ -31,13 +34,35 @@ func getUserData(c *gin.Context) (*TwitterUser, error) {
 	if err != nil {
 		return nil, errors.New("failed to fetch user info")
 	}
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body) // エラーメッセージを取得
+		return nil, fmt.Errorf("failed to fetch user info: %s", string(body))
+	}
 	defer resp.Body.Close()
 
-	var userInfo TwitterUser
-	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
-		return nil, errors.New("failed to parse user info")
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
-	return &userInfo, nil
+	var result map[string]interface{}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, fmt.Errorf("failed to parse user info: %w", err)
+	}
+
+	// ネストされた `data` の中身だけ取得
+	data, ok := result["data"].(map[string]interface{})
+	if !ok {
+		return nil, errors.New("unexpected response structure: missing 'data'")
+	}
+
+	// 必要な情報を取り出す
+	userInfo := &TwitterUser{
+		ID:    data["id"].(string),
+		Name:  data["name"].(string),
+		Image: data["profile_image_url"].(string),
+	}
+
+	return userInfo, nil
 }
 
 func createNewUser(c *gin.Context, h *handlers.Handlers, xUser *TwitterUser) (*userRepository.Model, error) {

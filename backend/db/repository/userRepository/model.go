@@ -35,7 +35,7 @@ func (m *Model) ToGraphQL() *graphModel.User {
 	return &graphModel.User{
 		ID:          m.ID.Hex(),
 		Name:        m.Name,
-		Email:       *m.Email,
+		Email:       m.Email,
 		ImageBase64: m.ImageBase64,
 		Profile:     m.Profile,
 		Roles:       m.Roles,

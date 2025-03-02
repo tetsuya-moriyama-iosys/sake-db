@@ -57,8 +57,11 @@ func DeleteRefreshToken(writer http.ResponseWriter) error {
 		Name:     refreshTokenName,
 		Value:    "",
 		Expires:  time.Unix(0, 0), // 過去の時刻に設定
-		MaxAge:   -1,              // 即座に削除
+		Path:     "/",
+		MaxAge:   -1, // 即座に削除
+		Secure:   true,
 		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode, // 必要かどうか後で確認
 	})
 	return nil
 }

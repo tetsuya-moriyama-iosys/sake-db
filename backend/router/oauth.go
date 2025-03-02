@@ -7,6 +7,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"os"
 )
 
 // ルートの設定
@@ -36,9 +37,8 @@ func oauthRoutes(r *gin.Engine, srv *handler.Server, handlers *handlers.Handlers
 		}
 
 		// フロントエンドにリダイレクト
-		c.Redirect(http.StatusFound, "http://frontend-app-url/")
-		c.JSON(http.StatusOK, gin.H{"user": user})
-
-		//TODO:JWTトークンのみをクッキーに保存し、認証はストアからJWTトークンを用いた認証を改めて行う(userデータをクッキーに含めたくないため)
+		frontURI := os.Getenv("FRONT_URI")
+		c.Redirect(http.StatusFound, frontURI)
+		c.JSON(http.StatusFound, gin.H{"user": user})
 	})
 }
