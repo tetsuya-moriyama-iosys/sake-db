@@ -9,27 +9,34 @@ import type { APIType } from '@/type/api/APIType/APIType';
 export function useApiMutation<
   Request extends object | null = object,
   Response extends object | null = object,
->(apiType: APIType<Request, Response>) {
+>(
+  apiType: APIType<Request, Response>,
+  options: { isAuth: boolean } = { isAuth: false },
+) {
   const toast = useToast();
   const mutationFn = async (
     data: Request,
   ): Promise<AxiosResponse<Response>> => {
     debug('リクエストdata:', data);
-    return axios({
-      url: apiType.url,
-      method: apiType.method,
-      headers: apiType.headers ?? { 'Content-Type': 'application/json' },
-      data,
-    })
-      .then((response) => {
+    const header = apiType.headers ?? { 'Content-Type': 'application/json' };
+
+    async function run(): Promise<AxiosResponse<Response>> {
+      return axios({
+        url: apiType.url,
+        method: apiType.method,
+        headers: options.isAuth ? { ...header } : header,
+        data,
+      }).then((response) => {
         debug('リクエスト成功 - レスポンス:', response.data);
         return response;
-      })
-      .catch((error) => {
-        //共通のエラートースト処理
-        toast.errorToast(error?.response?.data?.error || '不明なエラー');
-        throw error;
       });
+    }
+
+    return run().catch((error) => {
+      //共通のエラートースト処理
+      toast.errorToast(error?.response?.data?.error || '不明なエラー');
+      throw error;
+    });
   };
 
   return useMutation<AxiosResponse<Response>, unknown, Request>({
