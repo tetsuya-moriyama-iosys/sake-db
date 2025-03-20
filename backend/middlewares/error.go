@@ -19,7 +19,7 @@ func ErrorHandler() gin.HandlerFunc {
 				var customErr *customError.Error
 				if errors.As(e.Err, &customErr) {
 					// エラーログを記録
-					logger.LogError(c.Request.Context(), customErr)
+					logger.LogError(customErr)
 
 					// クライアントにはユーザーフレンドリーなエラーメッセージを返す
 					c.JSON(customErr.StatusCode, gin.H{

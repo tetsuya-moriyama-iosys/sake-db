@@ -4,6 +4,7 @@ import (
 	"backend/customError"
 	"backend/db/repository/errorRepository"
 	"context"
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -38,7 +39,7 @@ func Init(r errorRepository.ErrorsRepository) {
 }
 
 // LogError はエラーをログに記録する
-func LogError(ctx context.Context, err *customError.Error) {
+func LogError(err *customError.Error) {
 	l := logger.WithFields(logrus.Fields{
 		"error_id":   err.ID,
 		"error_code": err.ErrorCode,
@@ -47,14 +48,20 @@ func LogError(ctx context.Context, err *customError.Error) {
 		"location":   err.Location,
 		"timestamp":  err.Timestamp,
 	})
+	fmt.Printf("エラー: %v\n", l)
 
 	// エラーレベルに応じた処理
-	if err.StatusCode >= 500 { // 深刻なエラー（500以上）はDBにも保存
-		_ = writeDB(ctx, err)
-		l.Error("Critical error occurred")
-	} else {
-		l.Warn("non-Critical error occurred")
-	}
+	go func() {
+		ctxTO, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel() // タイムアウト後に `ctx` を解放
+
+		if err.StatusCode >= 500 { // 深刻なエラー（500以上）はDBにも保存
+			_ = writeDB(ctxTO, err)
+			l.Error("Critical error occurred")
+		} else {
+			l.Warn("non-Critical error occurred")
+		}
+	}()
 }
 
 func writeDB(ctx context.Context, err *customError.Error) error {
