@@ -11,6 +11,7 @@ import (
 	"backend/api/post/liquorPost"
 	"backend/db/repository/bookmarkRepository"
 	"backend/db/repository/categoriesRepository"
+	"backend/db/repository/errorRepository"
 	"backend/db/repository/flavorMapRepository"
 	"backend/db/repository/liquorRepository"
 	"backend/db/repository/userRepository"
@@ -36,6 +37,7 @@ func InitializeHandler() (*gin.Engine, error) {
 		flavorMapRepository.NewFlavorMapMasterRepository,
 		flavorMapRepository.NewFlavorMapRepository,
 		flavorMapRepository.NewFlavorToLiquorRepository,
+		errorRepository.New,
 	)
 	return &gin.Engine{}, nil
 }

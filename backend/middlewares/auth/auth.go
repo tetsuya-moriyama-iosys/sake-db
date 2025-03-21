@@ -1,9 +1,11 @@
 package auth
 
 import (
+	"backend/di/handlers"
 	"backend/service/authService/tokenConfig"
 	"context"
 	"errors"
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
@@ -21,45 +23,26 @@ var (
 	ErrTokenExpired = errors.New("token expired")
 )
 
-// AuthenticateJWT JWTの認証ミドルウェア TODO: REST用だが現状使われていなさそう。おそらくログ残す際に必要。
-//func AuthenticateJWT() gin.HandlerFunc {
-//	return func(c *gin.Context) {
-//		authHeader := c.GetHeader("Authorization")
-//		if authHeader == "" {
-//			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is missing"})
-//			c.Abort()
-//			return
-//		}
-//
-//		// "Bearer "プレフィックスを除去してトークンを取得
-//		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-//		claims := &Claims{}
-//		// トークンの解析
-//		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-//			// 署名方法が正しいかチェック
-//			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-//				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-//			}
-//			return JwtKey, nil
-//		})
-//
-//		// トークンが無効または解析に失敗した場合
-//		if err != nil || !token.Valid {
-//			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-//			return
-//		}
-//
-//		// ユーザーIDをコンテキストに保存
-//		if claims, ok := token.Claims.(jwt.MapClaims); ok {
-//			userID := claims["user_id"].(string)
-//			ctx := context.WithValue(c.Request.Context(), UserContextKey, userID)
-//			c.Request = c.Request.WithContext(ctx)
-//		}
-//
-//		c.Set("userId", claims.Id)
-//		c.Next()
-//	}
-//}
+// RESTAuthenticate TODO: REST用
+func RESTAuthenticate(handlers *handlers.Handlers) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		tokenString, err := ExtractTokenFromHeader(c.Request.Context())
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			c.Abort()
+			return
+		}
+		_, err = AuthenticateToken(c, tokenString, *handlers.TokenConfig)
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is missing"})
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}
 
 // ExtractTokenFromHeader JWTトークンを読み込むための関数
 func ExtractTokenFromHeader(ctx context.Context) (string, error) {

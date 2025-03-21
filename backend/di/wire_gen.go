@@ -13,6 +13,7 @@ import (
 	"backend/db"
 	"backend/db/repository/bookmarkRepository"
 	"backend/db/repository/categoriesRepository"
+	"backend/db/repository/errorRepository"
 	"backend/db/repository/flavorMapRepository"
 	"backend/db/repository/liquorRepository"
 	"backend/db/repository/userRepository"
@@ -51,7 +52,8 @@ func InitializeHandler() (*gin.Engine, error) {
 	handler := liquorPost.NewHandler(database, s3S3, categoryRepository, liquorsRepository)
 	categoryPostHandler := categoryPost.NewHandler(database, s3S3, categoryRepository)
 	userHandler := api.NewUserHandler(database, usersRepository)
-	handlersHandlers := handlers.NewHandlers(handler, categoryPostHandler, tokenConfigTokenConfig, userHandler)
+	errorsRepository := errorRepository.New(dbDB)
+	handlersHandlers := handlers.NewHandlers(handler, categoryPostHandler, tokenConfigTokenConfig, userHandler, errorsRepository)
 	engine := router.Router(server, handlersHandlers)
 	return engine, nil
 }

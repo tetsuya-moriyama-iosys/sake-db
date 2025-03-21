@@ -68,8 +68,7 @@ export const useUserStore = defineStore(USER_STORE, () => {
 
       await nextTick(); // nextTickでUIの更新を保証
     } catch (error) {
-      errorDebug('ユーザー情報の取得に失敗しました', error); // トーストは必要ない
-      void logout(); // エラー時はログアウト処理
+      errorDebug('restoreUserData失敗', error); // トーストは必要ない
     }
   }
 
