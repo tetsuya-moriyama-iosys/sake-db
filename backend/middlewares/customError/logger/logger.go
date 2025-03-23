@@ -1,13 +1,15 @@
 package logger
 
 import (
-	"backend/customError"
 	"backend/db/repository/errorRepository"
+	"backend/middlewares/auth"
+	"backend/middlewares/customError"
 	"context"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"gopkg.in/natefinch/lumberjack.v2"
+	"os"
 	"time"
 )
 
@@ -18,6 +20,9 @@ var logger = logrus.New()
 var repo errorRepository.ErrorsRepository
 
 func Init(r errorRepository.ErrorsRepository) {
+	if err := os.MkdirAll("logs", os.ModePerm); err != nil {
+		panic(fmt.Sprintf("ログディレクトリ作成に失敗: %v", err))
+	}
 	repo = r
 
 	// `lumberjack` を設定
@@ -30,21 +35,21 @@ func Init(r errorRepository.ErrorsRepository) {
 	}
 
 	// logrus の出力をファイルに変更
-	logrus.SetOutput(logFile)
-	logrus.SetFormatter(&logrus.JSONFormatter{})
-	logrus.SetLevel(logrus.InfoLevel)
-
+	logger.SetOutput(logFile)
 	logger.SetFormatter(&logrus.JSONFormatter{}) // JSON形式でログ出力
-	logger.SetLevel(logrus.InfoLevel)            // エラーレベルのみ記録
+	logger.SetLevel(logrus.WarnLevel)
 }
 
 // LogError はエラーをログに記録する
-func LogError(err *customError.Error) {
+func LogError(ctx context.Context, err *customError.Error) {
+	uid := auth.GetIdNullable(ctx)
 	l := logger.WithFields(logrus.Fields{
 		"error_id":   err.ID,
 		"error_code": err.ErrorCode,
+		"user_id":    toSafeString(uid),
 		"status":     err.StatusCode,
-		"message":    err.LogMessage,
+		"message":    err.RawErr.Error(),
+		"input":      toSafeString(err.Input),
 		"location":   err.Location,
 		"timestamp":  err.Timestamp,
 	})
@@ -52,10 +57,10 @@ func LogError(err *customError.Error) {
 
 	// エラーレベルに応じた処理
 	go func() {
-		ctxTO, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctxTO, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel() // タイムアウト後に `ctx` を解放
 
-		if err.StatusCode >= 500 { // 深刻なエラー（500以上）はDBにも保存
+		if err.Level <= logrus.ErrorLevel { // 深刻なエラーはDBにも保存
 			_ = writeDB(ctxTO, err)
 			l.Error("Critical error occurred")
 		} else {
@@ -65,10 +70,21 @@ func LogError(err *customError.Error) {
 }
 
 func writeDB(ctx context.Context, err *customError.Error) error {
+	uid := auth.GetIdNullable(ctx)
 	return repo.Write(ctx, &errorRepository.Model{
 		ID:        primitive.NewObjectID(),
-		Message:   err.LogMessage,
+		Code:      err.ErrorCode,
+		UserId:    uid,
+		Message:   err.RawErr.Error(),
 		Location:  err.Location,
+		Input:     toSafeString(err.Input),
 		CreatedAt: time.Now(),
 	})
+}
+
+func toSafeString(input interface{}) string {
+	if input == nil {
+		return ""
+	}
+	return fmt.Sprintf("%v", input)
 }

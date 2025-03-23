@@ -1,4 +1,5 @@
 .env
 .env.bk
 /tmp
+/logs
 __debug_*

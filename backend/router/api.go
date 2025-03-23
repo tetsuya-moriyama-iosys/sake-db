@@ -15,7 +15,7 @@ func apiRoutes(r *gin.Engine, srv *handler.Server, handlers *handlers.Handlers) 
 	r.POST("/post", auth.RESTAuthenticate(handlers), func(c *gin.Context) {
 		id, err := handlers.LiquorHandler.Post(c)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			_ = c.Error(err)
 			return
 		}
 		// 正常なレスポンス
@@ -26,7 +26,7 @@ func apiRoutes(r *gin.Engine, srv *handler.Server, handlers *handlers.Handlers) 
 	r.POST("/category/post", auth.RESTAuthenticate(handlers), func(c *gin.Context) {
 		id, err := handlers.CategoryHandler.Post(c)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			_ = c.Error(err)
 			return
 		}
 		// 正常なレスポンス

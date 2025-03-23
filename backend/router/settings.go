@@ -1,9 +1,9 @@
 package router
 
 import (
-	"backend/customError/logger"
 	"backend/di/handlers"
 	"backend/middlewares"
+	"backend/middlewares/customError/logger"
 	"backend/util/helper"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-gonic/gin"

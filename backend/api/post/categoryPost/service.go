@@ -69,7 +69,7 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 	// フォームからファイルを取得
 	rawImg, _, err := c.Request.FormFile("image")
 	if err != nil {
-		if err == http.ErrMissingFile {
+		if errors.Is(err, http.ErrMissingFile) {
 			// 画像が存在しない場合
 			rawImg = nil
 		} else {
