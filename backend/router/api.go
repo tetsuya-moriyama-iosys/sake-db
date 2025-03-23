@@ -2,6 +2,7 @@ package router
 
 import (
 	"backend/di/handlers"
+	"backend/middlewares/auth"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -9,11 +10,12 @@ import (
 
 // ルートの設定
 func apiRoutes(r *gin.Engine, srv *handler.Server, handlers *handlers.Handlers) {
+	// 任意認証が必要
 	// 酒データの投稿
-	r.POST("/post", func(c *gin.Context) {
+	r.POST("/post", auth.RESTAuthenticate(handlers), func(c *gin.Context) {
 		id, err := handlers.LiquorHandler.Post(c)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			_ = c.Error(err)
 			return
 		}
 		// 正常なレスポンス
@@ -21,10 +23,10 @@ func apiRoutes(r *gin.Engine, srv *handler.Server, handlers *handlers.Handlers) 
 	})
 
 	// カテゴリデータの投稿
-	r.POST("/category/post", func(c *gin.Context) {
+	r.POST("/category/post", auth.RESTAuthenticate(handlers), func(c *gin.Context) {
 		id, err := handlers.CategoryHandler.Post(c)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			_ = c.Error(err)
 			return
 		}
 		// 正常なレスポンス

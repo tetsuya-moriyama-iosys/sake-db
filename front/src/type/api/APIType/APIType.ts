@@ -1,6 +1,6 @@
 import type { MaybeRefDeep } from '@tanstack/vue-query/build/legacy/types';
-import type { MutationObserver } from 'vue-query';
 import type { AxiosResponse } from 'axios';
+import type { MutationObserver } from 'vue-query';
 
 export interface APIType<
   Request extends object | null = object,

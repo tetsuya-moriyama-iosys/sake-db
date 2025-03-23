@@ -52,7 +52,6 @@ services:
     volumes:
       - ./proxy:/etc/nginx/conf.d
       - ./.ssl:/etc/ssl/certs
-      - ./.ssl:/etc/ssl/private
     depends_on:
       - front
       - backend

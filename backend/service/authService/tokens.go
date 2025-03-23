@@ -3,7 +3,6 @@ package authService
 import (
 	"backend/middlewares/auth"
 	"backend/service/authService/tokenConfig"
-	"errors"
 	"github.com/golang-jwt/jwt/v4"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
@@ -16,20 +15,23 @@ func parseRefreshToken(req *http.Request, tokenConfig tokenConfig.TokenConfig) (
 	// クッキーを取得
 	cookie, err := req.Cookie(refreshTokenName)
 	if err != nil {
-		return nil, errors.New("refresh token not found")
+		return nil, errTokenNotFound()
 	}
 
 	// リフレッシュトークンの検証
 	token, err := jwt.ParseWithClaims(cookie.Value, &auth.Claims{}, func(t *jwt.Token) (interface{}, error) {
 		return tokenConfig.RefreshSecretKey, nil
 	})
-	if err != nil || !token.Valid {
-		return nil, errors.New("invalid or expired refresh token")
+	if err != nil {
+		return nil, errTokenExpired()
+	}
+	if !token.Valid {
+		return nil, errTokenInvalid()
 	}
 
 	claims, ok := token.Claims.(*auth.Claims)
 	if !ok {
-		return nil, errors.New("invalid claims")
+		return nil, errInvalidClimes()
 	}
 	return claims, nil
 }
@@ -38,7 +40,7 @@ func parseRefreshToken(req *http.Request, tokenConfig tokenConfig.TokenConfig) (
 func refreshHandler(req *http.Request, writer http.ResponseWriter, tokenConfig tokenConfig.TokenConfig) (*string, error) {
 	claims, err := parseRefreshToken(req, tokenConfig)
 	if err != nil {
-		return nil, errors.New("invalid claims")
+		return nil, err
 	}
 
 	// 新しいトークンを発行・リフレッシュトークンの再生成
@@ -62,7 +64,7 @@ func resetRefreshToken(writer http.ResponseWriter, id primitive.ObjectID, tokenC
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
 	refreshString, err := refreshToken.SignedString(tokenConfig.RefreshSecretKey)
 	if err != nil {
-		return errors.New("invalid or expired refresh token")
+		return errRefreshToken(err)
 	}
 
 	http.SetCookie(writer, &http.Cookie{
