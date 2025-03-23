@@ -15,7 +15,11 @@ func setId(ctx context.Context, id primitive.ObjectID) context.Context {
 
 // GetId コンテキストからユーザーIDを取得する(型安全にするため定義)
 func GetId(ctx context.Context) (primitive.ObjectID, error) {
-	id := ctx.Value(userContextKey).(primitive.ObjectID)
+	rawId := ctx.Value(userContextKey)
+	if rawId == nil {
+		return primitive.NilObjectID, errId()
+	}
+	id := rawId.(primitive.ObjectID)
 	if id == primitive.NilObjectID {
 		return primitive.NilObjectID, errors.New("unauthorized")
 	}
