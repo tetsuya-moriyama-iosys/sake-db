@@ -4,10 +4,10 @@ import (
 	"backend/const/errorMsg"
 	"backend/db"
 	"backend/db/repository/liquorRepository"
+	"backend/middlewares/auth"
 	"backend/util/amazon/s3"
 	"backend/util/helper"
 	"backend/util/validator"
-	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -24,23 +24,6 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 	var old *liquorRepository.Model
 
 	ctx := c.Request.Context()
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
-
-	var random float64
-	for {
-		random = rand.New(rand.NewSource(time.Now().UnixNano())).Float64()
-		_, err := h.LiquorsRepo.GetLiquorByRandomKey(ctx, random)
-		//特に見つからなければOK
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			break
-		}
-		//それ以外の何らかのエラーがあれば終了
-		if err != nil {
-			return nil, err
-		}
-		//普通に見つかってたらループする
-	}
 
 	// 画像以外のフォームデータを構造体にバインド
 	if err := c.ShouldBind(&request); err != nil {
@@ -181,6 +164,16 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 	}
 
 	//挿入するドキュメントを作成
+	var uName *string
+	uid := auth.GetIdNullable(ctx)
+	if uid != nil {
+		u, err := h.UserRepo.GetById(ctx, *uid)
+		if err != nil {
+			return nil, err
+		}
+		uName = &u.Name
+	}
+
 	record := &liquorRepository.Model{
 		ID:           *id,
 		CategoryID:   request.CategoryID,
@@ -191,8 +184,10 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 		ImageURL:     newImageURL,
 		ImageBase64:  newBase64,
 		UpdatedAt:    time.Now(),
-		RandomKey:    random, //毎回更新する
+		RandomKey:    rand.New(rand.NewSource(time.Now().UnixNano())).Float64(), //毎回更新する
 		VersionNo:    &newVersionNo,
+		UserId:       uid,
+		UserName:     uName,
 	}
 
 	//トランザクション

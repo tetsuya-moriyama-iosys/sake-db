@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"backend/di/handlers"
 	"backend/service/authService/tokenConfig"
 	"context"
 	"errors"
@@ -19,7 +18,7 @@ type Claims struct {
 }
 
 // RESTAuthenticate REST用のもの
-func RESTAuthenticate(handlers *handlers.Handlers) gin.HandlerFunc {
+func RESTAuthenticate(tokenConfig *tokenConfig.TokenConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString, err := ExtractTokenFromHeader(c.Request.Context())
 		if err != nil {
@@ -27,7 +26,7 @@ func RESTAuthenticate(handlers *handlers.Handlers) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		_, err = AuthenticateToken(c, tokenString, *handlers.TokenConfig)
+		_, err = AuthenticateToken(c, tokenString, *tokenConfig)
 		if err != nil {
 			_ = c.Error(err)
 			c.Abort()

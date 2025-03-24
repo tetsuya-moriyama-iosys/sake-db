@@ -3,6 +3,7 @@ package authService
 import (
 	"backend/middlewares/customError"
 	"errors"
+	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -19,6 +20,7 @@ func errTokenNotFound() *customError.Error {
 		StatusCode: http.StatusUnauthorized,
 		ErrCode:    TokenNotFound,
 		UserMsg:    "トークンがありません。",
+		Level:      logrus.InfoLevel,
 	})
 }
 
@@ -27,6 +29,7 @@ func errTokenExpired() *customError.Error {
 		StatusCode: http.StatusUnauthorized,
 		ErrCode:    TokenExpired,
 		UserMsg:    "トークンが期限切れです。",
+		Level:      logrus.InfoLevel,
 	})
 }
 
@@ -35,6 +38,7 @@ func errTokenInvalid() *customError.Error {
 		StatusCode: http.StatusUnauthorized,
 		ErrCode:    TokenInvalid,
 		UserMsg:    "トークンが不正です。",
+		Level:      logrus.InfoLevel,
 	})
 }
 
@@ -43,6 +47,7 @@ func errInvalidClimes() *customError.Error {
 		StatusCode: http.StatusUnauthorized,
 		ErrCode:    TokenInvalidClimes,
 		UserMsg:    "トークンが不正です。",
+		Level:      logrus.InfoLevel,
 	})
 }
 
@@ -51,5 +56,6 @@ func errRefreshToken(err error) *customError.Error {
 		StatusCode: http.StatusUnauthorized,
 		ErrCode:    RefreshTokenInvalid,
 		UserMsg:    "リフレッシュトークンが期限切れです。",
+		Level:      logrus.InfoLevel,
 	})
 }

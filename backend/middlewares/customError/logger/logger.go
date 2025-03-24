@@ -5,11 +5,14 @@ import (
 	"backend/middlewares/auth"
 	"backend/middlewares/customError"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"os"
+	"runtime"
+	"runtime/debug"
 	"time"
 )
 
@@ -67,6 +70,33 @@ func LogError(ctx context.Context, err *customError.Error) {
 			l.Warn("non-Critical error occurred")
 		}
 	}()
+}
+
+// LogPanic 共通のpanic処理
+func LogPanic(ctx context.Context, recovered interface{}, locationHint string) customError.Error {
+	pc, file, line, ok := runtime.Caller(3)
+	funcName := "unknown"
+	if ok {
+		funcName = runtime.FuncForPC(pc).Name()
+	}
+
+	stack := string(debug.Stack())
+	id := primitive.NewObjectID().Hex()
+	errCode := fmt.Sprintf("panic-%s", primitive.NewObjectID().Hex())
+
+	customErr := customError.Error{
+		ID:          id,
+		ErrorCode:   errCode,
+		StatusCode:  500,
+		Level:       logrus.ErrorLevel,
+		UserMessage: fmt.Sprintf("内部エラーが発生しました。 [エラーコード：%s]", errCode),
+		RawErr:      errors.New(fmt.Sprintf("%v\n%s", recovered, stack)),
+		Location:    fmt.Sprintf("%s:%d in %s [%s]", file, line, funcName, locationHint),
+		Timestamp:   time.Now().Format(time.RFC3339),
+	}
+
+	LogError(ctx, &customErr)
+	return customErr
 }
 
 func writeDB(ctx context.Context, err *customError.Error) error {
