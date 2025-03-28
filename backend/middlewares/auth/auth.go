@@ -17,13 +17,31 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-// RESTAuthenticate REST用のもの
-func RESTAuthenticate(tokenConfig *tokenConfig.TokenConfig) gin.HandlerFunc {
+// RESTAuthenticate REST用のもの(Optionalしか使わないかも)
+//func RESTAuthenticate(tokenConfig *tokenConfig.TokenConfig) gin.HandlerFunc {
+//	return func(c *gin.Context) {
+//		tokenString, err := ExtractTokenFromHeader(c.Request)
+//		if err != nil {
+//			_ = c.Error(err)
+//			c.Abort()
+//			return
+//		}
+//		_, err = AuthenticateToken(c, tokenString, *tokenConfig)
+//		if err != nil {
+//			_ = c.Error(err)
+//			c.Abort()
+//			return
+//		}
+//		c.Next()
+//	}
+//}
+
+func RESTOptionalAuthenticate(tokenConfig *tokenConfig.TokenConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tokenString, err := ExtractTokenFromHeader(c.Request.Context())
+		tokenString, err := ExtractTokenFromHeader(c.Request)
 		if err != nil {
-			_ = c.Error(err)
-			c.Abort()
+			// トークンが存在しない場合はそのまま処理を続行
+			c.Next()
 			return
 		}
 		_, err = AuthenticateToken(c, tokenString, *tokenConfig)
@@ -37,17 +55,16 @@ func RESTAuthenticate(tokenConfig *tokenConfig.TokenConfig) gin.HandlerFunc {
 }
 
 // ExtractTokenFromHeader JWTトークンを読み込むための関数
-func ExtractTokenFromHeader(ctx context.Context) (string, error) {
-	req := ctx.Value("http.Request").(*http.Request)
+func ExtractTokenFromHeader(req *http.Request) (string, error) {
 	authHeader := req.Header.Get("Authorization")
 	if authHeader == "" {
-		return "", errMissHeader(errors.New("authorization header is missing"))
+		return "", errMissHeader()
 	}
 
 	// "Bearer "を除去してトークンを取得
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 	if tokenString == "" {
-		return "", errMissBearer(errors.New("authorization token is missing"))
+		return "", errMissBearer()
 	}
 
 	return tokenString, nil

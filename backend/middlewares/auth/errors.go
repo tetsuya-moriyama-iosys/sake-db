@@ -43,8 +43,8 @@ func errTokenSomething(err error) *customError.Error {
 	})
 }
 
-func errMissHeader(err error) *customError.Error {
-	return customError.NewError(err, customError.Params{
+func errMissHeader() *customError.Error {
+	return customError.NewError(errors.New("authorization header is missing"), customError.Params{
 		StatusCode: http.StatusUnauthorized,
 		ErrCode:    NotFoundToken,
 		UserMsg:    "トークンが見つかりません。",
@@ -52,8 +52,8 @@ func errMissHeader(err error) *customError.Error {
 	})
 }
 
-func errMissBearer(err error) *customError.Error {
-	return customError.NewError(err, customError.Params{
+func errMissBearer() *customError.Error {
+	return customError.NewError(errors.New("authorization token is missing"), customError.Params{
 		StatusCode: http.StatusUnauthorized,
 		ErrCode:    NotFoundBearer,
 		UserMsg:    "トークンが見つかりません。",
