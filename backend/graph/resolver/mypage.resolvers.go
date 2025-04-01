@@ -8,6 +8,7 @@ import (
 	"backend/db/repository/userRepository"
 	"backend/graph/graphModel"
 	"backend/middlewares/auth"
+	"backend/middlewares/customError"
 	"backend/service/userService"
 	"context"
 	"errors"
@@ -16,7 +17,7 @@ import (
 )
 
 // UpdateUser is the resolver for the updateUser field.
-func (r *mutationResolver) UpdateUser(ctx context.Context, input graphModel.RegisterInput) (bool, error) {
+func (r *mutationResolver) UpdateUser(ctx context.Context, input graphModel.RegisterInput) (bool, *customError.Error) {
 	loginUser, err := userService.GetUserData(ctx, r.UserRepo) //未ログイン状態ならuserIDはnilになる
 	if err != nil {
 		return false, err
@@ -61,7 +62,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input graphModel.Regi
 }
 
 // GetMyData is the resolver for the getMyData field.
-func (r *queryResolver) GetMyData(ctx context.Context) (*graphModel.User, error) {
+func (r *queryResolver) GetMyData(ctx context.Context) (*graphModel.User, *customError.Error) {
 	uId, err := auth.GetId(ctx)
 	if err != nil {
 		return nil, err

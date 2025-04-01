@@ -1,6 +1,7 @@
 package x
 
 import (
+	"backend/middlewares/customError"
 	"crypto/sha256"
 	"encoding/base64"
 	"golang.org/x/oauth2"
@@ -50,12 +51,12 @@ func generateCodeVerifier() string {
 }
 
 // GenerateAuthCodeURL twitter用に最適化されたAuthCodeURLを生成
-func (c *TwitterOAuthConfig) GenerateAuthCodeURL(state string) (*string, error) {
+func (c *TwitterOAuthConfig) GenerateAuthCodeURL(state string) (*string, *customError.Error) {
 	// URLをパース
 	parsedURL, err := url.Parse(c.AuthCodeURL(state))
 	if err != nil {
 		// エラー処理（パース失敗時）
-		return nil, err
+		return nil, errParseURL(err)
 	}
 
 	// 既存のクエリパラメータを取得

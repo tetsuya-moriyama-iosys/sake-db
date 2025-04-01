@@ -60,6 +60,8 @@ type Category struct {
 	ImageBase64 *string     `json:"imageBase64,omitempty"`
 	VersionNo   *int        `json:"versionNo,omitempty"`
 	Readonly    bool        `json:"readonly"`
+	UserID      *string     `json:"userId,omitempty"`
+	UserName    *string     `json:"userName,omitempty"`
 	UpdatedAt   *time.Time  `json:"updatedAt,omitempty"`
 	Children    []*Category `json:"children,omitempty"`
 }

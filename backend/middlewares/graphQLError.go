@@ -26,7 +26,7 @@ func GraphQLErrorPresenter(ctx context.Context, err error) *gqlerror.Error {
 			ID:          fmt.Sprintf("error-%d", time.Now().Unix()),
 			ErrorCode:   "GRAPHQL_ERROR",
 			StatusCode:  http.StatusInternalServerError, // 未定義エラーは500として処理する
-			UserMessage: fmt.Sprintf("未定義のエラー: %v", err),
+			UserMessage: fmt.Sprintf("未定義のエラー: %v", err.Error()),
 			Location:    "GraphQL Resolver",
 			Timestamp:   time.Now().String(),
 			RawErr:      err,

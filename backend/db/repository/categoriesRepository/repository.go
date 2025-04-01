@@ -2,6 +2,7 @@ package categoriesRepository
 
 import (
 	"backend/db"
+	"backend/middlewares/customError"
 	"context"
 	"errors"
 	"go.mongodb.org/mongo-driver/bson"
@@ -26,7 +27,7 @@ func NewCategoryRepository(db *db.DB) CategoryRepository {
 }
 
 // GetCategories カテゴリの一覧を取得する
-func (r *CategoryRepository) GetCategories(ctx context.Context) ([]*Model, error) {
+func (r *CategoryRepository) GetCategories(ctx context.Context) ([]*Model, *customError.Error) {
 	//データを取得
 	cursor, err := r.collection.Find(ctx, bson.M{})
 	if err != nil {
@@ -54,7 +55,7 @@ func (r *CategoryRepository) GetCategories(ctx context.Context) ([]*Model, error
 }
 
 // GetCategoryByID IDからカテゴリを取得する
-func (r *CategoryRepository) GetCategoryByID(ctx context.Context, id int) (*Model, error) {
+func (r *CategoryRepository) GetCategoryByID(ctx context.Context, id int) (*Model, *customError.Error) {
 	var result Model
 	err := r.collection.FindOne(ctx, bson.M{"id": id}).Decode(&result)
 	if err != nil {
@@ -67,7 +68,7 @@ func (r *CategoryRepository) GetCategoryByID(ctx context.Context, id int) (*Mode
 	return &result, nil
 }
 
-func (r *CategoryRepository) InsertOne(ctx context.Context, category *Model) error {
+func (r *CategoryRepository) InsertOne(ctx context.Context, category *Model) *customError.Error {
 	result, err := r.collection.InsertOne(ctx, category)
 	if err != nil {
 		return err
@@ -82,7 +83,7 @@ func (r *CategoryRepository) InsertOne(ctx context.Context, category *Model) err
 	return nil
 }
 
-func (r *CategoryRepository) UpdateOne(ctx context.Context, liquor *Model) error {
+func (r *CategoryRepository) UpdateOne(ctx context.Context, liquor *Model) *customError.Error {
 	// フィルタ：IDを用いてドキュメントを特定
 	filter := bson.M{"id": liquor.ID}
 
@@ -116,7 +117,7 @@ func (r *CategoryRepository) UpdateOne(ctx context.Context, liquor *Model) error
 }
 
 // GetMaxID 最大のIDを取得する
-func (r *CategoryRepository) GetMaxID(ctx context.Context) (int, error) {
+func (r *CategoryRepository) GetMaxID(ctx context.Context) (int, *customError.Error) {
 	// MongoDBのドキュメントのIDフィールドの最大値を取得するためのオプション
 	findOptions := options.FindOne().SetSort(bson.D{{Key: "id", Value: -1}})
 

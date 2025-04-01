@@ -6,6 +6,7 @@ package resolver
 
 import (
 	"backend/graph/graphModel"
+	"backend/middlewares/customError"
 	"backend/util/helper"
 	"context"
 	"os"
@@ -15,7 +16,7 @@ import (
 )
 
 // Data is the resolver for the data field.
-func (r *queryResolver) Data(ctx context.Context, name string, limit *int) (*graphModel.AffiliateData, error) {
+func (r *queryResolver) Data(ctx context.Context, name string, limit *int) (*graphModel.AffiliateData, *customError.Error) {
 	//TODO:リゾルバにビジネスロジックがベタ書きされているので、リファクタが必要ならその時に整理を検討。
 	//ここ以外に使うことがない想定なので、一旦ベタ書きで実装
 	helper.LoadEnv()

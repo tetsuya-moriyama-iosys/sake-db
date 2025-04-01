@@ -5,6 +5,7 @@ import (
 	"backend/db/repository/agg"
 	"backend/db/repository/liquorRepository"
 	"backend/db/repository/userRepository"
+	"backend/middlewares/customError"
 	"context"
 	"errors"
 	"fmt"
@@ -33,7 +34,7 @@ func filter(uid primitive.ObjectID, targetId primitive.ObjectID) bson.M {
 	}
 }
 
-func (r *BookMarkRepository) Find(ctx context.Context, uid primitive.ObjectID, targetId primitive.ObjectID) (*Model, error) {
+func (r *BookMarkRepository) Find(ctx context.Context, uid primitive.ObjectID, targetId primitive.ObjectID) (*Model, *customError.Error) {
 	// クエリを実行し、ドキュメントが存在するか確認
 	var result *Model
 	err := r.collection.FindOne(ctx, filter(uid, targetId)).Decode(&result) //取得しデコードする
@@ -41,7 +42,7 @@ func (r *BookMarkRepository) Find(ctx context.Context, uid primitive.ObjectID, t
 	return result, err
 }
 
-func (r *BookMarkRepository) List(ctx context.Context, uid primitive.ObjectID) ([]*BookMarkListUser, error) {
+func (r *BookMarkRepository) List(ctx context.Context, uid primitive.ObjectID) ([]*BookMarkListUser, *customError.Error) {
 	// パイプラインを定義
 	pipeline := generatePipeline(uid, UserId, BookmarkedId)
 
@@ -61,7 +62,7 @@ func (r *BookMarkRepository) List(ctx context.Context, uid primitive.ObjectID) (
 }
 
 // BookmarkedList そのユーザーをブックマークしている人のリスト
-func (r *BookMarkRepository) BookmarkedList(ctx context.Context, uid primitive.ObjectID) ([]*BookMarkListUser, error) {
+func (r *BookMarkRepository) BookmarkedList(ctx context.Context, uid primitive.ObjectID) ([]*BookMarkListUser, *customError.Error) {
 	// パイプラインを定義(Listとは逆に 、被ブックマークIDで絞り込む)
 	pipeline := generatePipeline(uid, BookmarkedId, UserId)
 	// パイプラインを実行
@@ -80,7 +81,7 @@ func (r *BookMarkRepository) BookmarkedList(ctx context.Context, uid primitive.O
 	return bList, nil
 }
 
-func (r *BookMarkRepository) Add(ctx context.Context, uid primitive.ObjectID, targetId primitive.ObjectID) error {
+func (r *BookMarkRepository) Add(ctx context.Context, uid primitive.ObjectID, targetId primitive.ObjectID) *customError.Error {
 	_, err := r.Find(ctx, uid, targetId)
 	if err == nil {
 		//見つかった場合は重複するのでエラー
@@ -103,7 +104,7 @@ func (r *BookMarkRepository) Add(ctx context.Context, uid primitive.ObjectID, ta
 	return nil
 }
 
-func (r *BookMarkRepository) Remove(ctx context.Context, uid primitive.ObjectID, targetId primitive.ObjectID) error {
+func (r *BookMarkRepository) Remove(ctx context.Context, uid primitive.ObjectID, targetId primitive.ObjectID) *customError.Error {
 	//レコードを削除する
 	result, err := r.collection.DeleteOne(ctx, filter(uid, targetId))
 	if err != nil {
@@ -116,7 +117,7 @@ func (r *BookMarkRepository) Remove(ctx context.Context, uid primitive.ObjectID,
 	return nil
 }
 
-func (r *BookMarkRepository) GetRecommendLiquors(ctx context.Context, uid primitive.ObjectID, limitArg *int) (*RecommendList, error) {
+func (r *BookMarkRepository) GetRecommendLiquors(ctx context.Context, uid primitive.ObjectID, limitArg *int) (*RecommendList, *customError.Error) {
 	limit := 10
 	if limitArg != nil {
 		limit = *limitArg

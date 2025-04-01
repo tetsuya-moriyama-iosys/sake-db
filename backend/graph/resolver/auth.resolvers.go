@@ -7,6 +7,7 @@ package resolver
 import (
 	"backend/db/repository/userRepository"
 	"backend/graph/graphModel"
+	"backend/middlewares/customError"
 	"backend/service/authService"
 	"backend/util/amazon/ses"
 	"context"
@@ -18,7 +19,7 @@ import (
 )
 
 // RegisterUser is the resolver for the registerUser field.
-func (r *mutationResolver) RegisterUser(ctx context.Context, input graphModel.RegisterInput) (*graphModel.AuthPayload, error) {
+func (r *mutationResolver) RegisterUser(ctx context.Context, input graphModel.RegisterInput) (*graphModel.AuthPayload, *customError.Error) {
 	//TODO: なんかロジックが大きいのでサービス層に分離すべきな気がする
 	if input.Password == nil {
 		return nil, errors.New("パスワードは必須です")
@@ -64,7 +65,7 @@ func (r *mutationResolver) RegisterUser(ctx context.Context, input graphModel.Re
 }
 
 // Login is the resolver for the login field.
-func (r *mutationResolver) Login(ctx context.Context, input graphModel.LoginInput) (*graphModel.AuthPayload, error) {
+func (r *mutationResolver) Login(ctx context.Context, input graphModel.LoginInput) (*graphModel.AuthPayload, *customError.Error) {
 	user, err := authService.LoginWithInput(ctx, getResponseWriter(ctx), input, &r.UserRepo, r.UserTokenConfig)
 	if err != nil {
 		return nil, err
@@ -74,7 +75,7 @@ func (r *mutationResolver) Login(ctx context.Context, input graphModel.LoginInpu
 }
 
 // RefreshToken 単にリフレッシュトークンの更新をするAPI(Vueストアにユーザーデータが存在しており、アクセストークンが切れた導線)
-func (r *mutationResolver) RefreshToken(ctx context.Context) (string, error) {
+func (r *mutationResolver) RefreshToken(ctx context.Context) (string, *customError.Error) {
 	token, err := authService.RefreshTokens(getHttpRequest(ctx), getResponseWriter(ctx), r.UserTokenConfig)
 	if err != nil {
 		return "", err
@@ -83,7 +84,7 @@ func (r *mutationResolver) RefreshToken(ctx context.Context) (string, error) {
 }
 
 // LoginWithRefreshToken こちらはリフレッシュトークンを用いてログインするAPI(リロードなどでユーザーデータも同時取得する導線・実質再ログイン)
-func (r *mutationResolver) LoginWithRefreshToken(ctx context.Context) (*graphModel.AuthPayload, error) {
+func (r *mutationResolver) LoginWithRefreshToken(ctx context.Context) (*graphModel.AuthPayload, *customError.Error) {
 	userWithToken, err := authService.LoginWithRefreshToken(ctx, getHttpRequest(ctx), getResponseWriter(ctx), r.UserTokenConfig, &r.UserRepo)
 	if err != nil {
 		return nil, err
@@ -92,12 +93,12 @@ func (r *mutationResolver) LoginWithRefreshToken(ctx context.Context) (*graphMod
 }
 
 // Logout is the resolver for the logout field.
-func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
+func (r *mutationResolver) Logout(ctx context.Context) (bool, *customError.Error) {
 	return true, authService.DeleteRefreshToken(getResponseWriter(ctx))
 }
 
 // ResetEmail is the resolver for the resetEmail field.
-func (r *mutationResolver) ResetEmail(ctx context.Context, email string) (bool, error) {
+func (r *mutationResolver) ResetEmail(ctx context.Context, email string) (bool, *customError.Error) {
 	//トークンを生成しDBに格納する
 	token, err := authService.GeneratePasswordResetToken(ctx, r.UserRepo, email)
 	if err != nil {
@@ -113,7 +114,7 @@ func (r *mutationResolver) ResetEmail(ctx context.Context, email string) (bool, 
 }
 
 // ResetExe is the resolver for the resetExe field.
-func (r *mutationResolver) ResetExe(ctx context.Context, token string, password string) (*graphModel.AuthPayload, error) {
+func (r *mutationResolver) ResetExe(ctx context.Context, token string, password string) (*graphModel.AuthPayload, *customError.Error) {
 	user, err := authService.PasswordResetExe(ctx, r.UserRepo, token, password)
 	if err != nil {
 		return nil, err

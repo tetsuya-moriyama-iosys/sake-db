@@ -99,6 +99,8 @@ type ComplexityRoot struct {
 		Parent      func(childComplexity int) int
 		Readonly    func(childComplexity int) int
 		UpdatedAt   func(childComplexity int) int
+		UserID      func(childComplexity int) int
+		UserName    func(childComplexity int) int
 		VersionNo   func(childComplexity int) int
 	}
 
@@ -558,6 +560,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Category.UpdatedAt(childComplexity), true
+
+	case "Category.userId":
+		if e.complexity.Category.UserID == nil {
+			break
+		}
+
+		return e.complexity.Category.UserID(childComplexity), true
+
+	case "Category.userName":
+		if e.complexity.Category.UserName == nil {
+			break
+		}
+
+		return e.complexity.Category.UserName(childComplexity), true
 
 	case "Category.versionNo":
 		if e.complexity.Category.VersionNo == nil {
@@ -1745,6 +1761,8 @@ extend type Mutation {
   imageBase64: String     # 縮小された画像のBase64エンコードデータ
   versionNo: Int
   readonly:Boolean!
+  userId: ID
+  userName: String
   updatedAt: DateTime #初期セットには存在しない可能性がある
   children: [Category!]
 }
@@ -1831,7 +1849,7 @@ type Liquor {
   rate3Users: [ID!]!
   rate2Users: [ID!]!
   rate1Users: [ID!]!
-  userId: String
+  userId: ID
   userName: String
   versionNo: Int!
 }
@@ -4308,6 +4326,88 @@ func (ec *executionContext) fieldContext_Category_readonly(_ context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Category_userId(ctx context.Context, field graphql.CollectedField, obj *graphModel.Category) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Category_userId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Category_userId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Category",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Category_userName(ctx context.Context, field graphql.CollectedField, obj *graphModel.Category) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Category_userName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Category_userName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Category",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Category_updatedAt(ctx context.Context, field graphql.CollectedField, obj *graphModel.Category) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Category_updatedAt(ctx, field)
 	if err != nil {
@@ -4401,6 +4501,10 @@ func (ec *executionContext) fieldContext_Category_children(_ context.Context, fi
 				return ec.fieldContext_Category_versionNo(ctx, field)
 			case "readonly":
 				return ec.fieldContext_Category_readonly(ctx, field)
+			case "userId":
+				return ec.fieldContext_Category_userId(ctx, field)
+			case "userName":
+				return ec.fieldContext_Category_userName(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Category_updatedAt(ctx, field)
 			case "children":
@@ -4467,6 +4571,10 @@ func (ec *executionContext) fieldContext_CategoryHistory_now(_ context.Context, 
 				return ec.fieldContext_Category_versionNo(ctx, field)
 			case "readonly":
 				return ec.fieldContext_Category_readonly(ctx, field)
+			case "userId":
+				return ec.fieldContext_Category_userId(ctx, field)
+			case "userName":
+				return ec.fieldContext_Category_userName(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Category_updatedAt(ctx, field)
 			case "children":
@@ -4530,6 +4638,10 @@ func (ec *executionContext) fieldContext_CategoryHistory_histories(_ context.Con
 				return ec.fieldContext_Category_versionNo(ctx, field)
 			case "readonly":
 				return ec.fieldContext_Category_readonly(ctx, field)
+			case "userId":
+				return ec.fieldContext_Category_userId(ctx, field)
+			case "userName":
+				return ec.fieldContext_Category_userName(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Category_updatedAt(ctx, field)
 			case "children":
@@ -5801,7 +5913,7 @@ func (ec *executionContext) _Liquor_userId(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Liquor_userId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5811,7 +5923,7 @@ func (ec *executionContext) fieldContext_Liquor_userId(_ context.Context, field 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -7650,6 +7762,10 @@ func (ec *executionContext) fieldContext_Query_category(ctx context.Context, fie
 				return ec.fieldContext_Category_versionNo(ctx, field)
 			case "readonly":
 				return ec.fieldContext_Category_readonly(ctx, field)
+			case "userId":
+				return ec.fieldContext_Category_userId(ctx, field)
+			case "userName":
+				return ec.fieldContext_Category_userName(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Category_updatedAt(ctx, field)
 			case "children":
@@ -7727,6 +7843,10 @@ func (ec *executionContext) fieldContext_Query_categories(_ context.Context, fie
 				return ec.fieldContext_Category_versionNo(ctx, field)
 			case "readonly":
 				return ec.fieldContext_Category_readonly(ctx, field)
+			case "userId":
+				return ec.fieldContext_Category_userId(ctx, field)
+			case "userName":
+				return ec.fieldContext_Category_userName(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Category_updatedAt(ctx, field)
 			case "children":
@@ -13462,6 +13582,10 @@ func (ec *executionContext) _Category(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "userId":
+			out.Values[i] = ec._Category_userId(ctx, field, obj)
+		case "userName":
+			out.Values[i] = ec._Category_userName(ctx, field, obj)
 		case "updatedAt":
 			out.Values[i] = ec._Category_updatedAt(ctx, field, obj)
 		case "children":

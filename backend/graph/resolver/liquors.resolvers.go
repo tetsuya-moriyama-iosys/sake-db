@@ -9,6 +9,7 @@ import (
 	"backend/db/repository/liquorRepository"
 	"backend/graph/graphModel"
 	"backend/middlewares/auth"
+	"backend/middlewares/customError"
 	"backend/service/categoryService"
 	"backend/service/userService"
 	"context"
@@ -19,7 +20,7 @@ import (
 )
 
 // PostBoard is the resolver for the postBoard field.
-func (r *mutationResolver) PostBoard(ctx context.Context, input graphModel.BoardInput) (bool, error) {
+func (r *mutationResolver) PostBoard(ctx context.Context, input graphModel.BoardInput) (bool, *customError.Error) {
 	//バリデーション処理
 	if len(input.Text) > 500 {
 		return false, nil
@@ -54,7 +55,7 @@ func (r *mutationResolver) PostBoard(ctx context.Context, input graphModel.Board
 	}
 
 	//トランザクション(返り値を返さないといけない構造になっていたので、boolを返すことにした)
-	_, err = db.WithTransaction(ctx, r.DB.Client(), func(sc mongo.SessionContext) (bool, error) {
+	_, err = db.WithTransaction(ctx, r.DB.Client(), func(sc mongo.SessionContext) (bool, *customError.Error) {
 		err = r.LiquorRepo.BoardInsert(ctx, model) //掲示板を更新する(1ユーザーについて1つ)
 		if err != nil {
 			return false, err
@@ -72,7 +73,7 @@ func (r *mutationResolver) PostBoard(ctx context.Context, input graphModel.Board
 }
 
 // Liquor is the resolver for the liquor field.
-func (r *queryResolver) Liquor(ctx context.Context, id string) (*graphModel.Liquor, error) {
+func (r *queryResolver) Liquor(ctx context.Context, id string) (*graphModel.Liquor, *customError.Error) {
 	lid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
@@ -103,7 +104,7 @@ func (r *queryResolver) Liquor(ctx context.Context, id string) (*graphModel.Liqu
 }
 
 // RandomRecommendList is the resolver for the randomRecommendList field.
-func (r *queryResolver) RandomRecommendList(ctx context.Context, limit int) ([]*graphModel.Liquor, error) {
+func (r *queryResolver) RandomRecommendList(ctx context.Context, limit int) ([]*graphModel.Liquor, *customError.Error) {
 	collection, err := r.LiquorRepo.GetRandomLiquors(ctx, limit)
 	if err != nil {
 		return nil, err
@@ -119,7 +120,7 @@ func (r *queryResolver) RandomRecommendList(ctx context.Context, limit int) ([]*
 }
 
 // ListFromCategory is the resolver for the listFromCategory field.
-func (r *queryResolver) ListFromCategory(ctx context.Context, categoryID int) (*graphModel.ListFromCategory, error) {
+func (r *queryResolver) ListFromCategory(ctx context.Context, categoryID int) (*graphModel.ListFromCategory, *customError.Error) {
 	ids, err := categoryService.GetBelongCategoryIdList(ctx, categoryID, &r.CategoryRepo)
 	if err != nil {
 		return nil, err
@@ -149,7 +150,7 @@ func (r *queryResolver) ListFromCategory(ctx context.Context, categoryID int) (*
 }
 
 // LiquorHistories is the resolver for the liquorHistories field.
-func (r *queryResolver) LiquorHistories(ctx context.Context, id string) (*graphModel.LiquorHistory, error) {
+func (r *queryResolver) LiquorHistories(ctx context.Context, id string) (*graphModel.LiquorHistory, *customError.Error) {
 	lid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
@@ -178,7 +179,7 @@ func (r *queryResolver) LiquorHistories(ctx context.Context, id string) (*graphM
 }
 
 // Board TODO:ページネーション
-func (r *queryResolver) Board(ctx context.Context, liquorID string, page *int) ([]*graphModel.BoardPost, error) {
+func (r *queryResolver) Board(ctx context.Context, liquorID string, page *int) ([]*graphModel.BoardPost, *customError.Error) {
 	liquorIdObj, err := primitive.ObjectIDFromHex(liquorID)
 	if err != nil {
 		return nil, err
@@ -195,7 +196,7 @@ func (r *queryResolver) Board(ctx context.Context, liquorID string, page *int) (
 }
 
 // GetMyBoard 自身の投稿を取得する(初期値設定用)
-func (r *queryResolver) GetMyBoard(ctx context.Context, liquorID string) (*graphModel.BoardPost, error) {
+func (r *queryResolver) GetMyBoard(ctx context.Context, liquorID string) (*graphModel.BoardPost, *customError.Error) {
 	//未ログイン時にも呼ばれる関数であり、未ログインはエラーなしで空値を返すという処理をする必要がある
 	isLogin := userService.IsLogin(ctx)
 	if isLogin == false {

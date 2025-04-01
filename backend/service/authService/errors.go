@@ -15,6 +15,10 @@ const (
 	RefreshTokenInvalid = "TOKEN-005"
 )
 
+const (
+	NotFoundPassOrMail = "LOGIN-001"
+)
+
 func errTokenNotFound() *customError.Error {
 	return customError.NewError(errors.New("refresh token not found"), customError.Params{
 		StatusCode: http.StatusUnauthorized,
@@ -56,6 +60,15 @@ func errRefreshToken(err error) *customError.Error {
 		StatusCode: http.StatusUnauthorized,
 		ErrCode:    RefreshTokenInvalid,
 		UserMsg:    "リフレッシュトークンが期限切れです。",
+		Level:      logrus.InfoLevel,
+	})
+}
+
+func errLogin() *customError.Error {
+	return customError.NewError(errors.New("メールアドレスもしくはパスワードが間違っています。"), customError.Params{
+		StatusCode: http.StatusUnauthorized,
+		ErrCode:    NotFoundPassOrMail,
+		UserMsg:    "メールアドレスもしくはパスワードが間違っています。",
 		Level:      logrus.InfoLevel,
 	})
 }

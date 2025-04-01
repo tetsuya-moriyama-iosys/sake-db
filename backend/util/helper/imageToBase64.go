@@ -1,10 +1,13 @@
 package helper
 
 import (
+	"backend/middlewares/customError"
 	"bytes"
 	"encoding/base64"
+	"github.com/sirupsen/logrus"
 	"image"
 	"image/jpeg"
+	"net/http"
 )
 
 type Base64Option struct {
@@ -12,7 +15,7 @@ type Base64Option struct {
 	MaxHeight *uint // リサイズ時の高さ
 }
 
-func ImageToBase64(img image.Image, option *Base64Option) (*string, error) {
+func ImageToBase64(img image.Image, option *Base64Option) (*string, *customError.Error) {
 	// リサイズ実行
 	thumbnail := ResizeImage(img, option.MaxWidth, option.MaxHeight)
 
@@ -20,7 +23,7 @@ func ImageToBase64(img image.Image, option *Base64Option) (*string, error) {
 	var thumbBuf bytes.Buffer
 	err := jpeg.Encode(&thumbBuf, thumbnail, nil)
 	if err != nil {
-		return nil, err
+		return nil, errImageToBase64(err, img)
 	}
 
 	//string型を*stringに変換する
@@ -38,4 +41,15 @@ func GenerateBase64Option(h int, w int) *Base64Option {
 		MaxWidth:  &width,
 	}
 	return &option
+}
+
+func errImageToBase64(err error, img image.Image) *customError.Error {
+	return customError.NewError(err, customError.Params{
+		StatusCode:  http.StatusBadRequest,
+		ErrCode:     "ERR-ImageToBase64",
+		UserMsg:     "ファイルのリサイズに失敗しました",
+		Level:       logrus.InfoLevel,
+		Input:       img,
+		ParentStack: 1,
+	})
 }

@@ -7,6 +7,7 @@ package resolver
 import (
 	"backend/graph/graphModel"
 	"backend/middlewares/auth"
+	"backend/middlewares/customError"
 	"backend/service/flavorMapService"
 	"backend/util/utilType"
 	"context"
@@ -15,7 +16,7 @@ import (
 )
 
 // PostFlavor is the resolver for the postFlavor field.
-func (r *mutationResolver) PostFlavor(ctx context.Context, input graphModel.PostFlavorMap) (bool, error) {
+func (r *mutationResolver) PostFlavor(ctx context.Context, input graphModel.PostFlavorMap) (bool, *customError.Error) {
 	lId, err := primitive.ObjectIDFromHex(input.LiquorID)
 	if err != nil {
 		return false, err
@@ -30,7 +31,7 @@ func (r *mutationResolver) PostFlavor(ctx context.Context, input graphModel.Post
 }
 
 // GetFlavorMap is the resolver for the getFlavorMap field.
-func (r *queryResolver) GetFlavorMap(ctx context.Context, liquorID string) (*graphModel.FlavorMapData, error) {
+func (r *queryResolver) GetFlavorMap(ctx context.Context, liquorID string) (*graphModel.FlavorMapData, *customError.Error) {
 	lId, err := primitive.ObjectIDFromHex(liquorID)
 	if err != nil {
 		return nil, err
@@ -48,7 +49,7 @@ func (r *queryResolver) GetFlavorMap(ctx context.Context, liquorID string) (*gra
 }
 
 // GetVoted is the resolver for the getVoted field.
-func (r *queryResolver) GetVoted(ctx context.Context, liquorID string) (*graphModel.VotedData, error) {
+func (r *queryResolver) GetVoted(ctx context.Context, liquorID string) (*graphModel.VotedData, *customError.Error) {
 	uId, err := auth.GetId(ctx)
 	if err != nil {
 		return nil, err
