@@ -3,6 +3,7 @@ package authService
 import (
 	"backend/db/repository/userRepository"
 	"backend/middlewares/auth"
+	"backend/middlewares/customError"
 	"backend/service/authService/tokenConfig"
 	"context"
 	"github.com/golang-jwt/jwt/v4"
@@ -12,12 +13,12 @@ import (
 )
 
 // RefreshTokens アクセストークンが切れたため、リフレッシュトークンを使いトークンを再生成
-func RefreshTokens(req *http.Request, writer http.ResponseWriter, tokenConfig tokenConfig.TokenConfig) (*string, error) {
+func RefreshTokens(req *http.Request, writer http.ResponseWriter, tokenConfig tokenConfig.TokenConfig) (*string, *customError.Error) {
 	return refreshHandler(req, writer, tokenConfig)
 }
 
 // LoginWithRefreshToken リフレッシュトークンを用いてログインする
-func LoginWithRefreshToken(ctx context.Context, req *http.Request, writer http.ResponseWriter, tokenConfig tokenConfig.TokenConfig, r *userRepository.UsersRepository) (*UserWithToken, error) {
+func LoginWithRefreshToken(ctx context.Context, req *http.Request, writer http.ResponseWriter, tokenConfig tokenConfig.TokenConfig, r *userRepository.UsersRepository) (*UserWithToken, *customError.Error) {
 	claims, err := parseRefreshToken(req, tokenConfig)
 	if err != nil {
 		return nil, err
@@ -28,7 +29,7 @@ func LoginWithRefreshToken(ctx context.Context, req *http.Request, writer http.R
 }
 
 // GenerateTokens トークンを生成
-func GenerateTokens(writer http.ResponseWriter, id primitive.ObjectID, tokenConfig tokenConfig.TokenConfig) (*string, error) {
+func GenerateTokens(writer http.ResponseWriter, id primitive.ObjectID, tokenConfig tokenConfig.TokenConfig) (*string, *customError.Error) {
 	// アクセストークン
 	accessClaims := auth.Claims{
 		Id: id,
@@ -51,7 +52,7 @@ func GenerateTokens(writer http.ResponseWriter, id primitive.ObjectID, tokenConf
 	return &accessString, nil
 }
 
-func DeleteRefreshToken(writer http.ResponseWriter) error {
+func DeleteRefreshToken(writer http.ResponseWriter) *customError.Error {
 	//クッキーを消去
 	http.SetCookie(writer, &http.Cookie{
 		Name:     refreshTokenName,

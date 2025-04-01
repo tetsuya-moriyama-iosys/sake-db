@@ -12,8 +12,8 @@ import (
 func apiRoutes(r *gin.Engine, srv *handler.Server, handlers *handlers.Handlers) {
 	// 任意認証が必要
 	// 酒データの投稿
-	r.POST("/post", auth.RESTAuthenticate(handlers), func(c *gin.Context) {
-		id, err := handlers.LiquorHandler.Post(c)
+	r.POST("/post", auth.RESTOptionalAuthenticate(handlers.TokenConfig), func(c *gin.Context) {
+		id, err := handlers.LiquorHandler.Post(c, &handlers.UserHandler.UserRepo)
 		if err != nil {
 			_ = c.Error(err)
 			return
@@ -23,8 +23,8 @@ func apiRoutes(r *gin.Engine, srv *handler.Server, handlers *handlers.Handlers) 
 	})
 
 	// カテゴリデータの投稿
-	r.POST("/category/post", auth.RESTAuthenticate(handlers), func(c *gin.Context) {
-		id, err := handlers.CategoryHandler.Post(c)
+	r.POST("/category/post", auth.RESTOptionalAuthenticate(handlers.TokenConfig), func(c *gin.Context) {
+		id, err := handlers.CategoryHandler.Post(c, &handlers.UserHandler.UserRepo)
 		if err != nil {
 			_ = c.Error(err)
 			return

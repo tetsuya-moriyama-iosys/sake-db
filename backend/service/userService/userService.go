@@ -3,11 +3,15 @@ package userService
 import (
 	"backend/db/repository/userRepository"
 	"backend/middlewares/auth"
+	"backend/middlewares/customError"
 	"context"
 )
 
-func GetUserData(ctx context.Context, repo userRepository.UsersRepository) (*userRepository.Model, error) {
-	userID := auth.GetIdNullable(ctx) //認証済みかどうかは考慮しないため空でも良いことにする
+func GetUserData(ctx context.Context, repo userRepository.UsersRepository) (*userRepository.Model, *customError.Error) {
+	userID, err := auth.GetIdNullable(ctx) //認証済みかどうかは考慮しないため空でも良いことにする
+	if err != nil {
+		return nil, err
+	}
 	if userID == nil {
 		return nil, nil
 	}
@@ -20,7 +24,10 @@ func GetUserData(ctx context.Context, repo userRepository.UsersRepository) (*use
 
 // IsLogin 単にログイン済かどうか見たい時
 func IsLogin(ctx context.Context) bool {
-	userId := auth.GetIdNullable(ctx)
+	userId, err := auth.GetIdNullable(ctx)
+	if err != nil {
+		return false
+	}
 	if userId == nil {
 		return false
 	}

@@ -3,11 +3,10 @@ package x
 import (
 	"backend/db/repository/userRepository"
 	"backend/di/handlers"
+	"backend/middlewares/customError"
 	"backend/service/authService"
 	"backend/util/helper"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/oauth2"
@@ -15,44 +14,43 @@ import (
 	"net/http"
 )
 
-func getUserData(c *gin.Context) (*TwitterUser, error) {
+func getUserData(c *gin.Context) (*TwitterUser, *customError.Error) {
 	//stateのチェック TODO: Redisで実装予定
 	code := c.Query("code")
 	if code == "" {
-		return nil, errors.New("missing code")
+		return nil, errMissCode()
 	}
 
 	config := NewOAuthConfig()
 	// GinのコンテキストからGoのcontext.Contextを取得
 	ctx := c.Request.Context()
-	token, err := config.Exchange(ctx, code, oauth2.SetAuthURLParam("code_verifier", "test_code_verifier")) //TODO:
+	token, err := config.Exchange(ctx, code, oauth2.SetAuthURLParam("code_verifier", "test_code_verifier"))
 	if err != nil {
-		return nil, errors.New("failed to exchange token")
+		return nil, errMissExchangeToken(err)
 	}
 	client := config.Client(c, token)
 	resp, err := client.Get("https://api.twitter.com/2/users/me?user.fields=profile_image_url")
 	if err != nil {
-		return nil, errors.New("failed to fetch user info")
+		return nil, errGetUserInfo(err)
+	}
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errReadResponseBody(err)
 	}
 	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body) // エラーメッセージを取得
-		return nil, fmt.Errorf("failed to fetch user info: %s", string(body))
+		return nil, errGetUserInfoBadStatus(body)
 	}
 	defer resp.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
 	var result map[string]interface{}
 	if err := json.Unmarshal(body, &result); err != nil {
-		return nil, fmt.Errorf("failed to parse user info: %w", err)
+		return nil, errUnMarshalResponseBody(err)
 	}
 
 	// ネストされた `data` の中身だけ取得
 	data, ok := result["data"].(map[string]interface{})
 	if !ok {
-		return nil, errors.New("unexpected response structure: missing 'data'")
+		return nil, errGetData(result)
 	}
 
 	// 必要な情報を取り出す
@@ -65,7 +63,7 @@ func getUserData(c *gin.Context) (*TwitterUser, error) {
 	return userInfo, nil
 }
 
-func createNewUser(c *gin.Context, h *handlers.Handlers, xUser *TwitterUser) (*userRepository.Model, error) {
+func createNewUser(c *gin.Context, h *handlers.Handlers, xUser *TwitterUser) (*userRepository.Model, *customError.Error) {
 	//画像データを取得する
 	img, err := helper.FetchImageFromURL(xUser.Image)
 	if err != nil {
@@ -91,7 +89,7 @@ func createNewUser(c *gin.Context, h *handlers.Handlers, xUser *TwitterUser) (*u
 	return newUser, nil
 }
 
-func createUserAndLogin(c *gin.Context, h *handlers.Handlers, xUser *TwitterUser) (*authService.UserWithToken, error) {
+func createUserAndLogin(c *gin.Context, h *handlers.Handlers, xUser *TwitterUser) (*authService.UserWithToken, *customError.Error) {
 	newUser, err := createNewUser(c, h, xUser)
 	if err != nil {
 		return nil, err

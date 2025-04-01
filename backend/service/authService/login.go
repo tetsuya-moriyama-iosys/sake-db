@@ -3,9 +3,9 @@ package authService
 import (
 	"backend/db/repository/userRepository"
 	"backend/graph/graphModel"
+	"backend/middlewares/customError"
 	"backend/service/authService/tokenConfig"
 	"context"
-	"errors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
@@ -30,7 +30,7 @@ func (u *UserWithToken) ToGraphQL() *graphModel.AuthPayload {
 	}
 }
 
-func LoginWithInput(ctx context.Context, writer http.ResponseWriter, input graphModel.LoginInput, r *userRepository.UsersRepository, tokenConfig tokenConfig.TokenConfig) (*UserWithToken, error) {
+func LoginWithInput(ctx context.Context, writer http.ResponseWriter, input graphModel.LoginInput, r *userRepository.UsersRepository, tokenConfig tokenConfig.TokenConfig) (*UserWithToken, *customError.Error) {
 	// ユーザーインスタンスを取得
 	user, err := getUserByInput(ctx, input, r)
 	if err != nil {
@@ -40,22 +40,22 @@ func LoginWithInput(ctx context.Context, writer http.ResponseWriter, input graph
 	return LoginByUser(user, writer, tokenConfig)
 }
 
-func getUserByInput(ctx context.Context, input graphModel.LoginInput, r *userRepository.UsersRepository) (*userRepository.Model, error) {
+func getUserByInput(ctx context.Context, input graphModel.LoginInput, r *userRepository.UsersRepository) (*userRepository.Model, *customError.Error) {
 	// ユーザーインスタンスを取得
 	user, err := r.GetByEmail(ctx, input.Email)
 	if err != nil {
-		return nil, errors.New("メールアドレスもしくはパスワードが間違っています。")
+		return nil, errLogin()
 	}
 
 	// パスワード検証
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
 	if err != nil {
-		return nil, errors.New("メールアドレスもしくはパスワードが間違っています。")
+		return nil, errLogin()
 	}
 	return user, nil
 }
 
-func loginById(ctx context.Context, id primitive.ObjectID, writer http.ResponseWriter, tokenConfig tokenConfig.TokenConfig, r *userRepository.UsersRepository) (*UserWithToken, error) {
+func loginById(ctx context.Context, id primitive.ObjectID, writer http.ResponseWriter, tokenConfig tokenConfig.TokenConfig, r *userRepository.UsersRepository) (*UserWithToken, *customError.Error) {
 	// ユーザーインスタンスを取得
 	user, err := r.GetById(ctx, id)
 	if err != nil {
@@ -65,7 +65,7 @@ func loginById(ctx context.Context, id primitive.ObjectID, writer http.ResponseW
 	return LoginByUser(user, writer, tokenConfig)
 }
 
-func LoginByUser(user *userRepository.Model, writer http.ResponseWriter, tokenConfig tokenConfig.TokenConfig) (*UserWithToken, error) {
+func LoginByUser(user *userRepository.Model, writer http.ResponseWriter, tokenConfig tokenConfig.TokenConfig) (*UserWithToken, *customError.Error) {
 	// JWTトークン生成
 	accessToken, err := GenerateTokens(writer, user.ID, tokenConfig)
 	if err != nil {

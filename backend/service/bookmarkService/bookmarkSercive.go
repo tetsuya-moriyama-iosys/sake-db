@@ -2,12 +2,13 @@ package bookmarkService
 
 import (
 	"backend/middlewares/auth"
+	"backend/middlewares/customError"
 	"context"
 	"errors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func GetPrimitiveIds(ctx context.Context, targetIdStr string) (primitive.ObjectID, primitive.ObjectID, error) {
+func GetPrimitiveIds(ctx context.Context, targetIdStr string) (primitive.ObjectID, primitive.ObjectID, *customError.Error) {
 	zero := primitive.ObjectID{} // ゼロ値の ObjectID
 	targetId, err := primitive.ObjectIDFromHex(targetIdStr)
 	if err != nil {

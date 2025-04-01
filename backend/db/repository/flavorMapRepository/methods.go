@@ -1,6 +1,7 @@
 package flavorMapRepository
 
 import (
+	"backend/middlewares/customError"
 	"backend/util/utilType"
 	"context"
 	"go.mongodb.org/mongo-driver/bson"
@@ -10,7 +11,7 @@ import (
 )
 
 // GetMasterData フルのマスターデータを取得する
-func (r *FlavorMapMasterRepository) GetMasterData(ctx context.Context) ([]*MasterModel, error) {
+func (r *FlavorMapMasterRepository) GetMasterData(ctx context.Context) ([]*MasterModel, *customError.Error) {
 	cursor, err := r.Collection.Find(ctx, bson.M{})
 	if err != nil {
 		return nil, err
@@ -24,7 +25,7 @@ func (r *FlavorMapMasterRepository) GetMasterData(ctx context.Context) ([]*Maste
 	return models, nil
 }
 
-func (r *FlavorMapRepository) PostFlavorMap(ctx context.Context, uId *primitive.ObjectID, liquorId primitive.ObjectID, categoryId int, coordinates utilType.Coordinates) error {
+func (r *FlavorMapRepository) PostFlavorMap(ctx context.Context, uId *primitive.ObjectID, liquorId primitive.ObjectID, categoryId int, coordinates utilType.Coordinates) *customError.Error {
 	d := FlavorMapModel{
 		LiquorId:   liquorId,
 		CategoryId: categoryId,
@@ -42,7 +43,7 @@ func (r *FlavorMapRepository) PostFlavorMap(ctx context.Context, uId *primitive.
 	return err
 }
 
-func (r *FlavorMapRepository) GetVotedDataByLiquor(ctx context.Context, uId primitive.ObjectID, lId primitive.ObjectID, cId int) (*FlavorMapModel, error) {
+func (r *FlavorMapRepository) GetVotedDataByLiquor(ctx context.Context, uId primitive.ObjectID, lId primitive.ObjectID, cId int) (*FlavorMapModel, *customError.Error) {
 	var model *FlavorMapModel
 	if err := r.Collection.FindOne(ctx, bson.M{
 		UserID:     uId,

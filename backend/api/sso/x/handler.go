@@ -2,36 +2,37 @@ package x
 
 import (
 	"backend/di/handlers"
+	"backend/middlewares/customError"
 	"backend/service/authService"
 	"crypto/rand"
 	"encoding/base64"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 )
 
 // oauthStateString用にランダムな文字列を生成
-func generateStateString() string {
+func generateStateString() (*string, *customError.Error) {
 	//TODO:JWTトークンにする案がある
 	bytes := make([]byte, 16) // 16バイトのランダムなデータ
 	if _, err := rand.Read(bytes); err != nil {
-		log.Fatalf("Failed to generate random bytes: %v", err)
+		return nil, errInvalidInput(err)
 	}
-	return base64.URLEncoding.EncodeToString(bytes)
+	s := base64.URLEncoding.EncodeToString(bytes)
+	return &s, nil
 }
 
 // GenerateAuthURL 認証用のURLを生成
-func GenerateAuthURL() (*string, error) {
-	state := generateStateString()
+func GenerateAuthURL() (*string, *customError.Error) {
+	state, err := generateStateString()
 	config := NewOAuthConfig()
-	url, err := config.GenerateAuthCodeURL(state)
+	url, err := config.GenerateAuthCodeURL(*state)
 	if err != nil {
 		return nil, err
 	}
 	return url, nil
 }
 
-func Login(c *gin.Context, h *handlers.Handlers, writer http.ResponseWriter) (*authService.UserWithToken, error) {
+func Login(c *gin.Context, h *handlers.Handlers, writer http.ResponseWriter) (*authService.UserWithToken, *customError.Error) {
 	//未ログインパターン(既ログインでも後勝ちでJWT発行する)
 	//①新規ユーザー・未ログイン
 	//②未ログインで、twitter連携済の既存ユーザー

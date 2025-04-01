@@ -1,14 +1,14 @@
 package categoryPost
 
 import (
-	"backend/const/errorMsg"
 	"backend/db"
 	"backend/db/repository/categoriesRepository"
+	"backend/db/repository/userRepository"
+	"backend/middlewares/auth"
+	"backend/middlewares/customError"
 	"backend/service/categoryService"
 	"backend/util/amazon/s3"
 	"backend/util/helper"
-	"backend/util/validator"
-	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -16,24 +16,22 @@ import (
 	"time"
 )
 
-func (h *Handler) Post(c *gin.Context) (*int, error) {
+func (h *Handler) Post(c *gin.Context, ur *userRepository.UsersRepository) (*int, *customError.Error) {
+	ctx := c.Request.Context()
+
 	var request RequestData
 	var imageBase64 *string
 	var imageUrl *string
 	var old *categoriesRepository.Model
 
-	ctx := c.Request.Context()
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
+	uId, uName, err := auth.GetIdAndNameNullable(c, ur)
+	if err != nil {
+		return nil, err
+	}
 
 	// 画像以外のフォームデータを構造体にバインド
 	if err := c.ShouldBind(&request); err != nil {
-		return nil, errors.New("invalid form data")
-	}
-
-	err := validator.Validate(request)
-	if err != nil {
-		return nil, err
+		return nil, errInvalidInput(c, err)
 	}
 
 	if request.Id != nil {
@@ -43,7 +41,7 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 			return nil, err
 		}
 		if hasIdInTrail == true {
-			return nil, errors.New("自身または子カテゴリを親とすることはできません")
+			return nil, errInvalidParent(request)
 		}
 
 		//logsに代入する現在のドキュメントを取得する
@@ -62,19 +60,19 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 		}
 		//旧バージョンno(今あるDBのバージョンno)が空でない場合のみチェックする
 		if *old.VersionNo != *request.VersionNo {
-			return nil, errors.New(errorMsg.VERSION)
+			return nil, errInvalidVersion(request)
 		}
 	}
 
 	// フォームからファイルを取得
-	rawImg, _, err := c.Request.FormFile("image")
-	if err != nil {
-		if errors.Is(err, http.ErrMissingFile) {
+	rawImg, _, fileErr := c.Request.FormFile("image")
+	if fileErr != nil {
+		if errors.Is(fileErr, http.ErrMissingFile) {
 			// 画像が存在しない場合
 			rawImg = nil
 		} else {
 			// その他のエラーの場合
-			return nil, err
+			return nil, errInvalidFile(fileErr, request)
 		}
 	}
 
@@ -159,13 +157,16 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 		Description: request.Description,
 		ImageURL:    newImageURL,
 		ImageBase64: newBase64,
+		UserId:      uId,
+		UserName:    uName,
 		UpdatedAt:   time.Now(),
 		VersionNo:   &newVersionNo,
 	}
 
 	//トランザクション
-	//TODO:トランザクションはレプリカセットを使わないと効かないが、ローカルだと構築するのが厳しかったので MongoDB Atlas Databaseの利用を前提に考えることにした
-	_, err = db.WithTransaction(ctx, h.DB.Client(), func(sc mongo.SessionContext) (struct{}, error) {
+	// TODO:トランザクションはレプリカセットを使わないと効かないが、ローカルだと構築するのが厳しかったので MongoDB Atlas Databaseの利用を前提に考えることにした
+	// NOTE: customError型がerrorに型推論できないようなので、一旦代入して手動でキャストして対応する
+	_, iErr := db.WithTransaction(ctx, h.DB.Client(), func(sc mongo.SessionContext) (struct{}, error) {
 		zero := struct{}{}
 
 		//logsに追加(ログの更新がコケて新規/更新だけが実行される、というパターンの方が最悪なので、ログを優先的に更新する(本来はトランザクションですが...))
@@ -192,6 +193,9 @@ func (h *Handler) Post(c *gin.Context) (*int, error) {
 
 		return zero, nil
 	})
+	if iErr != nil {
+		errors.As(iErr, &err)
+	}
 	if err != nil {
 		return nil, err
 	}

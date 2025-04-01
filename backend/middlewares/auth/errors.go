@@ -2,14 +2,18 @@ package auth
 
 import (
 	"backend/middlewares/customError"
+	"errors"
 	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
 const (
-	InvalidToken = "AUTH-001"
-	ExpireToken  = "AUTH-002"
-	BugToken     = "AUTH-003"
+	InvalidToken   = "AUTH-001"
+	ExpireToken    = "AUTH-002"
+	BugToken       = "AUTH-003"
+	NotFoundToken  = "AUTH-004"
+	NotFoundBearer = "AUTH-005"
+	ErrorId        = "AUTH-006"
 )
 
 func errTokenInvalid(err error) *customError.Error {
@@ -39,19 +43,29 @@ func errTokenSomething(err error) *customError.Error {
 	})
 }
 
-func errMissHeader(err error) *customError.Error {
-	return customError.NewError(err, customError.Params{
+func errMissHeader() *customError.Error {
+	return customError.NewError(errors.New("authorization header is missing"), customError.Params{
 		StatusCode: http.StatusUnauthorized,
-		ErrCode:    BugToken,
+		ErrCode:    NotFoundToken,
 		UserMsg:    "トークンが見つかりません。",
 		Level:      logrus.InfoLevel,
 	})
 }
-func errMissBearer(err error) *customError.Error {
-	return customError.NewError(err, customError.Params{
+
+func errMissBearer() *customError.Error {
+	return customError.NewError(errors.New("authorization token is missing"), customError.Params{
 		StatusCode: http.StatusUnauthorized,
-		ErrCode:    BugToken,
+		ErrCode:    NotFoundBearer,
 		UserMsg:    "トークンが見つかりません。",
+		Level:      logrus.InfoLevel,
+	})
+}
+
+func errId() *customError.Error {
+	return customError.NewError(errors.New("unauthorized"), customError.Params{
+		StatusCode: http.StatusUnauthorized,
+		ErrCode:    ErrorId,
+		UserMsg:    "ユーザーIDがが見つかりません。",
 		Level:      logrus.InfoLevel,
 	})
 }

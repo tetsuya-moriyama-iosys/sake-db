@@ -30,19 +30,16 @@ func (e *Error) Unwrap() error {
 }
 
 type Params struct {
-	StatusCode   int
-	ErrCode      string
-	UserMsg      string
-	LocationSkip int // optional
-	Input        interface{}
-	Level        logrus.Level
+	StatusCode  int
+	ErrCode     string
+	UserMsg     string
+	ParentStack int // optional
+	Input       interface{}
+	Level       logrus.Level
 }
 
 func NewError(err error, params Params) *Error {
-	skip := params.LocationSkip
-	if skip == 0 {
-		skip = 3 // デフォルト値
-	}
+	skip := params.ParentStack + 3
 
 	return &Error{
 		ID:          uuid.New().String(),

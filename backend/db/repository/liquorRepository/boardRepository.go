@@ -2,13 +2,14 @@ package liquorRepository
 
 import (
 	"backend/db/repository/agg"
+	"backend/middlewares/customError"
 	"context"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func (r *LiquorsRepository) BoardList(ctx context.Context, id primitive.ObjectID) ([]*BoardModelWithRelation, error) {
+func (r *LiquorsRepository) BoardList(ctx context.Context, id primitive.ObjectID) ([]*BoardModelWithRelation, *customError.Error) {
 	// パイプラインを定義
 	pipeline := bson.A{
 		// 1. liquor_idに一致するドキュメントをフィルタリング
@@ -71,7 +72,7 @@ func (r *LiquorsRepository) BoardList(ctx context.Context, id primitive.ObjectID
 }
 
 // BoardListByUser ユーザーに紐づく掲示板投稿履歴を取得する。評価別および最近のものを取得
-func (r *LiquorsRepository) BoardListByUser(ctx context.Context, uId primitive.ObjectID, limit int) (*BoardListResponse, error) {
+func (r *LiquorsRepository) BoardListByUser(ctx context.Context, uId primitive.ObjectID, limit int) (*BoardListResponse, *customError.Error) {
 	pipeline := bson.A{
 		bson.M{"$match": bson.M{UserID: uId}}, // フィルタ
 		bson.M{"$facet": bson.M{
@@ -164,7 +165,7 @@ func (r *LiquorsRepository) BoardListByUser(ctx context.Context, uId primitive.O
 }
 
 // BoardGetByUserAndLiquor ユーザーIDとLiquorIDの組み合わせで、一意のモデルを取得する(編集用)
-func (r *LiquorsRepository) BoardGetByUserAndLiquor(ctx context.Context, liquorId primitive.ObjectID, userId primitive.ObjectID) (*BoardModel, error) {
+func (r *LiquorsRepository) BoardGetByUserAndLiquor(ctx context.Context, liquorId primitive.ObjectID, userId primitive.ObjectID) (*BoardModel, *customError.Error) {
 	// コレクションからフィルタに一致するドキュメントを取得
 	var board *BoardModel
 	if err := r.boardCollection.FindOne(ctx, bson.M{LiquorID: liquorId, UserID: userId}).Decode(&board); err != nil {
@@ -174,7 +175,7 @@ func (r *LiquorsRepository) BoardGetByUserAndLiquor(ctx context.Context, liquorI
 	return board, nil
 }
 
-func (r *LiquorsRepository) BoardInsert(ctx context.Context, board *BoardModel) error {
+func (r *LiquorsRepository) BoardInsert(ctx context.Context, board *BoardModel) *customError.Error {
 	// user_idが空かどうかを判定
 	if board.UserId == nil {
 		// user_idが空の場合はInsertOneを使用
