@@ -27,7 +27,7 @@ func (r *UsersRepository) Register(ctx context.Context, user *Model) (*Model, *c
 	// MongoDBにデータを挿入
 	result, err := r.collection.InsertOne(ctx, user)
 	if err != nil {
-		return nil, err
+		return nil, errRegister(err, user)
 	}
 
 	// 挿入されたIDをuserのIDにセット
@@ -42,7 +42,7 @@ func (r *UsersRepository) Update(ctx context.Context, user *Model) *customError.
 		"$set": user, // userオブジェクト内のフィールドをセット
 	})
 	if err != nil {
-		return err
+		return errUpdate(err, user)
 	}
 
 	return nil
@@ -52,7 +52,7 @@ func (r *UsersRepository) GetByEmail(ctx context.Context, email string) (*Model,
 	// ドキュメントを取得
 	var user Model
 	if err := r.collection.FindOne(ctx, bson.M{Email: email}).Decode(&user); err != nil {
-		return nil, err
+		return nil, errGetByEmail(err, email)
 	}
 
 	return &user, nil
@@ -66,7 +66,7 @@ func (r *UsersRepository) GetById(ctx context.Context, id primitive.ObjectID) (*
 			// ドキュメントが見つからない場合、nilを返す（エラーにはしない）
 			return nil, nil
 		}
-		return nil, err
+		return nil, errGetById(err, id)
 	}
 
 	return &user, nil
@@ -80,7 +80,7 @@ func (r *UsersRepository) GetByTwitterId(ctx context.Context, id string) (*Model
 			// ドキュメントが見つからない場合、nilを返す（エラーにはしない）
 			return nil, nil
 		}
-		return nil, err
+		return nil, errGetByTwitterId(err, id)
 	}
 	return &user, nil
 }
@@ -95,16 +95,19 @@ func (r *UsersRepository) SetPasswordToken(ctx context.Context, email string, to
 	})
 	if result.MatchedCount == 0 {
 		// ドキュメントが存在しなかった場合の処理
-		return errors.New("ユーザーが見つかりません")
+		return errSetPasswordTokenNotFound(email, token)
 	}
-	return err
+	if err != nil {
+		return errSetPasswordToken(err, email, token)
+	}
+	return nil
 }
 
 func (r *UsersRepository) GetByPasswordToken(ctx context.Context, token string) (*Model, *customError.Error) {
 	// コレクションを取得
 	var user Model
 	if err := r.collection.FindOne(ctx, bson.M{PasswordResetToken: token, PasswordResetTokenExpire: bson.M{"$gt": time.Now()}}).Decode(&user); err != nil {
-		return nil, errors.New("有効期限切れです。パスワードリセットURLを再発行してください。")
+		return nil, errGetByPasswordToken(err, token)
 	}
 
 	return &user, nil
@@ -120,7 +123,7 @@ func (r *UsersRepository) PasswordReset(ctx context.Context, user Model, newPass
 		},
 	})
 	if err != nil {
-		return err
+		return errPasswordReset(err, user)
 	}
 	return nil
 }

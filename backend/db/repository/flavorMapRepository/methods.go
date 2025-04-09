@@ -4,6 +4,7 @@ import (
 	"backend/middlewares/customError"
 	"backend/util/utilType"
 	"context"
+	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -14,12 +15,12 @@ import (
 func (r *FlavorMapMasterRepository) GetMasterData(ctx context.Context) ([]*MasterModel, *customError.Error) {
 	cursor, err := r.Collection.Find(ctx, bson.M{})
 	if err != nil {
-		return nil, err
+		return nil, errMasterFind(err)
 	}
 
 	var models []*MasterModel
 	if err = cursor.All(ctx, &models); err != nil {
-		return nil, err
+		return nil, errMasterFindCursor(err)
 	}
 
 	return models, nil
@@ -37,10 +38,16 @@ func (r *FlavorMapRepository) PostFlavorMap(ctx context.Context, uId *primitive.
 	var err error
 	if uId == nil {
 		_, err = r.Collection.InsertOne(ctx, d)
+		if err != nil {
+			return errInsert(err, d)
+		}
 	} else {
 		_, err = r.Upsert(ctx, bson.M{UserID: uId, CategoryID: categoryId, LiquorID: liquorId}, d)
+		if err != nil {
+			return errUpdate(err, d)
+		}
 	}
-	return err
+	return nil
 }
 
 func (r *FlavorMapRepository) GetVotedDataByLiquor(ctx context.Context, uId primitive.ObjectID, lId primitive.ObjectID, cId int) (*FlavorMapModel, *customError.Error) {
@@ -50,10 +57,10 @@ func (r *FlavorMapRepository) GetVotedDataByLiquor(ctx context.Context, uId prim
 		LiquorID:   lId,
 		CategoryID: cId,
 	}).Decode(&model); err != nil {
-		if err == mongo.ErrNoDocuments {
+		if errors.Is(err, mongo.ErrNoDocuments) {
 			return nil, nil
 		}
-		return nil, err
+		return nil, errGetVotedDataByLiquor(err, uId, lId, cId)
 	}
 
 	return model, nil

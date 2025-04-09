@@ -9,7 +9,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
 )
 
 type CategoryRepository struct {
@@ -31,24 +30,21 @@ func (r *CategoryRepository) GetCategories(ctx context.Context) ([]*Model, *cust
 	//データを取得
 	cursor, err := r.collection.Find(ctx, bson.M{})
 	if err != nil {
-		log.Fatal("データ取得エラー:", err)
-		return nil, err
+		return nil, errFind(err)
 	}
 	defer cursor.Close(ctx)
 
 	var categoryList []*Model
 	for cursor.Next(ctx) {
 		var category Model
-		if err := cursor.Decode(&category); err != nil {
-			log.Fatal("デコードエラー:", err)
-			return nil, err
+		if err = cursor.Decode(&category); err != nil {
+			return nil, errFindDecode(err)
 		}
 		categoryList = append(categoryList, &category)
 	}
 
 	if err := cursor.Err(); err != nil {
-		log.Fatal("カーソルエラー:", err)
-		return nil, err
+		return nil, errFindCursor(err)
 	}
 
 	return categoryList, nil
@@ -60,9 +56,9 @@ func (r *CategoryRepository) GetCategoryByID(ctx context.Context, id int) (*Mode
 	err := r.collection.FindOne(ctx, bson.M{"id": id}).Decode(&result)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return nil, errors.New("category not found")
+			return nil, errNotFound(err, id)
 		}
-		return nil, err
+		return nil, errFindById(err, id)
 	}
 
 	return &result, nil
@@ -71,32 +67,32 @@ func (r *CategoryRepository) GetCategoryByID(ctx context.Context, id int) (*Mode
 func (r *CategoryRepository) InsertOne(ctx context.Context, category *Model) *customError.Error {
 	result, err := r.collection.InsertOne(ctx, category)
 	if err != nil {
-		return err
+		return errInsertOne(err, category)
 	}
 
 	// InsertOneResultからIDを取得
 	_, ok := result.InsertedID.(primitive.ObjectID)
 	if !ok {
-		return err
+		return errInsertOneGetId(err, category)
 	}
 
 	return nil
 }
 
-func (r *CategoryRepository) UpdateOne(ctx context.Context, liquor *Model) *customError.Error {
+func (r *CategoryRepository) UpdateOne(ctx context.Context, category *Model) *customError.Error {
 	// フィルタ：IDを用いてドキュメントを特定
-	filter := bson.M{"id": liquor.ID}
+	filter := bson.M{"id": category.ID}
 
 	// 構造体を BSON にマッピング
-	data, err := bson.Marshal(liquor)
+	data, err := bson.Marshal(category)
 	if err != nil {
-		return err
+		return errUpdateBsonMap(err, category)
 	}
 
 	// BSON を bson.M に変換
 	var update bson.M
 	if err := bson.Unmarshal(data, &update); err != nil {
-		return err
+		return errUpdateUnMarshal(err, category)
 	}
 
 	// 更新内容：$setオペレーターを使って指定したフィールドを更新
@@ -105,12 +101,12 @@ func (r *CategoryRepository) UpdateOne(ctx context.Context, liquor *Model) *cust
 	// UpdateOneでドキュメントを更新
 	result, err := r.collection.UpdateOne(ctx, filter, updateBson)
 	if err != nil {
-		return err
+		return errUpdateOne(err, category)
 	}
 
 	// UpdateOneは更新したドキュメントのIDを直接返さないため、元のIDを返す
 	if result.MatchedCount == 0 {
-		return errors.New("no document matched the provided ID")
+		return errUpdateOneGetId(err, category)
 	}
 
 	return nil
@@ -127,11 +123,7 @@ func (r *CategoryRepository) GetMaxID(ctx context.Context) (int, *customError.Er
 
 	err := r.collection.FindOne(ctx, bson.D{}, findOptions).Decode(&result)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			// コレクションにドキュメントがない場合、最大IDを0とする
-			return 0, err
-		}
-		return 0, err
+		return 0, errGetMaxID(err)
 	}
 
 	return result.ID, nil

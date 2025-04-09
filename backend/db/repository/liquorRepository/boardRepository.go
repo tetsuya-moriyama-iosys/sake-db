@@ -56,7 +56,7 @@ func (r *LiquorsRepository) BoardList(ctx context.Context, id primitive.ObjectID
 	cursor, err := r.boardCollection.Aggregate(ctx, pipeline)
 
 	if err != nil {
-		return nil, err
+		return nil, errGetList(err, id)
 	}
 	defer cursor.Close(ctx)
 
@@ -65,7 +65,7 @@ func (r *LiquorsRepository) BoardList(ctx context.Context, id primitive.ObjectID
 
 	// 取得したドキュメントをスライスにデコード
 	if err = cursor.All(ctx, &boards); err != nil {
-		return nil, err
+		return nil, errGetListDecode(err, id)
 	}
 
 	return boards, nil
@@ -138,7 +138,7 @@ func (r *LiquorsRepository) BoardListByUser(ctx context.Context, uId primitive.O
 	// MongoDBの集計クエリを実行
 	cursor, err := r.boardCollection.Aggregate(ctx, pipeline)
 	if err != nil {
-		return nil, err
+		return nil, errBoardListByUser(err, uId, limit)
 	}
 	defer cursor.Close(ctx)
 
@@ -157,7 +157,7 @@ func (r *LiquorsRepository) BoardListByUser(ctx context.Context, uId primitive.O
 	var result *BoardListResponse
 	if cursor.Next(ctx) {
 		if err := cursor.Decode(&result); err != nil {
-			return nil, err
+			return nil, errBoardListByUserDecode(err, uId, limit)
 		}
 	}
 
@@ -169,7 +169,7 @@ func (r *LiquorsRepository) BoardGetByUserAndLiquor(ctx context.Context, liquorI
 	// コレクションからフィルタに一致するドキュメントを取得
 	var board *BoardModel
 	if err := r.boardCollection.FindOne(ctx, bson.M{LiquorID: liquorId, UserID: userId}).Decode(&board); err != nil {
-		return nil, err
+		return nil, errBoardGetByUserAndLiquor(err, liquorId, userId)
 	}
 
 	return board, nil
@@ -181,7 +181,7 @@ func (r *LiquorsRepository) BoardInsert(ctx context.Context, board *BoardModel) 
 		// user_idが空の場合はInsertOneを使用
 		_, err := r.boardCollection.InsertOne(ctx, board)
 		if err != nil {
-			return err
+			return errBoardInsertGuest(err, board)
 		}
 		return nil
 	}
@@ -201,9 +201,8 @@ func (r *LiquorsRepository) BoardInsert(ctx context.Context, board *BoardModel) 
 
 	// MongoDBにデータを更新または挿入（upsert）
 	_, err := r.boardCollection.UpdateOne(ctx, filter, update, opts)
-	//_, err := r.boardCollection.InsertOne(ctx, board)
 	if err != nil {
-		return err
+		return errBoardUpsert(err, board)
 	}
 
 	return nil

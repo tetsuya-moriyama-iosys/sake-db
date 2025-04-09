@@ -38,8 +38,10 @@ func (r *BookMarkRepository) Find(ctx context.Context, uid primitive.ObjectID, t
 	// クエリを実行し、ドキュメントが存在するか確認
 	var result *Model
 	err := r.collection.FindOne(ctx, filter(uid, targetId)).Decode(&result) //取得しデコードする
-	//エラーごと返す(エラーならresultがnilのはず)
-	return result, err
+	if err != nil {
+		return nil, errFindOne(err, uid, targetId)
+	}
+	return result, nil
 }
 
 func (r *BookMarkRepository) List(ctx context.Context, uid primitive.ObjectID) ([]*BookMarkListUser, *customError.Error) {
@@ -49,14 +51,14 @@ func (r *BookMarkRepository) List(ctx context.Context, uid primitive.ObjectID) (
 	// パイプラインを実行
 	cursor, err := r.collection.Aggregate(ctx, pipeline)
 	if err != nil {
-		return nil, err
+		return nil, errListAggregate(err, uid)
 	}
 	defer cursor.Close(ctx)
 	// 結果を格納するスライス
 	var bList []*BookMarkListUser
 	// 取得したドキュメントをスライスにデコード
 	if err = cursor.All(ctx, &bList); err != nil {
-		return nil, err
+		return nil, errListDecode(err, uid)
 	}
 	return bList, nil
 }
@@ -68,7 +70,7 @@ func (r *BookMarkRepository) BookmarkedList(ctx context.Context, uid primitive.O
 	// パイプラインを実行
 	cursor, err := r.collection.Aggregate(ctx, pipeline)
 	if err != nil {
-		return nil, err
+		return nil, errBookmarkedListAggregate(err, uid)
 	}
 	defer cursor.Close(ctx)
 
@@ -76,30 +78,30 @@ func (r *BookMarkRepository) BookmarkedList(ctx context.Context, uid primitive.O
 	var bList []*BookMarkListUser
 	// 取得したドキュメントをスライスにデコード
 	if err = cursor.All(ctx, &bList); err != nil {
-		return nil, err
+		return nil, errBookmarkedListDecode(err, uid)
 	}
 	return bList, nil
 }
 
 func (r *BookMarkRepository) Add(ctx context.Context, uid primitive.ObjectID, targetId primitive.ObjectID) *customError.Error {
-	_, err := r.Find(ctx, uid, targetId)
-	if err == nil {
+	_, findErr := r.Find(ctx, uid, targetId)
+	if findErr == nil {
 		//見つかった場合は重複するのでエラー
-		return errors.New("すでにブックマークされています")
+		return errDuplicated(findErr, uid, targetId)
 	}
 
-	if err != mongo.ErrNoDocuments {
+	if !errors.Is(findErr, mongo.ErrNoDocuments) {
 		// ドキュメントが存在しない以外のエラーは普通にエラーなので返す
-		return err
+		return errOnAddFind(findErr, uid, targetId)
 	}
 
 	//レコードを挿入する
-	_, err = r.collection.InsertOne(ctx, &Model{
+	_, err := r.collection.InsertOne(ctx, &Model{
 		UserId:           uid,
 		BookmarkedUserId: targetId,
 	})
 	if err != nil {
-		return err
+		return errOnAdd(findErr, uid, targetId)
 	}
 	return nil
 }
@@ -108,11 +110,11 @@ func (r *BookMarkRepository) Remove(ctx context.Context, uid primitive.ObjectID,
 	//レコードを削除する
 	result, err := r.collection.DeleteOne(ctx, filter(uid, targetId))
 	if err != nil {
-		return err
+		return errDeleteOne(err, uid, targetId)
 	}
 
 	if result.DeletedCount == 0 {
-		return errors.New("ブックマークが存在しませんでした")
+		return errOnDelete(err, uid, targetId)
 	}
 	return nil
 }
@@ -212,12 +214,11 @@ func (r *BookMarkRepository) GetRecommendLiquors(ctx context.Context, uid primit
 			"$sample": bson.M{"size": limit},
 		},
 	}
-	//fmt.Printf("Pipeline: %+v\n", pipeline)
 
 	// パイプライン実行
 	cursor, err := r.collection.Aggregate(ctx, pipeline)
 	if err != nil {
-		return nil, err
+		return nil, errFindRecommend(err, uid)
 	}
 	defer cursor.Close(ctx)
 
@@ -229,7 +230,7 @@ func (r *BookMarkRepository) GetRecommendLiquors(ctx context.Context, uid primit
 		var doc *Recommend
 		err := cursor.Decode(&doc)
 		if err != nil {
-			return nil, err
+			return nil, errRecommendDecode(err, uid)
 		}
 
 		// 結果をコンソールに表示
@@ -239,7 +240,7 @@ func (r *BookMarkRepository) GetRecommendLiquors(ctx context.Context, uid primit
 	}
 
 	if err := cursor.Err(); err != nil {
-		return nil, err
+		return nil, errRecommend(err, uid)
 	}
 
 	return &result, nil
