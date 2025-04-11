@@ -2,6 +2,7 @@ package authService
 
 import (
 	"backend/middlewares/auth"
+	"backend/middlewares/customError"
 	"backend/service/authService/tokenConfig"
 	"github.com/golang-jwt/jwt/v4"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -11,7 +12,7 @@ import (
 
 var refreshTokenName = "refresh_token"
 
-func parseRefreshToken(req *http.Request, tokenConfig tokenConfig.TokenConfig) (*auth.Claims, error) {
+func parseRefreshToken(req *http.Request, tokenConfig tokenConfig.TokenConfig) (*auth.Claims, *customError.Error) {
 	// クッキーを取得
 	cookie, err := req.Cookie(refreshTokenName)
 	if err != nil {
@@ -19,7 +20,7 @@ func parseRefreshToken(req *http.Request, tokenConfig tokenConfig.TokenConfig) (
 	}
 
 	// リフレッシュトークンの検証
-	token, err := jwt.ParseWithClaims(cookie.Value, &auth.Claims{}, func(t *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(cookie.Value, &auth.Claims{}, func(t *jwt.Token) (interface{}, *customError.Error) {
 		return tokenConfig.RefreshSecretKey, nil
 	})
 	if err != nil {
@@ -37,7 +38,7 @@ func parseRefreshToken(req *http.Request, tokenConfig tokenConfig.TokenConfig) (
 }
 
 // リフレッシュトークンを使用してアクセストークンを再生成
-func refreshHandler(req *http.Request, writer http.ResponseWriter, tokenConfig tokenConfig.TokenConfig) (*string, error) {
+func refreshHandler(req *http.Request, writer http.ResponseWriter, tokenConfig tokenConfig.TokenConfig) (*string, *customError.Error) {
 	claims, err := parseRefreshToken(req, tokenConfig)
 	if err != nil {
 		return nil, err
@@ -53,7 +54,7 @@ func refreshHandler(req *http.Request, writer http.ResponseWriter, tokenConfig t
 }
 
 // リフレッシュトークンを再発行する
-func resetRefreshToken(writer http.ResponseWriter, id primitive.ObjectID, tokenConfig tokenConfig.TokenConfig) error {
+func resetRefreshToken(writer http.ResponseWriter, id primitive.ObjectID, tokenConfig tokenConfig.TokenConfig) *customError.Error {
 	// リフレッシュトークン
 	refreshClaims := auth.Claims{
 		Id: id,

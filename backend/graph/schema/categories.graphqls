@@ -7,6 +7,8 @@ type Category {
   imageBase64: String     # 縮小された画像のBase64エンコードデータ
   versionNo: Int
   readonly:Boolean!
+  userId: ID
+  userName: String
   updatedAt: DateTime #初期セットには存在しない可能性がある
   children: [Category!]
 }

@@ -2,11 +2,12 @@ package categoryService
 
 import (
 	"backend/db/repository/categoriesRepository"
+	"backend/middlewares/customError"
 	"context"
 )
 
 // LeveledCategoriesGet 階層分けされたカテゴリを取得する
-func LeveledCategoriesGet(ctx context.Context, r *categoriesRepository.CategoryRepository) ([]*categoriesRepository.Model, error) {
+func LeveledCategoriesGet(ctx context.Context, r *categoriesRepository.CategoryRepository) ([]*categoriesRepository.Model, *customError.Error) {
 	//DBからデータを取得
 	categories, err := r.GetCategories(ctx)
 	if err != nil {
@@ -39,7 +40,7 @@ func LeveledCategoriesGet(ctx context.Context, r *categoriesRepository.CategoryR
 	return rootCategories, nil
 }
 
-func PartialLeveledCategoriesGet(ctx context.Context, targetId int, r *categoriesRepository.CategoryRepository) (*categoriesRepository.Model, error) {
+func PartialLeveledCategoriesGet(ctx context.Context, targetId int, r *categoriesRepository.CategoryRepository) (*categoriesRepository.Model, *customError.Error) {
 	//DBからデータを全件取得
 	categories, err := LeveledCategoriesGet(ctx, r)
 	if err != nil {
@@ -57,7 +58,7 @@ func PartialLeveledCategoriesGet(ctx context.Context, targetId int, r *categorie
 	return nil, nil
 }
 
-func GetBelongCategoryIdList(ctx context.Context, targetId int, r *categoriesRepository.CategoryRepository) ([]int, error) {
+func GetBelongCategoryIdList(ctx context.Context, targetId int, r *categoriesRepository.CategoryRepository) ([]int, *customError.Error) {
 	var result []int
 	categoryList, err := PartialLeveledCategoriesGet(ctx, targetId, r)
 	if err != nil {
@@ -82,7 +83,7 @@ func GetBelongCategoryIdList(ctx context.Context, targetId int, r *categoriesRep
 }
 
 // GetCategoryTrail 指定されたカテゴリIDのパンくずリストを配列として作成する
-func GetCategoryTrail(ctx context.Context, targetId int, r *categoriesRepository.CategoryRepository) (*[]categoriesRepository.Model, error) {
+func GetCategoryTrail(ctx context.Context, targetId int, r *categoriesRepository.CategoryRepository) (*[]categoriesRepository.Model, *customError.Error) {
 	var result []categoriesRepository.Model
 	//DBからデータを取得
 	categories, err := r.GetCategories(ctx)
@@ -106,7 +107,7 @@ func GetCategoryTrail(ctx context.Context, targetId int, r *categoriesRepository
 }
 
 // HasIdInTrail 指定されたidがtargetIdに至るまでの階層に存在するかチェック
-func HasIdInTrail(ctx context.Context, r *categoriesRepository.CategoryRepository, id int, targetId int) (bool, error) {
+func HasIdInTrail(ctx context.Context, r *categoriesRepository.CategoryRepository, id int, targetId int) (bool, *customError.Error) {
 	// targetIdまでのパンくずリストを取得
 	categoryTrail, err := GetCategoryTrail(ctx, targetId, r)
 	if err != nil {

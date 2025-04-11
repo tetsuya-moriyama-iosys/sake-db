@@ -1,4 +1,4 @@
-FROM nginx:alpine
+FROM golang:1.23
 
 # Nginx 設定をコピー
 COPY .devcontainer/backend_proxy.conf /etc/nginx/nginx.conf
