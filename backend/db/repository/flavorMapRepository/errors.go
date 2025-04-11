@@ -15,6 +15,7 @@ const (
 	Insert               = "REPO-FLAVOR-MAP-003-Insert"
 	Update               = "REPO-FLAVOR-MAP-004-Update"
 	GetVotedDataByLiquor = "REPO-FLAVOR-MAP-005-GetVotedDataByLiquor"
+	Upsert               = "REPO-FLAVOR-MAP-006-Upsert"
 )
 
 func errMasterFind(err error) *customError.Error {
@@ -62,5 +63,15 @@ func errGetVotedDataByLiquor(err error, uId primitive.ObjectID, lId primitive.Ob
 		UserMsg:    errorMsg.SERVER,
 		Level:      logrus.ErrorLevel,
 		Input:      fmt.Printf("uId: %s, lId: %s, cId: %d", uId.Hex(), lId.Hex(), cId),
+	})
+}
+
+func errUpsert(err error, tying TyingModel) *customError.Error {
+	return customError.NewError(err, customError.Params{
+		StatusCode: http.StatusInternalServerError,
+		ErrCode:    Upsert,
+		UserMsg:    errorMsg.SERVER,
+		Level:      logrus.ErrorLevel,
+		Input:      tying,
 	})
 }

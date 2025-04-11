@@ -8,14 +8,13 @@ import (
 	"backend/graph/graphModel"
 	"backend/middlewares/customError"
 	"backend/service/userService"
+	"backend/util/helper"
 	"context"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // GetUserByID is the resolver for the getUserById field.
 func (r *queryResolver) GetUserByID(ctx context.Context, id string) (*graphModel.User, *customError.Error) {
-	uObjID, err := primitive.ObjectIDFromHex(id)
+	uObjID, err := helper.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +27,7 @@ func (r *queryResolver) GetUserByID(ctx context.Context, id string) (*graphModel
 
 // GetUserByIDDetail is the resolver for the getUserByIdDetail field.
 func (r *queryResolver) GetUserByIDDetail(ctx context.Context, id string) (*graphModel.UserPageData, *customError.Error) {
-	uObjID, err := primitive.ObjectIDFromHex(id) //BoardListByUserに必要なので･･････
+	uObjID, err := helper.ObjectIDFromHex(id) //BoardListByUserに必要なので･･････
 	if err != nil {
 		return nil, err
 	}

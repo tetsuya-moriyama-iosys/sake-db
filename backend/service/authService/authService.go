@@ -2,12 +2,16 @@ package authService
 
 import (
 	"backend/db/repository/userRepository"
+	"backend/graph/graphModel"
 	"backend/middlewares/auth"
 	"backend/middlewares/customError"
 	"backend/service/authService/tokenConfig"
 	"context"
+	"errors"
 	"github.com/golang-jwt/jwt/v4"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"time"
 )
@@ -65,4 +69,41 @@ func DeleteRefreshToken(writer http.ResponseWriter) *customError.Error {
 		SameSite: http.SameSiteLaxMode, // 必要かどうか後で確認
 	})
 	return nil
+}
+
+// RegisterUser is the resolver for the registerUser field.
+func RegisterUser(ctx context.Context, r userRepository.UsersRepository, input graphModel.RegisterInput) (*userRepository.Model, *customError.Error) {
+	//TODO: なんかロジックが大きいのでサービス層に分離すべきな気がする
+	if input.Password == nil {
+		return nil, errors.New("パスワードは必須です")
+	}
+	//パスワードをハッシュする
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*input.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+
+	//ユーザー構造体の定義
+	user := userRepository.Model{
+		ID:          primitive.NewObjectID(),
+		Name:        input.Name,
+		Email:       &input.Email,
+		Password:    hashedPassword,
+		ImageBase64: input.ImageBase64,
+		Profile:     input.Profile,
+	}
+
+	//登録して、挿入したデータを受け取る
+	newUser, err := r.Register(ctx, &user)
+	if err != nil {
+		// MongoDBエラーかつ重複エラーかを判定
+		var mongoErr mongo.WriteException
+		if errors.As(err, &mongoErr) {
+			if len(mongoErr.WriteErrors) > 0 && mongoErr.WriteErrors[0].Code == 11000 {
+				return nil, errors.New("このメールアドレスは既に登録されています。")
+			}
+		}
+		return nil, errors.New("ユーザー登録に失敗しました。")
+	}
+	return newUser, nil
 }

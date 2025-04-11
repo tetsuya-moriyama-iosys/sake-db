@@ -9,21 +9,15 @@ import (
 	"backend/middlewares/auth"
 	"backend/middlewares/customError"
 	"backend/service/flavorMapService"
+	"backend/util/helper"
 	"backend/util/utilType"
 	"context"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // PostFlavor is the resolver for the postFlavor field.
 func (r *mutationResolver) PostFlavor(ctx context.Context, input graphModel.PostFlavorMap) (bool, *customError.Error) {
-	lId, err := primitive.ObjectIDFromHex(input.LiquorID)
-	if err != nil {
-		return false, err
-	}
-
 	//マスタが存在するのを確認したので、フレーバーマップを更新する
-	err = flavorMapService.PostFlavorMap(ctx, &r.FlavorMapMstRepo, &r.FlavorLiqRepo, &r.FlavorMapRepo, &r.CategoryRepo, &r.LiquorRepo, lId, utilType.Coordinates{
+	err := flavorMapService.PostFlavorMap(ctx, &r.FlavorMapMstRepo, &r.FlavorLiqRepo, &r.FlavorMapRepo, &r.CategoryRepo, &r.LiquorRepo, input, utilType.Coordinates{
 		X: input.X,
 		Y: input.Y,
 	})
@@ -32,7 +26,7 @@ func (r *mutationResolver) PostFlavor(ctx context.Context, input graphModel.Post
 
 // GetFlavorMap is the resolver for the getFlavorMap field.
 func (r *queryResolver) GetFlavorMap(ctx context.Context, liquorID string) (*graphModel.FlavorMapData, *customError.Error) {
-	lId, err := primitive.ObjectIDFromHex(liquorID)
+	lId, err := helper.ObjectIDFromHex(liquorID)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +48,7 @@ func (r *queryResolver) GetVoted(ctx context.Context, liquorID string) (*graphMo
 	if err != nil {
 		return nil, err
 	}
-	lId, err := primitive.ObjectIDFromHex(liquorID)
+	lId, err := helper.ObjectIDFromHex(liquorID)
 	if err != nil {
 		return nil, err
 	}

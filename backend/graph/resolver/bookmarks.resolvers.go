@@ -11,8 +11,8 @@ import (
 	"backend/middlewares/customError"
 	"backend/service/bookmarkService"
 	"context"
+	"errors"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -50,7 +50,7 @@ func (r *queryResolver) GetIsBookMarked(ctx context.Context, id string) (bool, *
 	}
 	_, err = r.BookmarkRepo.Find(ctx, uId, targetId)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
+		if errors.Is(err.RawErr, mongo.ErrNoDocuments) {
 			// ドキュメントが存在しないエラーは、単にfalseを返せばいい
 			return false, nil
 		}
@@ -89,11 +89,7 @@ func (r *queryResolver) GetBookMarkList(ctx context.Context) ([]*graphModel.Book
 
 // GetBookMarkedList is the resolver for the getBookMarkedList field.
 func (r *queryResolver) GetBookMarkedList(ctx context.Context, id string) ([]*graphModel.BookMarkListUser, *customError.Error) {
-	idObj, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, err
-	}
-	bList, err := r.BookmarkRepo.BookmarkedList(ctx, idObj)
+	bList, err := bookmarkService.GetBookMarkedList(ctx, r.BookmarkRepo, id)
 	if err != nil {
 		return nil, err
 	}

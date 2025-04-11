@@ -14,7 +14,7 @@ import (
 )
 
 type LiquorsRepository struct {
-	db              *db.DB
+	DB              *db.DB            //トランザクション用に公開する必要が出てきた
 	collection      *mongo.Collection //コレクションを先に取得して格納しておく
 	logsCollection  *mongo.Collection
 	boardCollection *mongo.Collection
@@ -23,7 +23,7 @@ type LiquorsRepository struct {
 
 func NewLiquorsRepository(db *db.DB) LiquorsRepository {
 	return LiquorsRepository{
-		db:              db,
+		DB:              db,
 		collection:      db.Collection(CollectionName),
 		logsCollection:  db.Collection(LogsCollectionName),
 		boardCollection: db.Collection(BoardCollectionName),

@@ -9,9 +9,8 @@ import (
 	"backend/graph/graphModel"
 	"backend/middlewares/auth"
 	"backend/middlewares/customError"
+	"backend/util/helper"
 	"context"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // PostTag is the resolver for the postTag field.
@@ -20,7 +19,10 @@ func (r *mutationResolver) PostTag(ctx context.Context, input graphModel.TagInpu
 	if err != nil {
 		return nil, err
 	}
-	lId, err := primitive.ObjectIDFromHex(input.LiquorID)
+	lId, err := helper.ObjectIDFromHex(input.LiquorID)
+	if err != nil {
+		return nil, err
+	}
 	tag, err := r.LiquorRepo.PostTag(ctx, lId, uId, input.Text)
 	if err != nil {
 		return nil, err
@@ -30,7 +32,7 @@ func (r *mutationResolver) PostTag(ctx context.Context, input graphModel.TagInpu
 
 // DeleteTag is the resolver for the deleteTag field.
 func (r *mutationResolver) DeleteTag(ctx context.Context, id string) (bool, *customError.Error) {
-	tId, err := primitive.ObjectIDFromHex(id)
+	tId, err := helper.ObjectIDFromHex(id)
 	if err != nil {
 		return false, err
 	}
@@ -43,7 +45,7 @@ func (r *mutationResolver) DeleteTag(ctx context.Context, id string) (bool, *cus
 
 // GetTags is the resolver for the getTags field.
 func (r *queryResolver) GetTags(ctx context.Context, liquorID string) ([]*graphModel.Tag, *customError.Error) {
-	tId, err := primitive.ObjectIDFromHex(liquorID)
+	tId, err := helper.ObjectIDFromHex(liquorID)
 	if err != nil {
 		return nil, err
 	}

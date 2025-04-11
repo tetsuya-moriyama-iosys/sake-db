@@ -65,3 +65,17 @@ func (r *FlavorMapRepository) GetVotedDataByLiquor(ctx context.Context, uId prim
 
 	return model, nil
 }
+
+func (r *FlavorToLiquorRepository) UpsertData(ctx context.Context, tying TyingModel) *customError.Error {
+	// 結果を TyingModel に反映
+	_, err := r.Upsert(ctx, bson.M{
+		LiquorID:   tying.LiquorID,
+		CategoryID: tying.CategoryID,
+	}, tying)
+
+	if err != nil {
+		return errUpsert(err, tying)
+	}
+
+	return nil
+}
