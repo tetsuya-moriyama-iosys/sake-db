@@ -2,6 +2,7 @@ package liquorRepository
 
 import (
 	"backend/db"
+	"backend/middlewares/customError"
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
@@ -13,7 +14,7 @@ import (
 )
 
 type LiquorsRepository struct {
-	db              *db.DB
+	DB              *db.DB            //トランザクション用に公開する必要が出てきた
 	collection      *mongo.Collection //コレクションを先に取得して格納しておく
 	logsCollection  *mongo.Collection
 	boardCollection *mongo.Collection
@@ -22,7 +23,7 @@ type LiquorsRepository struct {
 
 func NewLiquorsRepository(db *db.DB) LiquorsRepository {
 	return LiquorsRepository{
-		db:              db,
+		DB:              db,
 		collection:      db.Collection(CollectionName),
 		logsCollection:  db.Collection(LogsCollectionName),
 		boardCollection: db.Collection(BoardCollectionName),
@@ -30,16 +31,16 @@ func NewLiquorsRepository(db *db.DB) LiquorsRepository {
 	}
 }
 
-func (r *LiquorsRepository) GetLiquorById(ctx context.Context, id primitive.ObjectID) (*Model, error) {
+func (r *LiquorsRepository) GetLiquorById(ctx context.Context, id primitive.ObjectID) (*Model, *customError.Error) {
 	// コレクションを取得
 	var liquor Model
 	if err := r.collection.FindOne(ctx, bson.M{ID: id}).Decode(&liquor); err != nil {
-		return nil, err
+		return nil, errGetLiquorById(err)
 	}
 
 	return &liquor, nil
 }
-func (r *LiquorsRepository) GetLiquorByName(ctx context.Context, name string, excludeId *primitive.ObjectID) (*Model, error) {
+func (r *LiquorsRepository) GetLiquorByName(ctx context.Context, name string, excludeId *primitive.ObjectID) (*Model, *customError.Error) {
 	// クエリ条件を作成
 	filter := bson.M{"name": name}
 
@@ -51,29 +52,29 @@ func (r *LiquorsRepository) GetLiquorByName(ctx context.Context, name string, ex
 	// クエリ実行
 	var liquor Model
 	if err := r.collection.FindOne(ctx, filter).Decode(&liquor); err != nil {
-		return nil, err
+		return nil, errGetLiquorByName(err)
 	}
 
 	return &liquor, nil
 }
-func (r *LiquorsRepository) GetLiquorByRandomKey(ctx context.Context, key float64) (*Model, error) {
+func (r *LiquorsRepository) GetLiquorByRandomKey(ctx context.Context, key float64) (*Model, *customError.Error) {
 	// コレクションを取得
 	var liquor Model
 	if err := r.collection.FindOne(ctx, bson.M{RandomKey: key}).Decode(&liquor); err != nil {
-		return nil, err
+		return nil, errGetLiquorByRandomKey(err)
 	}
 
 	return &liquor, nil
 }
 
-func (r *LiquorsRepository) GetLiquorsByIds(ctx context.Context, ids []primitive.ObjectID) ([]Model, error) {
+func (r *LiquorsRepository) GetLiquorsByIds(ctx context.Context, ids []primitive.ObjectID) ([]Model, *customError.Error) {
 	if len(ids) == 0 {
 		return nil, nil
 	}
 	// コレクションからフィルタに一致するドキュメントを取得
 	cursor, err := r.collection.Find(ctx, bson.M{ID: bson.M{"$in": ids}})
 	if err != nil {
-		return nil, err
+		return nil, errGetLiquorByIds(err)
 	}
 	defer cursor.Close(ctx)
 
@@ -82,19 +83,19 @@ func (r *LiquorsRepository) GetLiquorsByIds(ctx context.Context, ids []primitive
 
 	// 取得したドキュメントをスライスにデコード
 	if err = cursor.All(ctx, &liquors); err != nil {
-		return nil, err
+		return nil, errGetLiquorByIdsDecode(err, ids)
 	}
 
 	return liquors, nil
 }
 
-func (r *LiquorsRepository) GetRandomLiquors(ctx context.Context, limit int) ([]*Model, error) {
+func (r *LiquorsRepository) GetRandomLiquors(ctx context.Context, limit int) ([]*Model, *customError.Error) {
 	var collections []*Model
 
 	// コレクションの総ドキュメント数を取得
 	count, err := r.collection.CountDocuments(ctx, bson.D{})
 	if err != nil {
-		return nil, err
+		return nil, errLiquorCollectionCount(err)
 	}
 
 	if count == 0 {
@@ -108,12 +109,12 @@ func (r *LiquorsRepository) GetRandomLiquors(ctx context.Context, limit int) ([]
 			{{"$sample", bson.D{{"size", limit}}}},
 		})
 		if err != nil {
-			return nil, err
+			return nil, errGetLiquorsRandom(err)
 		}
 		defer cursor.Close(ctx)
 
 		if err = cursor.All(ctx, &collections); err != nil {
-			return nil, err
+			return nil, errGetLiquorsRandomDecode(err, collections)
 		}
 
 		return collections, nil
@@ -128,11 +129,11 @@ func (r *LiquorsRepository) GetRandomLiquors(ctx context.Context, limit int) ([]
 
 	//noDocumentsエラーはFindメソッドでは返されない
 	if err != nil {
-		return nil, err
+		return nil, errGetLiquorsRandomByKey(err, randomValue)
 	}
 
 	if err := cursor.All(ctx, &collections); err != nil {
-		return nil, err
+		return nil, errGetLiquorsRandomByKeyDecode(err, collections)
 	}
 
 	// 取得した配列の長さが足らない場合、逆方向で探索
@@ -145,12 +146,12 @@ func (r *LiquorsRepository) GetRandomLiquors(ctx context.Context, limit int) ([]
 		}, options.Find().SetLimit(int64(remaining)))
 
 		if err != nil {
-			return nil, err // 再クエリでエラーが発生した場合は終了
+			return nil, errGetLiquorsRandomByKeyLt(err, randomValue) // 再クエリでエラーが発生した場合は終了
 		}
 
 		var moreResults []*Model
 		if err := cursor.All(ctx, &moreResults); err != nil {
-			return nil, err // 再クエリのカーソル操作エラー
+			return nil, errGetLiquorsRandomByKeyLtDecode(err, moreResults) // 再クエリのカーソル操作エラー
 		}
 
 		collections = append(collections, moreResults...)
@@ -161,14 +162,14 @@ func (r *LiquorsRepository) GetRandomLiquors(ctx context.Context, limit int) ([]
 
 }
 
-func (r *LiquorsRepository) GetLiquorsFromCategoryIds(ctx context.Context, ids []int) ([]*Model, error) {
+func (r *LiquorsRepository) GetLiquorsFromCategoryIds(ctx context.Context, ids []int) ([]*Model, *customError.Error) {
 	// クエリフィルターを作成。カテゴリIDがidsのいずれかに一致するリカーを取得
 	filter := bson.M{"category_id": bson.M{"$in": ids}}
 
 	// コレクションからフィルタに一致するドキュメントを取得
 	cursor, err := r.collection.Find(ctx, filter)
 	if err != nil {
-		return nil, err
+		return nil, errGetLiquorsFromCategoryIds(err)
 	}
 	defer cursor.Close(ctx)
 
@@ -177,41 +178,41 @@ func (r *LiquorsRepository) GetLiquorsFromCategoryIds(ctx context.Context, ids [
 
 	// 取得したドキュメントをスライスにデコード
 	if err = cursor.All(ctx, &liquors); err != nil {
-		return nil, err
+		return nil, errGetLiquorsFromCategoryIdsDecode(err, ids)
 	}
 
 	return liquors, nil
 }
 
-func (r *LiquorsRepository) InsertOne(ctx context.Context, liquor *Model) (primitive.ObjectID, error) {
+func (r *LiquorsRepository) InsertOne(ctx context.Context, liquor *Model) (primitive.ObjectID, *customError.Error) {
 	result, err := r.collection.InsertOne(ctx, liquor)
 	if err != nil {
-		return primitive.NilObjectID, err
+		return primitive.NilObjectID, errInsertOne(err)
 	}
 
 	// InsertOneResultからIDを取得
 	id, ok := result.InsertedID.(primitive.ObjectID)
 	if !ok {
-		return primitive.NilObjectID, err
+		return primitive.NilObjectID, errGetInsertedId(err)
 	}
 
 	return id, nil
 }
 
-func (r *LiquorsRepository) UpdateOne(ctx context.Context, liquor *Model) (primitive.ObjectID, error) {
+func (r *LiquorsRepository) UpdateOne(ctx context.Context, liquor *Model) (primitive.ObjectID, *customError.Error) {
 	// フィルタ：IDを用いてドキュメントを特定
 	filter := bson.M{"_id": liquor.ID}
 
 	// 構造体を BSON にマッピング
 	data, err := bson.Marshal(liquor)
 	if err != nil {
-		return primitive.NilObjectID, err
+		return primitive.NilObjectID, errUpdateOneBsonMap(err)
 	}
 
 	// BSON を bson.M に変換
 	var update bson.M
 	if err := bson.Unmarshal(data, &update); err != nil {
-		return primitive.NilObjectID, err
+		return primitive.NilObjectID, errUpdateOneToBsonM(err)
 	}
 
 	// 更新内容：$setオペレーターを使って指定したフィールドを更新
@@ -220,19 +221,19 @@ func (r *LiquorsRepository) UpdateOne(ctx context.Context, liquor *Model) (primi
 	// UpdateOneでドキュメントを更新
 	result, err := r.collection.UpdateOne(ctx, filter, updateBson)
 	if err != nil {
-		return primitive.NilObjectID, err
+		return primitive.NilObjectID, errUpdateOneExe(err, updateBson)
 	}
 
 	// UpdateOneは更新したドキュメントのIDを直接返さないため、元のIDを返す
 	if result.MatchedCount == 0 {
-		return primitive.NilObjectID, fmt.Errorf("no document matched the provided ID")
+		return primitive.NilObjectID, errNullUpdate(updateBson)
 	}
 
 	return liquor.ID, nil
 }
 
 // UpdateRate 掲示板のratesを更新する
-func (r *LiquorsRepository) UpdateRate(ctx context.Context, lId primitive.ObjectID, userId primitive.ObjectID, rate *int) error {
+func (r *LiquorsRepository) UpdateRate(ctx context.Context, lId primitive.ObjectID, userId primitive.ObjectID, rate *int) *customError.Error {
 	// フィルタ：IDを用いてドキュメントを特定
 	filter := bson.M{"_id": lId}
 	// 以前の評価を全てのrate配列から削除（このユーザーの評価は一つだけ存在する想定）
@@ -248,7 +249,7 @@ func (r *LiquorsRepository) UpdateRate(ctx context.Context, lId primitive.Object
 	// pull操作で、過去の評価を削除
 	_, err := r.collection.UpdateOne(ctx, filter, pullUpdate)
 	if err != nil {
-		return err
+		return errDeleteRate(err, lId)
 	}
 
 	//未評価の場合は単純に評価を消して終わり
@@ -266,7 +267,7 @@ func (r *LiquorsRepository) UpdateRate(ctx context.Context, lId primitive.Object
 	// addToSet操作で評価を更新
 	_, err = r.collection.UpdateOne(ctx, filter, addToSetUpdate)
 	if err != nil {
-		return err
+		return errUpdateRate(err, lId)
 	}
 	return nil
 }

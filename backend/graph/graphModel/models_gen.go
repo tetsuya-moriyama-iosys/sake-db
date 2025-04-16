@@ -60,6 +60,8 @@ type Category struct {
 	ImageBase64 *string     `json:"imageBase64,omitempty"`
 	VersionNo   *int        `json:"versionNo,omitempty"`
 	Readonly    bool        `json:"readonly"`
+	UserID      *string     `json:"userId,omitempty"`
+	UserName    *string     `json:"userName,omitempty"`
 	UpdatedAt   *time.Time  `json:"updatedAt,omitempty"`
 	Children    []*Category `json:"children,omitempty"`
 }
@@ -107,6 +109,8 @@ type Liquor struct {
 	Rate3Users    []string         `json:"rate3Users"`
 	Rate2Users    []string         `json:"rate2Users"`
 	Rate1Users    []string         `json:"rate1Users"`
+	UserID        *string          `json:"userId,omitempty"`
+	UserName      *string          `json:"userName,omitempty"`
 	VersionNo     int              `json:"versionNo"`
 }
 
@@ -182,7 +186,7 @@ type TagInput struct {
 type User struct {
 	ID          string   `json:"id"`
 	Name        string   `json:"name"`
-	Email       *string   `json:"email"`
+	Email       string   `json:"email"`
 	Profile     *string  `json:"profile,omitempty"`
 	ImageBase64 *string  `json:"imageBase64,omitempty"`
 	Roles       []string `json:"roles,omitempty"`

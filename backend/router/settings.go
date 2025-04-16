@@ -21,6 +21,7 @@ func Router(srv *handler.Server, handlers *handlers.Handlers) *gin.Engine {
 	// エラーハンドリング
 	logger.Init(*handlers.ErrorHandler)
 	r.Use(middlewares.ErrorHandler())
+	r.Use(middlewares.GinCustomRecovery())
 
 	// GraphQL のエラーハンドリング設定
 	srv.SetErrorPresenter(middlewares.GraphQLErrorPresenter) // GraphQL のエラーを適切にログ出力

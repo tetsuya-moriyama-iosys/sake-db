@@ -2,8 +2,8 @@ package liquorRepository
 
 import (
 	"backend/graph/graphModel"
+	"backend/middlewares/customError"
 	"context"
-	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
@@ -37,23 +37,23 @@ func TagsToGraphQL(tags []*TagModel) []*graphModel.Tag {
 	return graphTags
 }
 
-func (r *LiquorsRepository) GetTags(ctx context.Context, liquorId primitive.ObjectID) ([]*TagModel, error) {
+func (r *LiquorsRepository) GetTags(ctx context.Context, liquorId primitive.ObjectID) ([]*TagModel, *customError.Error) {
 	cursor, err := r.tagCollection.Find(ctx, bson.M{LiquorID: liquorId})
 	if err != nil {
-		return nil, err
+		return nil, errGetTags(err, liquorId)
 	}
 	defer cursor.Close(ctx)
 
 	// 結果を格納するスライス
 	var tags []*TagModel
 	if err = cursor.All(ctx, &tags); err != nil {
-		return nil, err
+		return nil, errGetTagsDecode(err, liquorId)
 	}
 
 	return tags, nil
 }
 
-func (r *LiquorsRepository) PostTag(ctx context.Context, liquorId primitive.ObjectID, userId primitive.ObjectID, tag string) (*TagModel, error) {
+func (r *LiquorsRepository) PostTag(ctx context.Context, liquorId primitive.ObjectID, userId primitive.ObjectID, tag string) (*TagModel, *customError.Error) {
 	newTag := &TagModel{
 		LiquorId:  liquorId,
 		Text:      tag,
@@ -62,21 +62,21 @@ func (r *LiquorsRepository) PostTag(ctx context.Context, liquorId primitive.Obje
 	}
 	result, err := r.tagCollection.InsertOne(ctx, newTag)
 	if err != nil {
-		return nil, err
+		return nil, errPostTag(err, newTag)
 	}
 
 	newTag.ID = result.InsertedID.(primitive.ObjectID)
 	return newTag, nil
 }
 
-func (r *LiquorsRepository) DeleteTag(ctx context.Context, id primitive.ObjectID) error {
+func (r *LiquorsRepository) DeleteTag(ctx context.Context, id primitive.ObjectID) *customError.Error {
 	result, err := r.tagCollection.DeleteOne(ctx, bson.M{"_id": id})
 	if err != nil {
-		return err
+		return errDeleteTag(err, id)
 	}
 
 	if result.DeletedCount == 0 {
-		return errors.New("データが見つかりません")
+		return errZeroDelete(err, id)
 	}
 
 	return nil

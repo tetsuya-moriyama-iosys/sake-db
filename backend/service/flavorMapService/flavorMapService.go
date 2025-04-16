@@ -4,8 +4,10 @@ import (
 	"backend/db/repository/categoriesRepository"
 	"backend/db/repository/flavorMapRepository"
 	"backend/db/repository/liquorRepository"
+	"backend/graph/graphModel"
 	"backend/graph/schema/customModel"
 	"backend/middlewares/auth"
+	"backend/middlewares/customError"
 	"backend/service/categoryService"
 	"backend/util/utilType"
 	"context"
@@ -16,8 +18,15 @@ import (
 )
 
 // PostFlavorMap 実際にポストする関数
-func PostFlavorMap(ctx context.Context, mstR *flavorMapRepository.FlavorMapMasterRepository, flR *flavorMapRepository.FlavorToLiquorRepository, fmR *flavorMapRepository.FlavorMapRepository, cr *categoriesRepository.CategoryRepository, lr *liquorRepository.LiquorsRepository, lId primitive.ObjectID, coordinates utilType.Coordinates) error {
-	uId := auth.GetIdNullable(ctx)
+func PostFlavorMap(ctx context.Context, mstR *flavorMapRepository.FlavorMapMasterRepository, flR *flavorMapRepository.FlavorToLiquorRepository, fmR *flavorMapRepository.FlavorMapRepository, cr *categoriesRepository.CategoryRepository, lr *liquorRepository.LiquorsRepository, input graphModel.PostFlavorMap, coordinates utilType.Coordinates) *customError.Error {
+	lId, rawErr := primitive.ObjectIDFromHex(input.LiquorID)
+	if rawErr != nil {
+		return errPostFlavorMapIdFromHex(rawErr, input.LiquorID)
+	}
+	uId, err := auth.GetIdNullable(ctx)
+	if err != nil {
+		return err
+	}
 
 	//マスタデータを取得する
 	mst, err := GetFlavorMasterData(ctx, mstR, lr, cr, lId)
@@ -25,7 +34,7 @@ func PostFlavorMap(ctx context.Context, mstR *flavorMapRepository.FlavorMapMaste
 		return err
 	}
 	if mst == nil {
-		return errors.New("フレーバーマップが存在しません")
+		return errNotFoundMstData(lId)
 	}
 
 	//フレーバーマップデータを投入する
@@ -41,18 +50,18 @@ func PostFlavorMap(ctx context.Context, mstR *flavorMapRepository.FlavorMapMaste
 }
 
 // CalcFlavorMap 統計データを更新する(マスタデータは取ってきてる前提にする)
-func CalcFlavorMap(ctx context.Context, mst *flavorMapRepository.MasterModel, flR *flavorMapRepository.FlavorToLiquorRepository, fmR *flavorMapRepository.FlavorMapRepository, lId primitive.ObjectID) error {
+func CalcFlavorMap(ctx context.Context, mst *flavorMapRepository.MasterModel, flR *flavorMapRepository.FlavorToLiquorRepository, fmR *flavorMapRepository.FlavorMapRepository, lId primitive.ObjectID) *customError.Error {
 	cursor, err := fmR.Collection.Find(ctx, bson.M{
 		flavorMapRepository.LiquorID:   lId,
 		flavorMapRepository.CategoryID: mst.CategoryID,
 	})
 	if err != nil {
-		return err
+		return errNotFound(err, lId, mst.CategoryID)
 	}
 	defer cursor.Close(ctx)
 	var models []*flavorMapRepository.FlavorMapModel
 	if err = cursor.All(ctx, &models); err != nil {
-		return err
+		return errCursor(err)
 	}
 
 	//ここから計算開始
@@ -98,10 +107,7 @@ func CalcFlavorMap(ctx context.Context, mst *flavorMapRepository.MasterModel, fl
 	}
 
 	// 結果を TyingModel に反映
-	_, err = flR.Upsert(ctx, bson.M{
-		flavorMapRepository.LiquorID:   lId,
-		flavorMapRepository.CategoryID: mst.CategoryID,
-	}, flavorMapRepository.TyingModel{
+	cErr := flR.UpsertData(ctx, flavorMapRepository.TyingModel{
 		LiquorID:        lId,
 		CategoryID:      mst.CategoryID,
 		FlavorCellData:  cellData,
@@ -109,11 +115,11 @@ func CalcFlavorMap(ctx context.Context, mst *flavorMapRepository.MasterModel, fl
 		GuestFullAmount: guestFullAmount,
 	})
 
-	return err
+	return cErr
 }
 
 // GetFlavorMasterData 指定されたliquorIdが属するフレーバーマップID(カテゴリID)を取得する
-func GetFlavorMasterData(ctx context.Context, mstR *flavorMapRepository.FlavorMapMasterRepository, l *liquorRepository.LiquorsRepository, c *categoriesRepository.CategoryRepository, lId primitive.ObjectID) (*flavorMapRepository.MasterModel, error) {
+func GetFlavorMasterData(ctx context.Context, mstR *flavorMapRepository.FlavorMapMasterRepository, l *liquorRepository.LiquorsRepository, c *categoriesRepository.CategoryRepository, lId primitive.ObjectID) (*flavorMapRepository.MasterModel, *customError.Error) {
 	liquor, err := l.GetLiquorById(ctx, lId)
 	if err != nil {
 		return nil, err
@@ -142,7 +148,7 @@ func GetFlavorMasterData(ctx context.Context, mstR *flavorMapRepository.FlavorMa
 	return foundMst, nil //見つからなかったらnil,nilになる
 }
 
-func GetFlavorMap(ctx context.Context, mstR *flavorMapRepository.FlavorMapMasterRepository, flR *flavorMapRepository.FlavorToLiquorRepository, l *liquorRepository.LiquorsRepository, c *categoriesRepository.CategoryRepository, lId primitive.ObjectID) (*flavorMapRepository.FlavorMapResult, error) {
+func GetFlavorMap(ctx context.Context, mstR *flavorMapRepository.FlavorMapMasterRepository, flR *flavorMapRepository.FlavorToLiquorRepository, l *liquorRepository.LiquorsRepository, c *categoriesRepository.CategoryRepository, lId primitive.ObjectID) (*flavorMapRepository.FlavorMapResult, *customError.Error) {
 	mst, err := GetFlavorMasterData(ctx, mstR, l, c, lId)
 	if err != nil {
 		return nil, err
@@ -152,10 +158,10 @@ func GetFlavorMap(ctx context.Context, mstR *flavorMapRepository.FlavorMapMaster
 		return nil, nil
 	}
 	var model flavorMapRepository.TyingModel
-	err = flR.Collection.FindOne(ctx, bson.M{flavorMapRepository.LiquorID: lId, flavorMapRepository.CategoryID: mst.CategoryID}).Decode(&model)
+	rawErr := flR.Collection.FindOne(ctx, bson.M{flavorMapRepository.LiquorID: lId, flavorMapRepository.CategoryID: mst.CategoryID}).Decode(&model)
 
-	if err != nil {
-		if err != mongo.ErrNoDocuments {
+	if rawErr != nil {
+		if !errors.Is(rawErr, mongo.ErrNoDocuments) {
 			return nil, err
 		}
 		//見つからなかった場合は新しく作成し、それを返す
@@ -171,7 +177,10 @@ func GetFlavorMap(ctx context.Context, mstR *flavorMapRepository.FlavorMapMaster
 			LiquorID:       lId,
 			FlavorCellData: cellData,
 		}
-		_, err := flR.Collection.InsertOne(ctx, newModel)
+		_, rawErr = flR.Collection.InsertOne(ctx, newModel)
+		if rawErr != nil {
+			return nil, errInsertOne(rawErr)
+		}
 		return &flavorMapRepository.FlavorMapResult{
 			Master: *mst,
 			Tying:  newModel,

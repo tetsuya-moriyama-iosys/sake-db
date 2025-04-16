@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"net/http"
+	"os"
 	"runtime"
 	"time"
 )
@@ -53,8 +54,19 @@ func ErrorHandler() gin.HandlerFunc {
 		}
 		logger.LogError(c, customErr)
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "unknown",
-			"message": err.Err.Error(),
+			"error": err.Err.Error(),
 		})
 	}
+}
+
+// GinCustomRecovery は CustomRecoveryWithWriter を返すラッパー
+func GinCustomRecovery() gin.HandlerFunc {
+	return gin.CustomRecoveryWithWriter(os.Stderr, func(c *gin.Context, recovered interface{}) {
+		err := logger.LogPanic(c.Request.Context(), recovered, "Gin")
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.UserMessage,
+		})
+		c.Abort()
+	})
 }

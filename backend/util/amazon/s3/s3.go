@@ -1,6 +1,7 @@
 package s3
 
 import (
+	"backend/middlewares/customError"
 	"bytes"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
@@ -10,7 +11,6 @@ import (
 	"github.com/joho/godotenv"
 	"image"
 	"image/jpeg"
-	"log"
 	"net/http"
 	"os"
 )
@@ -41,12 +41,12 @@ func NewS3Client() (*s3.S3, error) {
 }
 
 // NewS3Uploader はS3Uploaderを初期化するためのファクトリ関数
-func NewS3Uploader(region, bucketName string) (*Uploader, error) {
+func NewS3Uploader(region, bucketName string) (*Uploader, *customError.Error) {
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(region),
 	})
 	if err != nil {
-		return nil, fmt.Errorf("セッションの作成に失敗しました: %w", err)
+		return nil, errCreateAWSImageUploaderFailure(err)
 	}
 
 	svc := s3.New(sess)
@@ -57,13 +57,13 @@ func NewS3Uploader(region, bucketName string) (*Uploader, error) {
 }
 
 // UploadFile UploadFileFromForm はHTTPリクエストのフォームから取得したファイルをS3にアップロードし、アップロードされたファイルのURLを返します
-func (u *Uploader) UploadFile(image *ImageData) (string, error) {
+func (u *Uploader) UploadFile(image *ImageData) (string, *customError.Error) {
 
 	// 画像データをJPEGとしてエンコードするためにバッファに書き込む
 	var buf bytes.Buffer
 	err := jpeg.Encode(&buf, image.Image, nil)
 	if err != nil {
-		return "", fmt.Errorf("画像データのエンコードに失敗しました: %w", err)
+		return "", errFailureImageEncodeForAWS(err)
 	}
 
 	// UUIDを使って一意なファイル名を生成
@@ -78,7 +78,7 @@ func (u *Uploader) UploadFile(image *ImageData) (string, error) {
 		ContentType:   aws.String(http.DetectContentType(buf.Bytes())),
 	})
 	if err != nil {
-		return "", fmt.Errorf("画像のアップロードに失敗しました: %w", err)
+		return "", errUploadAWSImageFailure(err)
 	}
 
 	// アップロードされたファイルのURLを返す
@@ -90,32 +90,32 @@ func (u *Uploader) getFileURL(key string) string {
 	return fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", u.bucketName, *u.svc.Config.Region, key)
 }
 
-func UploadLiquorImage(image *ImageData) (*string, error) {
+func UploadLiquorImage(image *ImageData) (*string, *customError.Error) {
 	// .envファイルを読み込みます
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error: loading .env file")
+	envErr := godotenv.Load()
+	if envErr != nil {
+		return nil, errReadEnvFailure(envErr, image)
 	}
 
 	// 環境変数から必要な値を取得
 	region := os.Getenv("AWS_REGION")
 	if region == "" {
-		log.Fatal("Error: AWS_REGION environment variable is required")
+		return nil, errReadAWSRegionFailure()
 	}
 	bucket := os.Getenv("AWS_IMAGE_BUCKET_NAME")
 	if bucket == "" {
-		log.Fatal("Error: AWS_IMAGE_BUCKET_NAME environment variable is required")
+		return nil, errReadAWSImageBucketNameFailure()
 	}
 
 	// S3アップロード処理
 	uploader, err := NewS3Uploader(region, bucket)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create S3 uploader: %v", err)
+		return nil, err
 	}
 
 	s3Url, err := uploader.UploadFile(image)
 	if err != nil {
-		return nil, fmt.Errorf("failed to upload image to S3: %v", err)
+		return nil, err
 	}
 	return &s3Url, nil
 }

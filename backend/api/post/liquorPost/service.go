@@ -1,13 +1,13 @@
 package liquorPost
 
 import (
-	"backend/const/errorMsg"
 	"backend/db"
 	"backend/db/repository/liquorRepository"
+	"backend/db/repository/userRepository"
+	"backend/middlewares/auth"
+	"backend/middlewares/customError"
 	"backend/util/amazon/s3"
 	"backend/util/helper"
-	"backend/util/validator"
-	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -17,64 +17,48 @@ import (
 	"time"
 )
 
-func (h *Handler) Post(c *gin.Context) (*string, error) {
+func (h *Handler) Post(c *gin.Context, ur *userRepository.UsersRepository) (*string, *customError.Error) {
+	ctx := c.Request.Context()
+
 	var request RequestData
 	var imageBase64 *string
 	var imageUrl *string
 	var old *liquorRepository.Model
 
-	ctx := c.Request.Context()
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
-
-	var random float64
-	for {
-		random = rand.New(rand.NewSource(time.Now().UnixNano())).Float64()
-		_, err := h.LiquorsRepo.GetLiquorByRandomKey(ctx, random)
-		//特に見つからなければOK
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			break
-		}
-		//それ以外の何らかのエラーがあれば終了
-		if err != nil {
-			return nil, err
-		}
-		//普通に見つかってたらループする
+	uId, uName, err := auth.GetIdAndNameNullable(c, ur)
+	if err != nil {
+		return nil, err
 	}
 
 	// 画像以外のフォームデータを構造体にバインド
 	if err := c.ShouldBind(&request); err != nil {
-		return nil, errors.New("不正な値が送信されました")
-	}
-	err := validator.Validate(request)
-	if err != nil {
-		return nil, err
+		return nil, errInvalidInput(c, err)
 	}
 
 	var id *primitive.ObjectID
 	if request.Id != nil {
 		tempId, err := primitive.ObjectIDFromHex(*request.Id)
 		if err != nil {
-			return nil, err
+			return nil, errParseTempID(err)
 		}
 		id = &tempId
 	}
 
 	//名前の重複チェックを行う
 	l, err := h.LiquorsRepo.GetLiquorByName(ctx, request.Name, id)
-	if !errors.Is(err, mongo.ErrNoDocuments) {
+	if err != nil && !errors.Is(err.RawErr, mongo.ErrNoDocuments) {
 		//見つからないエラーは正常系だが、それ以外のエラーの場合
 		return nil, err
 	}
 	if l != nil {
-		return nil, errors.New("すでに存在するお酒です")
+		return nil, errDuplicateName()
 	}
 
 	if request.Id != nil {
 		//更新時のみ行う処理
-		lId, err := primitive.ObjectIDFromHex(*request.Id)
+		lId, HexErr := primitive.ObjectIDFromHex(*request.Id)
 		if err != nil {
-			return nil, err
+			return nil, errParseID(HexErr)
 		}
 		//logsに代入する現在のドキュメントを取得する
 		old, err = h.LiquorsRepo.GetLiquorById(ctx, lId)
@@ -92,19 +76,19 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 		}
 		//旧バージョンno(今あるDBのバージョンno)が空でない場合のみチェックする
 		if *old.VersionNo != *request.VersionNo {
-			return nil, errors.New(errorMsg.VERSION)
+			return nil, errInvalidVersion()
 		}
 	}
 
 	// フォームからファイルを取得
-	rawImg, _, err := c.Request.FormFile("image")
-	if err != nil {
-		if err == http.ErrMissingFile {
+	rawImg, _, fErr := c.Request.FormFile("image")
+	if fErr != nil {
+		if errors.Is(fErr, http.ErrMissingFile) {
 			// 画像が存在しない場合
 			rawImg = nil
 		} else {
 			// その他のエラーの場合
-			return nil, errors.New("failed to process image file")
+			return nil, errInvalidFile(fErr, rawImg)
 		}
 	}
 
@@ -113,7 +97,7 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 		// 画像データをデコード
 		img, format, err := helper.DecodeImage(rawImg)
 		if err != nil {
-			return nil, errors.New("failed to decode image")
+			return nil, err
 		}
 
 		//base64エンコードしたデータを取得
@@ -123,7 +107,7 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 			MaxHeight: &maxHeight,
 		})
 		if err != nil {
-			return nil, errors.New("failed to convert image to base64")
+			return nil, err
 		}
 
 		//S3にアップロードし、URLを取得する
@@ -132,7 +116,7 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 			Format: format,
 		})
 		if err != nil {
-			return nil, errors.New("failed to upload image")
+			return nil, err
 		}
 	} else if request.SelectedVersionNo != nil {
 		//画像が存在しないが、選択されたロールバック先がある、つまり画像のロールバックが考えうる
@@ -191,12 +175,14 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 		ImageURL:     newImageURL,
 		ImageBase64:  newBase64,
 		UpdatedAt:    time.Now(),
-		RandomKey:    random, //毎回更新する
+		RandomKey:    rand.New(rand.NewSource(time.Now().UnixNano())).Float64(), //毎回更新する
 		VersionNo:    &newVersionNo,
+		UserId:       uId,
+		UserName:     uName,
 	}
 
 	//トランザクション
-	newId, err := db.WithTransaction(ctx, h.DB.Client(), func(sc mongo.SessionContext) (*string, error) {
+	newId, iErr := db.WithTransaction(ctx, h.DB.Client(), func(sc mongo.SessionContext) (*string, error) {
 		// トランザクション内での操作1
 		if old == nil {
 			//新規追加
@@ -223,6 +209,10 @@ func (h *Handler) Post(c *gin.Context) (*string, error) {
 		newObjIdStr := newObjId.Hex()
 		return &newObjIdStr, nil
 	})
+
+	if iErr != nil {
+		errors.As(iErr, &err)
+	}
 	if err != nil {
 		return nil, err
 	}
